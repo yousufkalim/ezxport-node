@@ -1,4 +1,4 @@
-# Node-JS Boilerplate
+# EZxport
 
 Installation steps to run server locally
 
