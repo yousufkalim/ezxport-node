@@ -64,8 +64,8 @@ exports.login = async (req, res) => {
  */
 exports.changePassword = async (req, res) => {
   try {
-    const { userId } = req.params;
-    const { oldPassword, newPassword, confirmPassword } = req.body;
+    const { token } = req.params;
+    const { newPassword, confirmPassword } = req.body;
 
     if (newPassword !== confirmPassword) {
       return res.status(400).json({
@@ -74,21 +74,18 @@ exports.changePassword = async (req, res) => {
       });
     }
 
-    let user = await Users.findById(userId);
+    const decoded = jwt.verify(token, tokenSecret);
+    let user = await Users.findOne({ email: decoded });
 
     if (!user) {
-      return res
-        .status(404)
-        .json({ success: false, message: "User not found" });
+      return res.status(404).json({ success: false, message: "User not found" });
     }
 
-    const isMatched = bcrypt.compareSync(oldPassword, user.password);
+    // const isMatched = bcrypt.compareSync(oldPassword, user.password);
 
-    if (!isMatched) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid old Password" });
-    }
+    // if (!isMatched) {
+    //   return res.status(400).json({ success: false, message: "Invalid old Password" });
+    // }
 
     // Generate token
     user.password = bcrypt.hashSync(newPassword, parseInt(bcryptSalt));
@@ -114,20 +111,18 @@ exports.forgot = async (req, res) => {
     let user = await Users.findOne({ email });
 
     if (!user) {
-      return res
-        .status(404)
-        .json({ success: false, message: "User not found" });
+      return res.status(404).json({ success: false, message: "User not found" });
     }
 
-    // Generating random password
-    let randomPassword = Math.random().toString(36).slice(-8);
+    let link = jwt.sign(user.email, tokenSecret);
+    link = `${process.env.CLIENT_URL}/reset=true&token=${link}`;
 
     // Sending email to user
-    sendEmail(email, randomPassword)
+    sendEmail(email, link)
       .then(async () => {
         // If email is sent then we have to update the password in db
-        user.password = await bcrypt.hash(randomPassword, parseInt(bcryptSalt));
-        await user.save();
+        // user.password = await bcrypt.hash(randomPassword, parseInt(bcryptSalt));
+        // await user.save();
 
         // Done
         res.json({ success: true, message: "Email sent successfully" });
@@ -135,9 +130,7 @@ exports.forgot = async (req, res) => {
       .catch((err) => {
         // Error handling
         console.log("Error ----> ", err);
-        res
-          .status(500)
-          .json({ success: false, message: "Internal server error" });
+        res.status(500).json({ success: false, message: "Internal server error" });
       });
   } catch (err) {
     // Error handling

@@ -22,12 +22,7 @@ const {
 // Read
 router.post("/login", validateLogin, isValidated, auth.login); // Get all users at once
 router.get("/", checkAuth, auth.confirmAuth);
-router.put(
-  "/password/:userId",
-  changePasswordValidate,
-  isValidated,
-  auth.changePassword
-); // Change password route
+router.put("/new-password/:token", changePasswordValidate, isValidated, auth.changePassword); // Change password route
 router.put("/forgot/:email", auth.forgot);
 
 // Export
