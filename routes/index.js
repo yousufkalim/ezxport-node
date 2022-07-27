@@ -10,6 +10,8 @@ router.use('/users', require('./users')); // All the user routes
 router.use('/auth', require('./auth')); // All the auth routes
 router.use('/countries', require('./countries')); //All the countries routes
 router.use('/serviceproviders', require('./serviceproviders')); //All the countries routes
+router.use('/addressbooks', require('./addressBooks')); //All the AddressBooks routes
+router.use('/boms', require('./boms')); //All the countries routes
 
 // Export
 module.exports = router;
