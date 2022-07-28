@@ -2,7 +2,7 @@
  * serviceProvider CRUD controllers
  * @author Shuja Naqvi
  */
-const serviceProvider = require('../models/ServiceProviders');
+const serviceProvider = require('../models/Vendors');
 
 /**
  * Create serviceProvider - Signup
@@ -35,7 +35,7 @@ exports.create = async (req, res) => {
  */
 exports.getAll = async (req, res) => {
   try {
-    const serviceProviders = await serviceProvider.find().populate('associated_countries'); // Finding all the serviceProvider from db
+    const serviceProviders = await serviceProvider.find().populate('countries'); // Finding all the serviceProvider from db
     res.json({ success: true, serviceProviders }); // Success
   } catch (err) {
     // Error handling
@@ -52,7 +52,7 @@ exports.getAll = async (req, res) => {
 exports.getById = async (req, res) => {
   try {
     const serviceProviderId = req.params.serviceProviderId; // Getting serviceProvider id from URL parameter
-    const serviceprovider = await serviceProvider.findById(serviceProviderId).populate('associated_countries'); // Finding serviceProvider by id
+    const serviceprovider = await serviceProvider.findById(serviceProviderId).populate('countries'); // Finding serviceProvider by id
     res.json({ success: true, serviceprovider }); // Success
   } catch (err) {
     // Error handling
@@ -68,9 +68,7 @@ exports.getById = async (req, res) => {
 exports.getByCountryId = async (req, res) => {
   try {
     const associated_countryId = req.params.associated_countryId; // Getting serviceProvider id from URL parameter
-    const serviceProviders = await serviceProvider
-      .find({ associated_countries: associated_countryId })
-      .populate('associated_countries'); // Finding serviceProvider by id
+    const serviceProviders = await serviceProvider.find({ countries: associated_countryId }).populate('countries'); // Finding serviceProvider by id
     res.json({ success: true, serviceProviders }); // Success
   } catch (err) {
     // Error handling

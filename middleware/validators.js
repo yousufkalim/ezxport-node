@@ -55,10 +55,10 @@ exports.validateUserUpdate = [
 ];
 //create country validation
 exports.validateCountry = [check('name', 'Country Name is required.').notEmpty().trim()];
-//create Boms
-exports.validateBoms = [
-  check('code', 'Code is required.').notEmpty().trim(),
-  check('status', 'status is required.').isIn(['subject to inspection', 'not subject']),
+//create Document
+exports.validateDocument = [
+  check('name', 'name is required').notEmpty().trim(),
+  check('countries', 'countries required').isArray({ min: 1 }),
 ];
 //create serviceProvider
 exports.validateServiceProvider = [
@@ -66,22 +66,38 @@ exports.validateServiceProvider = [
   check('name', 'name is required').notEmpty().trim(),
   check('sending_email', 'sending_email is required').notEmpty().isEmail().trim(),
   check('contact_email', 'contact_email is required').notEmpty().isEmail().trim(),
-  check('associated_countries', 'associated_countries required').isArray({ min: 1 }),
+  check('countries', 'countries required').isArray({ min: 1 }),
 ];
 //create AddressBook
-exports.validateAddressbook = [
-  check('phone', 'phone number is required.').notEmpty().trim(),
-  check('name', 'name is required').notEmpty().trim(),
+exports.validateBuyer = [
+  check('phone_number', 'phone number is required.').notEmpty().trim(),
+  check('company_name', 'company_name is required').notEmpty().trim(),
   check('email', 'email is required').notEmpty().isEmail().trim(),
   check('country', 'country required').notEmpty().trim(),
-  check('role', 'role should buyer/seller').isIn(['buyer', 'seller']),
-  check('address.city', 'city is required.').notEmpty().trim(),
-  check('address.postal_code', 'postal_code is required.').notEmpty().trim(),
-  check('address.lat', 'lat is required.').notEmpty().trim(),
-  check('address.lng', 'lng is required.').notEmpty().trim(),
+  check('city', 'city is required.').notEmpty().trim(),
+  check('zip_code', 'zip_code is required.').notEmpty().trim(),
+  check('address', 'address is required.').notEmpty().trim(),
+  check('user', 'UserId is required.').notEmpty().trim(),
 ];
 //create AddressBook
-exports.validateFilterAddressbook = [check('role', 'role should buyer/seller').isIn(['buyer', 'seller'])];
+exports.validatePlace = [
+  check('phone_number', 'phone number is required.').notEmpty().trim(),
+  check('company_name', 'company_name is required').notEmpty().trim(),
+  check('email', 'email is required').notEmpty().isEmail().trim(),
+  check('country', 'country required').notEmpty().trim(),
+  check('city', 'city is required.').notEmpty().trim(),
+  check('zip_code', 'zip_code is required.').notEmpty().trim(),
+  check('address', 'address is required.').notEmpty().trim(),
+  check('user', 'UserId is required.').notEmpty().trim(),
+  check('conatct_fname', 'contact first name is required.').notEmpty().trim(),
+  check('contact_name', 'Contact Name  is required.').notEmpty().trim(),
+];
+//create-Boms
+exports.validateBoms = [
+  check('code', 'code is required').notEmpty().trim(),
+  check('certification_required', 'certification_required true/false').notEmpty().isBoolean().trim(),
+  check('countries', 'countries required').isArray({ min: 1 }),
+];
 // Login validation
 exports.validateLogin = [
   check('email', 'Email is required').notEmpty().isEmail().trim().toLowerCase(),

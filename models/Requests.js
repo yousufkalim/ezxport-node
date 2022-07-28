@@ -13,20 +13,34 @@ const followRequestSchema = new mongoose.Schema(
     },
     country: { type: mongoose.Schema.Types.ObjectId, ref: 'countries' },
     title: { type: String, required: true },
-    code_details: [
+    codes: [
       {
-        code: String,
+        code: { type: mongoose.Schema.Types.ObjectId, ref: 'codes' },
         monetary_value: Number,
+        product: { type: mongoose.Schema.Types.ObjectId, ref: 'products' },
       },
     ],
-    service_provider: {
+    vendor: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'serviceproviders',
+      ref: 'vendors',
     },
-    certification_company: {
-      last_name: String,
-      first_name: String,
-      email: String,
+    seller: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'sellers',
+    },
+    buyer: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'buyers',
+    },
+    place: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'places',
+    },
+    inspection_date: {
+      type: Date,
+    },
+    status: {
+      type: String,
     },
   },
   {

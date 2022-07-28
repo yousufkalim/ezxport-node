@@ -5,7 +5,7 @@
 const mongoose = require('mongoose');
 
 // Schema
-const serviceProviderSchema = new mongoose.Schema(
+const vendorSchema = new mongoose.Schema(
   {
     phone: {
       type: Number,
@@ -23,7 +23,7 @@ const serviceProviderSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    associated_countries: [{ type: mongoose.Schema.Types.ObjectId, ref: 'countries' }],
+    countries: [{ type: mongoose.Schema.Types.ObjectId, ref: 'countries' }],
   },
   {
     timestamps: true,
@@ -31,4 +31,4 @@ const serviceProviderSchema = new mongoose.Schema(
 );
 
 // Model
-module.exports = mongoose.model('serviceproviders', serviceProviderSchema);
+module.exports = mongoose.model('vendors', vendorSchema);

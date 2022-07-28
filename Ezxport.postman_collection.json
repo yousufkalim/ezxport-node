@@ -303,6 +303,248 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "AddressBook",
+			"item": [
+				{
+					"name": "Create AddressBook",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"phone\":\"03127278098\",\"name\":\"xyz\",\"email\":\"shuja@gmail.com\",\"country\":\"62dfc533c64b6ca3bb92eab7\",\"role\":\"seller\",\"address\":{\"label\":\"Barket Market\",\"city\":\"lahore\",\"lat\":\"31.5010\",\"lng\":\"74.3216\",\"postal_code\":\"40050\",\"label2\":\"Kalma chowk\"}}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{$local}}/addressbooks/",
+							"host": [
+								"{{$local}}"
+							],
+							"path": [
+								"addressbooks",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all Address Book",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "Get By Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{$local}}/addressbooks/62e0d7d6e38d8eb547bdcda7",
+							"host": [
+								"{{$local}}"
+							],
+							"path": [
+								"addressbooks",
+								"62e0d7d6e38d8eb547bdcda7"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get AddressBook By Role",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"role\":\"seller\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{$local}}/addressbooks/getByRole",
+							"host": [
+								"{{$local}}"
+							],
+							"path": [
+								"addressbooks",
+								"getByRole"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Updated AddressBook",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"phone\":\"03127278098\",\"name\":\"shuja\",\"email\":\"xyz@gmail.com\",\"country\":\"62dfc533c64b6ca3bb92eab7\",\"role\":\"seller\",\"address\":{\"label\":\"Barket Market\",\"city\":\"lahore\",\"lat\":\"31.5010\",\"lng\":\"74.3216\",\"postal_code\":\"40050\",\"label2\":\"Kalma chowk\"}}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{$local}}/addressbooks/62e0d80be38d8eb547bdcdab",
+							"host": [
+								"{{$local}}"
+							],
+							"path": [
+								"addressbooks",
+								"62e0d80be38d8eb547bdcdab"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete AddressBook",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{$local}}/addressbooks/62e0d7d6e38d8eb547bdcda7",
+							"host": [
+								"{{$local}}"
+							],
+							"path": [
+								"addressbooks",
+								"62e0d7d6e38d8eb547bdcda7"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Bom's",
+			"item": [
+				{
+					"name": "create Bom",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"code\":\"010100000080\",\"status\":\"subject to inspection\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{$local}}/boms",
+							"host": [
+								"{{$local}}"
+							],
+							"path": [
+								"boms"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get all boms",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{$local}}/boms/",
+							"host": [
+								"{{$local}}"
+							],
+							"path": [
+								"boms",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get by Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{$local}}/boms/62e0f11f4dacbfc266b64118",
+							"host": [
+								"{{$local}}"
+							],
+							"path": [
+								"boms",
+								"62e0f11f4dacbfc266b64118"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updated request",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"code\":\"010100000080\",\"status\":\"not subject\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{$local}}/boms/62e109a3e7afbfc86813702f",
+							"host": [
+								"{{$local}}"
+							],
+							"path": [
+								"boms",
+								"62e109a3e7afbfc86813702f"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete bom",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{$local}}/boms/62e0f11f4dacbfc266b64118",
+							"host": [
+								"{{$local}}"
+							],
+							"path": [
+								"boms",
+								"62e0f11f4dacbfc266b64118"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	],
 	"variable": [

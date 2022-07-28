@@ -16,7 +16,7 @@ exports.create = async (req, res) => {
     if (existingCode) {
       return res.status(409).json({ success: false, message: 'Code already exist' });
     }
-    const boms = await Boms.create(req.body); // Adding country in db
+    const boms = await Boms.create(req.body); // Adding boms in db
     // Done
     res.json({ success: true, boms }); //Success
   } catch (err) {

@@ -3,7 +3,7 @@
  * @author Shuja Naqvi
  */
 const Country = require('../models/Countries');
-const ServiceProvider = require('../models/ServiceProviders');
+const Vendors = require('../models/Vendors');
 
 /**
  * Create country - Signup
@@ -81,7 +81,7 @@ exports.delete = async (req, res) => {
   try {
     const countryId = req.params.countryId; // Getting country id from URL parameter
     const country = await Country.findByIdAndDelete(countryId); // Deleting the country
-    await ServiceProvider.update({}, { $pull: { associated_countries: countryId } }, { multi: true }); //pull deletedcountry from serviceProviders
+    await Vendors.update({}, { $pull: { countries: countryId } }, { multi: true }); //pull deletedcountry from ServiceProviders
     res.json({ success: true, country }); // Success
   } catch (err) {
     // Error handling

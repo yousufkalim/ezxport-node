@@ -11,10 +11,11 @@ const bomSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    status: {
-      type: String,
-      //   required: true,
+    certification_required: {
+      type: Boolean,
+      required: true,
     },
+    countries: [{ type: mongoose.Schema.Types.ObjectId, ref: 'countries' }],
   },
   {
     timestamps: true,
