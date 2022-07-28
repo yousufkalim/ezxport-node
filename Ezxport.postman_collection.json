@@ -1,0 +1,314 @@
+{
+	"info": {
+		"_postman_id": "0c4208eb-ce28-47cb-9f4a-7dd2c04d43f8",
+		"name": "Ezxport",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "13373609"
+	},
+	"item": [
+		{
+			"name": "user",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n     \"firstName\":\"test\",\n      \"lastName\":\"user\",\n      \"email\":\"testuser@ts.com\",\n      \"password\": \"12345678\",\n      \"confirm_password\":\"12345678\",\n      \"phone\":\"0987654321\",\n      \"fullAddress\":\"11 haq , ali town\",\n      \"town\":\"ali town\",\n      \"postelCode\":\"12345\",\n      \"role\":\"user\",\n      \"companyInformation_lastName\":\"haza\",\n      \"typeOfSociety\":\"IT\",\n      \"VatNumber\":\"456789\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/users/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"users",
+								"register"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "login",
+			"item": [
+				{
+					"name": "New Password",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"newPassword\":\"23456789\",\n    \"confirmPassword\":\"23456789\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/auth/new-password/eyJhbGciOiJIUzI1NiJ9.ZG9qYWM2MzM3MEBhcmVnb2RzLmNvbQ.dhBlqX3RXlr_xYKh-52rOgk5bRLOwUumQCoORVy-8Cs",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"auth",
+								"new-password",
+								"eyJhbGciOiJIUzI1NiJ9.ZG9qYWM2MzM3MEBhcmVnb2RzLmNvbQ.dhBlqX3RXlr_xYKh-52rOgk5bRLOwUumQCoORVy-8Cs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\":\"dojac63370@aregods.com\",\n    \"password\":\"23456789\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/auth/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "countries",
+			"item": [
+				{
+					"name": "Create country",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"name\":\"America\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{$local}}/countries/",
+							"host": [
+								"{{$local}}"
+							],
+							"path": [
+								"countries",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get all countries",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/countries/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"countries",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get country by id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/countries/62dfbabc57e9f2a0ce6f50e3",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"countries",
+								"62dfbabc57e9f2a0ce6f50e3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Countries",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{$local}}/countries/62dfbabc57e9f2a0ce6f50e3",
+							"host": [
+								"{{$local}}"
+							],
+							"path": [
+								"countries",
+								"62dfbabc57e9f2a0ce6f50e3"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "service provider",
+			"item": [
+				{
+					"name": "create Service Provider",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"phone\":\"03127378945\",\"name\":\"Shuja Naqvi\",\"sending_email\":\"shujanaqvi@gmail.com\",\"contact_email\":\"shujanaqvi@gmail.com\",\"associated_countries\":[\"62dfbae157e9f2a0ce6f50e5\",\"62dfbabc57e9f2a0ce6f50e3\"]}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{$local}}/serviceproviders/",
+							"host": [
+								"{{$local}}"
+							],
+							"path": [
+								"serviceproviders",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all service providers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{$local}}/serviceproviders/",
+							"host": [
+								"{{$local}}"
+							],
+							"path": [
+								"serviceproviders",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get service provider by id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{$local}}/serviceproviders/62dfc7658327a1a53e12c737",
+							"host": [
+								"{{$local}}"
+							],
+							"path": [
+								"serviceproviders",
+								"62dfc7658327a1a53e12c737"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get service Providers by countryId",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{$local}}/serviceproviders/getByCountryId/62dfbae157e9f2a0ce6f50e5",
+							"host": [
+								"{{$local}}"
+							],
+							"path": [
+								"serviceproviders",
+								"getByCountryId",
+								"62dfbae157e9f2a0ce6f50e5"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Service Provider by id",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{$local}}/serviceproviders/62dfc949c3330ba68381fa00",
+							"host": [
+								"{{$local}}"
+							],
+							"path": [
+								"serviceproviders",
+								"62dfc949c3330ba68381fa00"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "$local",
+			"value": "http://localhost:5000/api"
+		}
+	]
+}
