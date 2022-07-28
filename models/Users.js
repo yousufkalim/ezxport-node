@@ -7,38 +7,76 @@ const mongoose = require("mongoose");
 // Schema
 const userSchema = new mongoose.Schema(
   {
-    name: {
+    password: String,
+    firstName: {
       type: String,
-      required: true,
+      trim: true,
+    },
+    lastName: {
+      type: String,
+      trim: true,
     },
     email: {
       type: String,
-      required: true,
-      unique: true,
-      lowercase: true,
+      trim: true,
+    },
+    phone: {
+      type: String,
+      trim: true,
+    },
+    fullAddress: {
+      type: String,
+      trim: true,
+    },
+    town: {
+      type: String,
+      trim: true,
+    },
+    postelCode: {
+      type: String,
+      trim: true,
     },
     password: {
       type: String,
-      required: true,
-      minlength: 8,
+      trim: true,
     },
-    number: {
+    companyInformation_lastName: {
       type: String,
-      required: true,
+      trim: true,
     },
-    gender: {
+    typeOfSociety: {
       type: String,
-      enum: ["male", "female", ""],
+      trim: true,
     },
+    VatNumber: {
+      type: String,
+      trim: true,
+    },
+
     role: {
       type: String,
-      enum: ["admin", "user", ""],
+      enum: ["user", "admin"],
       default: "user",
     },
-    address: String,
-    city: String,
-    country: String,
-    photo: String,
+
+    // image: {
+    //   type: String,
+    //   trim: true,
+    // },
+    // Blogs: [
+    //   {
+    //     type: mongoose.Schema.Types.ObjectId,
+    //     ref: "Blog",
+    //     required: false,
+    //   },
+    // ],
+    // Projects: [
+    //   {
+    //     type: mongoose.Schema.Types.ObjectId,
+    //     ref: "Project",
+    //     required: false,
+    //   },
+    // ],
   },
   {
     timestamps: true,
@@ -47,3 +85,5 @@ const userSchema = new mongoose.Schema(
 
 // Model
 module.exports = mongoose.model("users", userSchema);
+
+

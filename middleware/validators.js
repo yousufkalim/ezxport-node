@@ -13,18 +13,33 @@ Validations
 // You can create multiple validations strategies (Read express-validator documentation for more details)
 // User Signup Validation
 exports.validateUser = [
-  check("name", "Name is required.").notEmpty().trim(),
+  check("firstName", "firstName name is required.").notEmpty(),
+  check("lastName", "lastName name is required.").notEmpty(),
   check("email", "Email is required.").notEmpty().isEmail().trim(),
   check("password", "Password is required.")
     .notEmpty()
     .trim()
-    .isLength({ min: 8 }),
-  check("number", "Number is required.").notEmpty().isNumeric().trim(),
-  check("gender").trim(),
-  check("role").trim(),
-  check("address").trim(),
-  check("city").trim(),
-  check("country").trim(),
+    .isLength({ min: 6 })
+    .withMessage("Password min length must be 6 characters"),
+  check("confirm_password", "Confirm Password is required")
+    .notEmpty()
+    .trim()
+    .isLength({ min: 4 })
+    .withMessage("Confirm Password min length must be 6 characters")
+    .custom(async (confirmPassword, { req }) => {
+      const password = req.body.password;
+
+      if (password !== confirmPassword) {
+        throw new Error("Password and Confirm Password must be same");
+      }
+    }),
+  check("phone", "Telephone is required.").notEmpty().trim(),
+  check("fullAddress", "FullAddress is required.").notEmpty().trim(),
+  check("town", "Town is required.").notEmpty().trim(),
+  check("postelCode", "PostelCode is required.").notEmpty().trim().isLength({ min: 5, max: 5 }),
+  check("companyInformation_lastName", "CompanyInformation-lastName is required.").notEmpty().trim(),
+  check("typeOfSociety", "Type Of Society is required.").notEmpty().trim(),
+  check("VatNumber", "VatNumber is required.").notEmpty().trim(),
 ];
 
 // User Signup Validation
@@ -42,26 +57,24 @@ exports.validateUserUpdate = [
 // Login validation
 exports.validateLogin = [
   check("email", "Email is required").notEmpty().isEmail().trim().toLowerCase(),
-  check("password", "Password is required.")
-    .notEmpty()
-    .trim()
-    .isLength({ min: 8 }),
+  check("password", "Password is required.").notEmpty().trim().isLength({ min: 8 }),
 ];
 
 // Change password validation
 exports.changePasswordValidate = [
-  check("oldPassword", "Old Password is required.")
-    .notEmpty()
-    .trim()
-    .isLength({ min: 8 }),
-  check("newPassword", "New password is required.")
-    .notEmpty()
-    .trim()
-    .isLength({ min: 8 }),
-  check("confirmPassword", "Confirm password is required.")
-    .notEmpty()
-    .trim()
-    .isLength({ min: 8 }),
+  // check("oldPassword", "Old Password is required.")
+  //   .notEmpty()
+  //   .trim()
+  //   .isLength({ min: 8 }),
+  check("newPassword", "New password is required.").notEmpty().trim().isLength({ min: 8 }),
+  check("confirmPassword", "Confirm password is required.").notEmpty().trim().isLength({ min: 8 }),
+  // .custom(async (confirmPassword, { req }) => {
+  //   const password = req.body.password;
+
+  //   if (password !== confirmPassword) {
+  //     throw new Error("Password and Confirm Password must be same");
+  //   }
+  // }),
 ];
 
 /*

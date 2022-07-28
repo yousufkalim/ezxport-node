@@ -22,8 +22,8 @@ const {
 
 // Create - User Signup
 router.post(
-  "/",
-  upload.single("image"),
+  "/create",
+  // upload.single("image"),
   validateUser,
   isValidated,
   users.create
