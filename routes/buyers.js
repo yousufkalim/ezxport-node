@@ -4,7 +4,7 @@
  */
 const router = require('express').Router();
 const buyers = require('../controllers/buyers');
-const { validateBuyer, isValidated } = require('../middleware/validators');
+const { validateBuyer, validateCountryUser, isValidated } = require('../middleware/validators');
 
 /**
  * ////////////////////////// Routes /////////////////////////
@@ -15,8 +15,10 @@ const { validateBuyer, isValidated } = require('../middleware/validators');
  * @method delete delete buyers
  */
 
-// Create - buyersyo
+// Create - buyers
 router.post('/', validateBuyer, isValidated, buyers.create);
+// Get-By-UserandCountry
+router.post('/getByUserandCountry', validateCountryUser, isValidated, buyers.getByUserandCountry);
 // Read
 router.get('/', buyers.getAll); // Get all buyersat once
 router.get('/:buyerId', buyers.getById); // Get one buyersby it's id

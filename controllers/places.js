@@ -2,7 +2,8 @@
  * place CRUD controllers
  * @author Shuja Naqvi
  */
-const Place = require('../models/places');
+const Place = require('../models/Places');
+const Users = require('../models/Users');
 
 /**
  * Create place
@@ -11,15 +12,20 @@ const Place = require('../models/places');
  */
 exports.create = async (req, res) => {
   try {
-    const { email } = req.body;
-    const existingPlace = await Place.findOne({
-      email: email,
+    const { user } = req.body;
+    let existingUser = await Users.findOne({
+      _id: user,
     });
-    if (existingPlace) {
-      return res.status(409).json({ success: false, message: 'email already taken' });
+    if (!existingUser) {
+      return res.status(409).json({ success: false, message: 'UserId is invalid' });
     }
-    const place = await Place.create(req.body); // Adding place in db
-    // Done
+    const existingPlace = await Place.findOne(req.body);
+    if (existingPlace) {
+      return res.status(409).json({ success: false, message: 'Place already exist' });
+    }
+    const place = await Place.create(req.body); // Adding seller in db
+    existingUser.places.push(place._id);
+    await existingUser.save();
     res.json({ success: true, place }); //Success
   } catch (err) {
     // Error handling
@@ -87,7 +93,11 @@ exports.delete = async (req, res) => {
   try {
     const placeId = req.params.placeId; // Getting place id from URL parameter
     const place = await Place.findByIdAndDelete(placeId); // Deleting the place
-    res.json({ success: true, place }); // Success
+    if (place) {
+      await Users.update({ _id: place.user }, { $pull: { places: placeId } });
+      return res.json({ success: true, place }); // Success
+    }
+    res.json({ success: false, message: 'Already Deleted' }); // Success
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);

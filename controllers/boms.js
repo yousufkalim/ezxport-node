@@ -4,6 +4,7 @@
  */
 
 const Boms = require('../models/Boms');
+const Country = require('../models/Countries');
 /**
  * Create bom
  * @param {object} req
@@ -11,12 +12,13 @@ const Boms = require('../models/Boms');
  */
 exports.create = async (req, res) => {
   try {
-    const { code } = req.body;
+    const { code, countries } = req.body;
     const existingCode = await Boms.findOne({ code: code }); // Finding all the bom from db
     if (existingCode) {
       return res.status(409).json({ success: false, message: 'Code already exist' });
     }
     const boms = await Boms.create(req.body); // Adding boms in db
+    await Country.updateMany({ _id: { $in: countries } }, { $push: { boms: boms._id } });
     // Done
     res.json({ success: true, boms }); //Success
   } catch (err) {
@@ -33,7 +35,7 @@ exports.create = async (req, res) => {
  */
 exports.getAll = async (req, res) => {
   try {
-    const boms = await Boms.find(); // Finding all the bom from db
+    const boms = await Boms.find().populate('countries'); // Finding all the bom from db
     res.json({ success: true, boms }); // Success
   } catch (err) {
     // Error handling
@@ -50,7 +52,7 @@ exports.getAll = async (req, res) => {
 exports.getById = async (req, res) => {
   try {
     const bomId = req.params.bomId; // Getting bom id from URL parameter
-    const bom = await Boms.findById(bomId); // Finding bom by id
+    const bom = await Boms.findById(bomId).populate('countries'); // Finding bom by id
     res.json({ success: true, bom }); // Success
   } catch (err) {
     // Error handling
@@ -85,7 +87,11 @@ exports.delete = async (req, res) => {
   try {
     const bomId = req.params.bomId; // Getting bom id from URL parameter
     const bom = await Boms.findByIdAndDelete(bomId); // Deleting the bom
-    res.json({ success: true, bom }); // Success
+    if (bom) {
+      await Country.updateMany({ boms: bomId }, { $pull: { boms: bomId } });
+      return res.status(200).json({ success: true, message: 'Successfully Deleted', bom }); // Success
+    }
+    res.json({ success: false, message: 'Already Deleted' }); // Already Deleted
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);

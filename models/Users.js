@@ -2,81 +2,71 @@
  * User schema
  * @author Yousuf Kalim
  */
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 // Schema
 const userSchema = new mongoose.Schema(
   {
-    password: String,
-    firstName: {
+    first_name: {
       type: String,
-      trim: true,
     },
-    lastName: {
+    last_name: {
       type: String,
-      trim: true,
     },
     email: {
       type: String,
-      trim: true,
     },
-    phone: {
+    phone_number: {
       type: String,
-      trim: true,
     },
-    fullAddress: {
+    address: {
       type: String,
-      trim: true,
     },
-    town: {
+    zip_code: {
       type: String,
-      trim: true,
-    },
-    postelCode: {
-      type: String,
-      trim: true,
     },
     password: {
       type: String,
-      trim: true,
     },
-    companyInformation_lastName: {
+    city: {
       type: String,
-      trim: true,
     },
-    typeOfSociety: {
-      type: String,
-      trim: true,
+    company: {
+      name: { type: String },
+      type: { type: String },
+      vat: { type: String },
     },
-    VatNumber: {
-      type: String,
-      trim: true,
-    },
-
-    role: {
-      type: String,
-      enum: ["user", "admin"],
-      default: "user",
-    },
-
-    // image: {
-    //   type: String,
-    //   trim: true,
-    // },
-    // Blogs: [
-    //   {
-    //     type: mongoose.Schema.Types.ObjectId,
-    //     ref: "Blog",
-    //     required: false,
-    //   },
-    // ],
-    // Projects: [
-    //   {
-    //     type: mongoose.Schema.Types.ObjectId,
-    //     ref: "Project",
-    //     required: false,
-    //   },
-    // ],
+    onboarded: Boolean,
+    sellers: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'sellers',
+      },
+    ],
+    buyers: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'buyers',
+      },
+    ],
+    places: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'places',
+      },
+    ],
+    requests: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'requests',
+      },
+    ],
+    vendors: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'vendors',
+      },
+    ],
   },
   {
     timestamps: true,
@@ -84,6 +74,4 @@ const userSchema = new mongoose.Schema(
 );
 
 // Model
-module.exports = mongoose.model("users", userSchema);
-
-
+module.exports = mongoose.model('users', userSchema);

@@ -3,7 +3,7 @@
  * @author Shuja Naqvi
  */
 const Buyer = require('../models/Buyers');
-
+const Users = require('../models/Users');
 /**
  * Create buyer
  * @param {object} req
@@ -11,16 +11,21 @@ const Buyer = require('../models/Buyers');
  */
 exports.create = async (req, res) => {
   try {
-    const { email } = req.body;
-    const existingUser = await Buyer.findOne({
-      email: email,
+    const { user } = req.body;
+    let existingUser = await Users.findOne({
+      _id: user,
     });
-    if (existingUser) {
-      return res.status(409).json({ success: false, message: 'email already taken' });
+    if (!existingUser) {
+      return res.status(409).json({ success: false, message: 'UserId is invalid' });
     }
-    const buyer = await Buyer.create(req.body); // Adding buyer in db
-    // Done
-    res.json({ success: true, buyer }); //Success
+    const existingBuyer = await Buyer.findOne(req.body);
+    if (existingBuyer) {
+      return res.status(409).json({ success: false, message: 'Buyer already exist' });
+    }
+    const buyer = await Buyer.create(req.body); // Adding seller in db
+    existingUser.buyers.push(buyer._id);
+    await existingUser.save();
+    res.status(200).json({ success: true, buyer });
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
@@ -62,6 +67,23 @@ exports.getById = async (req, res) => {
 };
 
 /**
+ * Get buyer by country
+ * @param {object} req
+ * @param {object} res
+ */
+exports.getByUserandCountry = async (req, res) => {
+  try {
+    const { country, user } = req.body;
+    const buyer = await Buyer.find({ country: country, user: user }).populate('country').populate('user'); // Finding seller by id
+    res.json({ success: true, buyer }); // Success
+  } catch (err) {
+    // Error handling
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+/**
  * Update buyer
  * @param {object} req
  * @param {object} res
@@ -87,7 +109,11 @@ exports.delete = async (req, res) => {
   try {
     const buyerId = req.params.buyerId; // Getting buyer id from URL parameter
     const buyer = await Buyer.findByIdAndDelete(buyerId); // Deleting the buyer
-    res.json({ success: true, buyer }); // Success
+    if (buyer) {
+      await Users.update({ _id: buyer.user }, { $pull: { buyers: buyerId } });
+      return res.json({ success: true, buyer }); // Success
+    }
+    res.json({ success: false, message: 'Already Deleted' }); // Success
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);

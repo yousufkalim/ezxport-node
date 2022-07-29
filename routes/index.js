@@ -15,6 +15,7 @@ router.use('/sellers', require('./sellers')); //All the sellers routes
 router.use('/places', require('./places')); //All the sellers routes
 router.use('/boms', require('./boms')); //All the countries routes
 router.use('/documents', require('./documents')); //All the countries routes
+router.use('/calculations', require('./calculations')); //All the countries routes
 
 // Export
 module.exports = router;

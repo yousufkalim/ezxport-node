@@ -4,6 +4,8 @@
  */
 const Country = require('../models/Countries');
 const Vendors = require('../models/Vendors');
+const Documents = require('../models/Documents');
+const Boms = require('../models/Boms');
 
 /**
  * Create country - Signup
@@ -30,7 +32,7 @@ exports.create = async (req, res) => {
 exports.getAll = async (req, res) => {
   try {
     const countries = await Country.find(); // Finding all the Country from db
-    res.json({ success: true, countries }); // Success
+    res.json({ success: true, countries }).populate('boms').populate('documents').populate('vendors').populate('calculation'); // Success
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
@@ -46,7 +48,11 @@ exports.getAll = async (req, res) => {
 exports.getById = async (req, res) => {
   try {
     const countryId = req.params.countryId; // Getting country id from URL parameter
-    const country = await Country.findById(countryId); // Finding country by id
+    const country = await Country.findById(countryId)
+      .populate('boms')
+      .populate('documents')
+      .populate('vendors')
+      .populate('calculation'); // Finding country by id
     res.json({ success: true, country }); // Success
   } catch (err) {
     // Error handling
@@ -81,7 +87,9 @@ exports.delete = async (req, res) => {
   try {
     const countryId = req.params.countryId; // Getting country id from URL parameter
     const country = await Country.findByIdAndDelete(countryId); // Deleting the country
-    await Vendors.update({}, { $pull: { countries: countryId } }, { multi: true }); //pull deletedcountry from ServiceProviders
+    await Vendors.deleteMany({ countries: { $in: countryId } }); //Delete all vendors of all this Country
+    await Boms.deleteMany({ countries: { $in: countryId } }); //Delete all Boms of all this Country
+    await Documents.deleteMany({ countries: { $in: countryId } }); //Delete all Documents of all this Country
     res.json({ success: true, country }); // Success
   } catch (err) {
     // Error handling

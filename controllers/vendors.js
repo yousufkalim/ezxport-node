@@ -2,7 +2,8 @@
  * serviceProvider CRUD controllers
  * @author Shuja Naqvi
  */
-const serviceProvider = require('../models/Vendors');
+const Vendor = require('../models/Vendors');
+const Country = require('../models/Countries');
 
 /**
  * Create serviceProvider - Signup
@@ -11,16 +12,12 @@ const serviceProvider = require('../models/Vendors');
  */
 exports.create = async (req, res) => {
   try {
-    const { sending_email, contact_email } = req.body;
-    const existingProvider = await serviceProvider.findOne({
-      $or: [{ sending_email: sending_email }, { contact_email: contact_email }],
-    });
-    if (existingProvider) {
-      return res.status(409).json({ success: false, message: 'contact email or sending email already taken' });
-    }
-    const serviceprovider = await serviceProvider.create(req.body); // Adding serviceProvider in db
+    const { countries } = req.body;
+    const vendor = await Vendor.create(req.body); // Adding serviceProvider in db
+    await Country.updateMany({ _id: { $in: countries } }, { $push: { vendors: vendor._id } });
+
     // Done
-    res.json({ success: true, serviceprovider }); //Success
+    res.json({ success: true, vendor }); //Success
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
@@ -35,8 +32,8 @@ exports.create = async (req, res) => {
  */
 exports.getAll = async (req, res) => {
   try {
-    const serviceProviders = await serviceProvider.find().populate('countries'); // Finding all the serviceProvider from db
-    res.json({ success: true, serviceProviders }); // Success
+    const vendor = await Vendor.find().populate('countries'); // Finding all the serviceProvider from db
+    res.json({ success: true, vendor }); // Success
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
@@ -52,8 +49,8 @@ exports.getAll = async (req, res) => {
 exports.getById = async (req, res) => {
   try {
     const serviceProviderId = req.params.serviceProviderId; // Getting serviceProvider id from URL parameter
-    const serviceprovider = await serviceProvider.findById(serviceProviderId).populate('countries'); // Finding serviceProvider by id
-    res.json({ success: true, serviceprovider }); // Success
+    const vendor = await Vendor.findById(serviceProviderId).populate('countries'); // Finding serviceProvider by id
+    res.json({ success: true, vendor }); // Success
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
@@ -68,8 +65,8 @@ exports.getById = async (req, res) => {
 exports.getByCountryId = async (req, res) => {
   try {
     const associated_countryId = req.params.associated_countryId; // Getting serviceProvider id from URL parameter
-    const serviceProviders = await serviceProvider.find({ countries: associated_countryId }).populate('countries'); // Finding serviceProvider by id
-    res.json({ success: true, serviceProviders }); // Success
+    const vendor = await Vendor.find({ countries: associated_countryId }).populate('countries'); // Finding serviceProvider by id
+    res.json({ success: true, vendor }); // Success
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
@@ -85,8 +82,8 @@ exports.getByCountryId = async (req, res) => {
 exports.update = async (req, res) => {
   try {
     const serviceProviderId = req.params.serviceProviderId; // Getting serviceProvider id from URL parameter
-    const serviceProvider = await serviceProvider.findByIdAndUpdate(serviceProviderId, req.body, { new: true }); // Updating the country
-    res.json({ success: true, country }); // Success
+    const vendor = await Vendor.findByIdAndUpdate(serviceProviderId, req.body, { new: true }); // Updating the country
+    res.json({ success: true, vendor }); // Success
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
@@ -102,8 +99,12 @@ exports.update = async (req, res) => {
 exports.delete = async (req, res) => {
   try {
     const serviceProviderId = req.params.serviceProviderId; // Getting serviceProvider id from URL parameter
-    const serviceprovider = await serviceProvider.findByIdAndDelete(serviceProviderId); // Deleting the serviceProvider
-    res.json({ success: true, serviceprovider }); // Success
+    const vendor = await Vendor.findByIdAndDelete(serviceProviderId); // Deleting the serviceProvider
+    if (vendor) {
+      await Country.updateMany({ vendors: vendor._id }, { $pull: { vendors: vendor._id } });
+      return res.status(200).json({ success: true, message: 'Successfully Deleted', vendor }); // Success
+    }
+    res.json({ success: false, message: 'Already Deleted' }); // Already Deleted
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);

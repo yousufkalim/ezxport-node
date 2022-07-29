@@ -2,8 +2,8 @@
  * seller CRUD controllers
  * @author Shuja Naqvi
  */
-const Seller = require('../models/sellers');
-
+const Seller = require('../models/Sellers');
+const Users = require('../models/Users');
 /**
  * Create seller
  * @param {object} req
@@ -11,14 +11,20 @@ const Seller = require('../models/sellers');
  */
 exports.create = async (req, res) => {
   try {
-    const { email } = req.body;
-    const existingUser = await Seller.findOne({
-      email: email,
+    const { user } = req.body;
+    let existingUser = await Users.findOne({
+      _id: user,
     });
-    if (existingUser) {
-      return res.status(409).json({ success: false, message: 'email already taken' });
+    if (!existingUser) {
+      return res.status(409).json({ success: false, message: 'UserId is invalid' });
+    }
+    const existingSeller = await Seller.findOne(req.body);
+    if (existingSeller) {
+      return res.status(409).json({ success: false, message: 'Seller already exist' });
     }
     const seller = await Seller.create(req.body); // Adding seller in db
+    existingUser.sellers.push(seller._id);
+    await existingUser.save();
     // Done
     res.json({ success: true, seller }); //Success
   } catch (err) {
@@ -62,6 +68,23 @@ exports.getById = async (req, res) => {
 };
 
 /**
+ * Get seller by country
+ * @param {object} req
+ * @param {object} res
+ */
+exports.getByUserandCountry = async (req, res) => {
+  try {
+    const { country, user } = req.body;
+    const seller = await Seller.find({ country: country, user: user }).populate('country').populate('user'); // Finding seller by id
+    res.json({ success: true, seller }); // Success
+  } catch (err) {
+    // Error handling
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+/**
  * Update seller
  * @param {object} req
  * @param {object} res
@@ -87,7 +110,11 @@ exports.delete = async (req, res) => {
   try {
     const sellerId = req.params.sellerId; // Getting seller id from URL parameter
     const seller = await Seller.findByIdAndDelete(sellerId); // Deleting the seller
-    res.json({ success: true, seller }); // Success
+    if (seller) {
+      await Users.update({ _id: seller.user }, { $pull: { sellers: sellerId } });
+      return res.json({ success: true, seller }); // Success
+    }
+    res.json({ success: false, message: 'Already Deleted' }); // Success
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);

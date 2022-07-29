@@ -16,7 +16,7 @@ const { validateUser, validateUserUpdate, isValidated } = require('../middleware
  */
 
 // Create - User Signup
-router.post('/create', validateUser, isValidated, users.create);
+router.post('/', validateUser, isValidated, users.create);
 
 // Read
 router.get('/', users.getAll); // Get all users at once

@@ -4,7 +4,7 @@
  */
 const router = require('express').Router();
 const sellers = require('../controllers/sellers');
-const { validateBuyer, isValidated } = require('../middleware/validators');
+const { validateBuyer, validateCountryUser, isValidated } = require('../middleware/validators');
 
 /**
  * ////////////////////////// Routes /////////////////////////
@@ -17,6 +17,8 @@ const { validateBuyer, isValidated } = require('../middleware/validators');
 
 // Create - sellersyo
 router.post('/', validateBuyer, isValidated, sellers.create);
+//getByUserandCountry
+router.post('/getByUserandCountry', validateCountryUser, isValidated, sellers.getByUserandCountry);
 // Read
 router.get('/', sellers.getAll); // Get all sellersat once
 router.get('/:sellerId', sellers.getById); // Get one sellersby it's id

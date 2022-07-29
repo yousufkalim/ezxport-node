@@ -2,8 +2,12 @@
  * User CRUD controllers
  * @author Yousuf Kalim
  */
-const Users = require("../models/Users");
-const bcrypt = require("bcryptjs");
+const Users = require('../models/Users');
+const Sellers = require('../models/Sellers');
+const Buyers = require('../models/Buyers');
+const Places = require('../models/Places');
+const Vendors = require('../models/UserVendors');
+const bcrypt = require('bcryptjs');
 const bcryptSalt = process.env.BCRYPT_SALT || 10;
 
 /**
@@ -19,9 +23,7 @@ exports.create = async (req, res) => {
     // Extra Validations
     if (existingUser) {
       // If we found existing user in db
-      return res
-        .status(409)
-        .json({ success: false, message: "User already exists." });
+      return res.status(409).json({ success: false, message: 'User already exists.' });
     }
 
     // Getting url of the image
@@ -37,8 +39,8 @@ exports.create = async (req, res) => {
     res.json({ success: true, user }); //Success
   } catch (err) {
     // Error handling
-    console.log("Error ----> ", err);
-    res.status(500).json({ success: false, message: "Internal server error" });
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 };
 
@@ -53,8 +55,8 @@ exports.getAll = async (req, res) => {
     res.json({ success: true, users }); // Success
   } catch (err) {
     // Error handling
-    console.log("Error ----> ", err);
-    res.status(500).json({ success: false, message: "Internal server error" });
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 };
 
@@ -70,8 +72,8 @@ exports.getById = async (req, res) => {
     res.json({ success: true, user }); // Success
   } catch (err) {
     // Error handling
-    console.log("Error ----> ", err);
-    res.status(500).json({ success: false, message: "Internal server error" });
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 };
 
@@ -83,21 +85,28 @@ exports.getById = async (req, res) => {
 exports.update = async (req, res) => {
   try {
     const userId = req.params.userId; // Getting user id from URL parameter
+    let { email } = req.body; // Getting required fields from body
+    const existingUser = await Users.findOne({
+      email: email,
+    });
+    if (existingUser) {
+      if (existingUser._id != userId) {
+        // If we found existing user in db
+        return res.status(409).json({ success: false, message: 'Email already associated with another user' });
+      }
+    }
 
     // If user want to update it's password
     if (req.body.password) {
-      req.body.password = bcrypt.hashSync(
-        req.body.password,
-        parseInt(bcryptSalt)
-      );
+      req.body.password = bcrypt.hashSync(req.body.password, parseInt(bcryptSalt));
     }
 
     const user = await Users.findByIdAndUpdate(userId, req.body, { new: true }); // Updating the user
     res.json({ success: true, user }); // Success
   } catch (err) {
     // Error handling
-    console.log("Error ----> ", err);
-    res.status(500).json({ success: false, message: "Internal server error" });
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 };
 
@@ -110,10 +119,17 @@ exports.delete = async (req, res) => {
   try {
     const userId = req.params.userId; // Getting user id from URL parameter
     const user = await Users.findByIdAndDelete(userId); // Deleting the user
+    if (user) {
+      await Sellers.deleteMany({ _id: { $in: user.sellers } });
+      await Buyers.deleteMany({ _id: { $in: user.buyers } });
+      await Places.deleteMany({ _id: { $in: user.places } });
+      await Vendors.deleteMany({ _id: { $in: user.vendors } });
+      return res.json({ success: false, message: 'Successfully Deleted' }); // Success
+    }
     res.json({ success: true, user }); // Success
   } catch (err) {
     // Error handling
-    console.log("Error ----> ", err);
-    res.status(500).json({ success: false, message: "Internal server error" });
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 };

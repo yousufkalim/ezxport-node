@@ -11,6 +11,28 @@ const countrySchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    vendors: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'vendors',
+      },
+    ],
+    documents: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'documents',
+      },
+    ],
+    boms: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'boms',
+      },
+    ],
+    calculation: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'calculations',
+    },
   },
   {
     timestamps: true,

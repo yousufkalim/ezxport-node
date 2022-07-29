@@ -3,7 +3,7 @@
  * @author Shuja Naqvi
  */
 const Document = require('../models/Documents');
-
+const Country = require('../models/Countries');
 /**
  * Create document
  * @param {object} req
@@ -11,7 +11,9 @@ const Document = require('../models/Documents');
  */
 exports.create = async (req, res) => {
   try {
+    const { countries } = req.body;
     const document = await Document.create(req.body); // Adding document in db
+    await Country.updateMany({ _id: { $in: countries } }, { $push: { documents: document._id } });
     // Done
     res.json({ success: true, document }); //Success
   } catch (err) {
@@ -97,7 +99,11 @@ exports.delete = async (req, res) => {
   try {
     const documentId = req.params.documentId; // Getting document id from URL parameter
     const document = await Document.findByIdAndDelete(documentId); // Deleting the document
-    res.json({ success: true, document }); // Success
+    if (document) {
+      await Country.updateMany({ documents: documentId }, { $pull: { documents: documentId } });
+      return res.status(200).json({ success: true, message: 'Successfully Deleted', document }); // Success
+    }
+    res.json({ success: false, message: 'Already Deleted' }); // Already Deleted
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);

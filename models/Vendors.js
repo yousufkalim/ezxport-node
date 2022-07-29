@@ -7,8 +7,8 @@ const mongoose = require('mongoose');
 // Schema
 const vendorSchema = new mongoose.Schema(
   {
-    phone: {
-      type: Number,
+    phone_number: {
+      type: String,
       required: true,
     },
     name: {

@@ -8,7 +8,7 @@ const mongoose = require('mongoose');
 const sellerSchema = new mongoose.Schema(
   {
     phone_number: {
-      type: Number,
+      type: String,
       required: true,
     },
     email: {
@@ -21,7 +21,7 @@ const sellerSchema = new mongoose.Schema(
     },
     address: String,
     city: String,
-    zipcode: Number,
+    zip_code: Number,
     country: { type: mongoose.Schema.Types.ObjectId, ref: 'countries' },
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
   },
@@ -31,4 +31,4 @@ const sellerSchema = new mongoose.Schema(
 );
 
 // Model
-module.exports = mongoose.model('seller', sellerSchema);
+module.exports = mongoose.model('sellers', sellerSchema);

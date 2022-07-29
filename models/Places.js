@@ -8,7 +8,7 @@ const mongoose = require('mongoose');
 const placeSchema = new mongoose.Schema(
   {
     phone_number: {
-      type: Number,
+      type: String,
       required: true,
     },
     email: {
@@ -19,11 +19,11 @@ const placeSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    contact_fname: String,
+    conatct_fname: String,
     contact_name: String,
     address: String,
     city: String,
-    zipcode: Number,
+    zip_code: Number,
     country: { type: mongoose.Schema.Types.ObjectId, ref: 'countries' },
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
   },
