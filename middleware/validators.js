@@ -66,6 +66,50 @@ exports.validateCountryUser = [
   check('country', 'country_id is required').notEmpty().trim(),
   check('user', 'userId required').notEmpty().trim(),
 ];
+//validate FindbyCountry
+exports.validateCountryID = [check('country', 'country_id is required').notEmpty().trim()];
+//Frist Step of Request
+exports.validateRequestBom = [
+  check('country', 'countryId is required').notEmpty().trim(),
+  check('user', 'userId is required').notEmpty().trim(),
+  check('title', 'title is required').notEmpty().trim(),
+  check('codes', 'codes required ').isArray({ min: 1 }),
+  check('codes.*.code', 'codeId is required').notEmpty().trim(),
+  check('codes.*.monetary_value', 'monetory_value required').notEmpty().trim(),
+];
+//2nd Step of Request
+exports.validaterRequestVendor = [
+  check('user', 'userId required').notEmpty().trim(),
+  check('request', 'requestId required').notEmpty().trim(),
+  check('vendor', 'vendorId required').notEmpty().trim(),
+];
+//3rd Step of Request
+exports.validateDispatch = [
+  check('request', 'requestId required').notEmpty().trim(),
+  check('buyer.phone_number', 'phone number is required.').notEmpty().trim(),
+  check('buyer.company_name', 'company_name is required').notEmpty().trim(),
+  check('buyer.email', 'email is required').notEmpty().isEmail().trim(),
+  check('buyer.country', 'country required').notEmpty().trim(),
+  check('buyer.city', 'city is required.').notEmpty().trim(),
+  check('buyer.zip_code', 'zip_code is required.').notEmpty().trim(),
+  check('buyer.address', 'address is required.').notEmpty().trim(),
+  check('seller.phone_number', 'phone number is required.').notEmpty().trim(),
+  check('seller.company_name', 'company_name is required').notEmpty().trim(),
+  check('seller.email', 'email is required').notEmpty().isEmail().trim(),
+  check('seller.country', 'country required').notEmpty().trim(),
+  check('seller.city', 'city is required.').notEmpty().trim(),
+  check('seller.zip_code', 'zip_code is required.').notEmpty().trim(),
+  check('seller.address', 'address is required.').notEmpty().trim(),
+  check('place.phone_number', 'phone number is required.').notEmpty().trim(),
+  check('place.company_name', 'company_name is required').notEmpty().trim(),
+  check('place.email', 'email is required').notEmpty().isEmail().trim(),
+  check('place.country', 'country required').notEmpty().trim(),
+  check('place.city', 'city is required.').notEmpty().trim(),
+  check('place.zip_code', 'zip_code is required.').notEmpty().trim(),
+  check('place.address', 'address is required.').notEmpty().trim(),
+  check('place.conatct_fname', 'contact first name is required.').notEmpty().trim(),
+  check('place.contact_name', 'Contact Name  is required.').notEmpty().trim(),
+];
 //create serviceProvider
 exports.validateServiceProvider = [
   check('phone_number', 'phone number is required.').notEmpty().trim(),

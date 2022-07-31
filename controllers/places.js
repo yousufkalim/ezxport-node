@@ -51,7 +51,7 @@ exports.getAll = async (req, res) => {
 };
 
 /**
- * Get place by country
+ * Get place by id
  * @param {object} req
  * @param {object} res
  */
@@ -59,6 +59,22 @@ exports.getById = async (req, res) => {
   try {
     const placeId = req.params.placeId; // Getting place id from URL parameter
     const place = await Place.findById(placeId).populate('country').populate('user'); // Finding place by id
+    res.json({ success: true, place }); // Success
+  } catch (err) {
+    // Error handling
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+/**
+ * Get placce by userId
+ * @param {object} req
+ * @param {object} res
+ */
+exports.getByUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const place = await Place.find({ user: userId }).populate('country').populate('user'); // Finding seller by userId
     res.json({ success: true, place }); // Success
   } catch (err) {
     // Error handling

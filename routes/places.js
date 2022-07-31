@@ -19,6 +19,7 @@ const { validatePlace, isValidated } = require('../middleware/validators');
 router.post('/', validatePlace, isValidated, places.create);
 // Read
 router.get('/', places.getAll); // Get all place at once
+router.put('/getByUser/:userId', places.getByUser); // Get all places of a user
 router.get('/:placeId', places.getById); // Get one place sby it's id
 // Update
 router.put('/:placeId', validatePlace, isValidated, places.update); // Update a specific place by it's id

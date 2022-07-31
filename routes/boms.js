@@ -4,7 +4,8 @@
  */
 const router = require('express').Router();
 const bom = require('../controllers/boms');
-const { validateBoms, isValidated } = require('../middleware/validators');
+const { validateBoms, validateCountryID, isValidated } = require('../middleware/validators');
+const { upload } = require('../middleware/multer');
 
 /**
  * ////////////////////////// Routes /////////////////////////
@@ -17,6 +18,8 @@ const { validateBoms, isValidated } = require('../middleware/validators');
 
 // Create - bom Signup
 router.post('/', validateBoms, isValidated, bom.create);
+// Create - bom Signup
+router.post('/filterCodes', upload.single('file'), validateCountryID, isValidated, bom.filterCode);
 // Read
 router.get('/', bom.getAll); // Get all bomat once
 router.get('/:bomId', bom.getById); // Get one bomby it's id

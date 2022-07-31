@@ -2,7 +2,7 @@
  * bom CRUD controllers
  * @author Shuja Naqvi
  */
-
+const xlsxFile = require('read-excel-file/node');
 const Boms = require('../models/Boms');
 const Country = require('../models/Countries');
 /**
@@ -92,6 +92,43 @@ exports.delete = async (req, res) => {
       return res.status(200).json({ success: true, message: 'Successfully Deleted', bom }); // Success
     }
     res.json({ success: false, message: 'Already Deleted' }); // Already Deleted
+  } catch (err) {
+    // Error handling
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+/**
+ * Filter bom
+ * @param {object} req
+ * @param {object} res
+ */
+exports.filterCode = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(404).json({ success: false, message: 'File is required' });
+    }
+    const { country } = req.body;
+    let data = [];
+    var array = [];
+    const boms = await Boms.find({ countries: country });
+    if (boms.length < 1) {
+      return res.status(404).json({ success: false, message: 'Codes not found for this country' });
+    }
+    await xlsxFile(req.file.path).then((rows) => {
+      rows.forEach(async (item) => {
+        array = item[0].split('\n');
+        for (let i = 0; i < boms.length; i++) {
+          if (boms[i].code === array[0]) {
+            data.push({
+              bom: boms[i],
+            });
+          }
+        }
+      });
+    });
+    res.status(200).json({ success: true, matchedData: data });
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);

@@ -21,6 +21,7 @@ router.post('/', validateBuyer, isValidated, sellers.create);
 router.post('/getByUserandCountry', validateCountryUser, isValidated, sellers.getByUserandCountry);
 // Read
 router.get('/', sellers.getAll); // Get all sellersat once
+router.get('/getByUser/:userId', sellers.getByUser); // Get all sellers of a user
 router.get('/:sellerId', sellers.getById); // Get one sellersby it's id
 // Update
 router.put('/:sellerId', validateBuyer, isValidated, sellers.update); // Update a specific sellersby it's id

@@ -20,7 +20,8 @@ router.post('/', validateBuyer, isValidated, buyers.create);
 // Get-By-UserandCountry
 router.post('/getByUserandCountry', validateCountryUser, isValidated, buyers.getByUserandCountry);
 // Read
-router.get('/', buyers.getAll); // Get all buyersat once
+router.get('/', buyers.getAll); // Get all buyers at once
+router.get('/getByUser/:userId', buyers.getByUser); // Get all buyers of a user
 router.get('/:buyerId', buyers.getById); // Get one buyersby it's id
 // Update
 router.put('/:buyerId', validateBuyer, isValidated, buyers.update); // Update a specific buyersby it's id

@@ -85,6 +85,23 @@ exports.getByUserandCountry = async (req, res) => {
 };
 
 /**
+ * Get seller by userId
+ * @param {object} req
+ * @param {object} res
+ */
+exports.getByUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const seller = await Seller.find({ user: userId }).populate('country').populate('user'); // Finding seller by userId
+    res.json({ success: true, seller }); // Success
+  } catch (err) {
+    // Error handling
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+/**
  * Update seller
  * @param {object} req
  * @param {object} res

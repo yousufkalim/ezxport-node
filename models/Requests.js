@@ -49,4 +49,4 @@ const followRequestSchema = new mongoose.Schema(
 );
 
 // Model
-module.exports = mongoose.model('followrequests', followRequestSchema);
+module.exports = mongoose.model('requests', followRequestSchema);
