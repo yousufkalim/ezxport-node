@@ -22,9 +22,7 @@ const userSchema = new mongoose.Schema(
     address: {
       type: String,
     },
-    zip_code: {
-      type: String,
-    },
+    zipcode: Number,
     password: {
       type: String,
     },

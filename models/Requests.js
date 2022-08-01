@@ -12,12 +12,25 @@ const followRequestSchema = new mongoose.Schema(
       ref: 'users',
     },
     country: { type: mongoose.Schema.Types.ObjectId, ref: 'countries' },
-    title: { type: String, required: true },
+    title: { type: String, required: true, unique: true },
     codes: [
       {
         code: { type: mongoose.Schema.Types.ObjectId, ref: 'codes' },
         monetary_value: Number,
-        product: { type: mongoose.Schema.Types.ObjectId, ref: 'products' },
+        products: [{ type: mongoose.Schema.Types.ObjectId, ref: 'products' }],
+      },
+    ],
+    documents: [
+      {
+        doc_id: { type: mongoose.Schema.Types.ObjectId, ref: 'documents' },
+        url: [{ type: String }],
+        status: String,
+      },
+    ],
+    missing_docs: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'documents',
       },
     ],
     vendor: {
