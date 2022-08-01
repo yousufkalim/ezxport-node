@@ -76,6 +76,7 @@ exports.validateRequestBom = [
   check('codes', 'codes required ').isArray({ min: 1 }),
   check('codes.*.code', 'codeId is required').notEmpty().trim(),
   check('codes.*.monetary_value', 'monetory_value required').notEmpty().trim(),
+  check('codes.*.certification_required', 'certification_required true/false').notEmpty().isBoolean().trim(),
 ];
 //2nd Step of Request
 exports.validaterRequestVendor = [

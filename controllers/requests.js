@@ -26,7 +26,10 @@ exports.boms = async (req, res) => {
     if (!existingUser) {
       return res.status(409).json({ success: false, message: 'UserId is invalid' });
     }
-    // req.body.certification_cost = codes.map((code) => code.monetary_value).reduce((prev, curr) => prev + curr, 0);
+    const filteredCodes = codes.filter((e) => e.certification_required);
+    return console.log(filteredCodes, 'filteredCodes');
+    req.body.certification_cost = filteredCodes.map((code) => code.monetary_value).reduce((prev, curr) => +prev + +curr, 0);
+
     const request = await Request.create(req.body); // Adding seller in db
     existingUser.requests.push(request._id);
     await existingUser.save();
@@ -139,44 +142,6 @@ exports.Dispatch = async (req, res) => {
  */
 exports.Documents = async (req, res) => {
   try {
-    const { place, seller, buyer, request } = req.body;
-    let existingRequest = await Request.findById(request);
-    let existingUser = await Users.findById(existingRequest.user);
-    if (!existingRequest) {
-      return res.status(409).json({ success: false, message: 'Invalid RequestId' });
-    }
-
-    const existingSeller = await Seller.findOne(seller);
-    if (existingSeller) {
-      existingRequest.seller = existingSeller._id;
-    } else {
-      const new_seller = await Seller.create(seller); // Adding seller in db
-      existingUser.sellers.push(new_seller._id);
-      existingRequest.seller = new_seller._id;
-      await existingUser.save();
-    }
-
-    const existingBuyer = await Buyer.findOne(buyer);
-    if (existingBuyer) {
-      existingRequest.buyer = existingBuyer._id;
-    } else {
-      const new_buyer = await Buyer.create(buyer); // Adding seller in db
-      existingUser.buyers.push(new_buyer._id);
-      existingRequest.buyer = new_buyer._id;
-      await existingUser.save();
-    }
-
-    const existingPlace = await Place.findOne(place);
-    if (existingPlace) {
-      existingRequest.place = existingPlace._id;
-    } else {
-      const new_place = await Place.create(place); // Adding seller in db
-      existingUser.places.push(new_place._id);
-      existingRequest.place = new_place._id;
-      await existingUser.save();
-    }
-    await existingRequest.save();
-    return res.status(200).json({ success: true, message: 'Dispatched', request: existingRequest });
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
