@@ -21,7 +21,7 @@ const buyerSchema = new mongoose.Schema(
     },
     address: String,
     city: String,
-    zip_code: Number,
+    zipcode: Number,
     country: { type: mongoose.Schema.Types.ObjectId, ref: 'countries' },
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
   },

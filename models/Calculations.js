@@ -7,7 +7,6 @@ const mongoose = require('mongoose');
 // Schema
 const calculationSchema = new mongoose.Schema(
   {
-    coefficient: String,
     type: {
       type: String,
       enum: ['coefficient', 'range'],

@@ -22,7 +22,7 @@ router.get('/', countries.getAll); // Get all countries at once
 router.get('/:countryId', validateCountry, countries.getById); // Get one country by it's id
 
 // Update
-router.put('/:countryId', isValidated, isValidated, countries.update); // Update a specific country by it's id
+router.put('/:countryId', validateCountry, isValidated, countries.update); // Update a specific country by it's id
 
 // Delete
 router.delete('/:countryId', countries.delete); // delete a specific country by it's id

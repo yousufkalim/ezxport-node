@@ -7,9 +7,6 @@ const mongoose = require('mongoose');
 // Schema
 const userVendorSchema = new mongoose.Schema(
   {
-    phone_number: {
-      type: String,
-    },
     contact_fname: String,
     contact_lname: String,
     contact_email: String,
