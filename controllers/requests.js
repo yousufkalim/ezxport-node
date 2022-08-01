@@ -10,6 +10,7 @@ const userVendor = require('../models/UserVendors');
 const Seller = require('../models/Sellers');
 const Buyer = require('../models/Buyers');
 const Place = require('../models/Places');
+const Products = require('../models/Products');
 
 /**
  * Request  First-Step
@@ -26,9 +27,12 @@ exports.boms = async (req, res) => {
     if (!existingUser) {
       return res.status(409).json({ success: false, message: 'UserId is invalid' });
     }
-    const filteredCodes = codes.filter((e) => e.certification_required);
-    return console.log(filteredCodes, 'filteredCodes');
-    req.body.certification_cost = filteredCodes.map((code) => code.monetary_value).reduce((prev, curr) => +prev + +curr, 0);
+    // req.body.certification_cost = 0;
+    // for (let i = 0; i < codes.length; i++) {
+    //   if (codes[i].certification_required == 'true') {
+    //     req.body.certification_cost += codes[i].monetary_value - 0; //To deal with coercion subtracted 0 from string :)
+    //   }
+    // }
 
     const request = await Request.create(req.body); // Adding seller in db
     existingUser.requests.push(request._id);
@@ -142,6 +146,17 @@ exports.Dispatch = async (req, res) => {
  */
 exports.Documents = async (req, res) => {
   try {
+    const { request, codes } = req.body;
+    let updateRequest;
+    for (let i = 0; i < codes.length; i++) {
+      const product = await Products.create(codes[i]);
+      updateRequest = await Request.findOneAndUpdate(
+        { _id: request, 'codes.code': codes[i].id },
+        { $push: { 'codes.$.products': product._id } },
+        { new: true }
+      );
+    }
+    return res.status(200).json({ success: true, request: updateRequest });
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
