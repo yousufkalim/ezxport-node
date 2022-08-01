@@ -109,6 +109,7 @@ exports.validateDispatch = [
   check('place.address', 'address is required.').notEmpty().trim(),
   check('place.conatct_fname', 'contact first name is required.').notEmpty().trim(),
   check('place.contact_name', 'Contact Name  is required.').notEmpty().trim(),
+  check('inspection_date', 'inspection date required').isISO8601().toDate(),
 ];
 //create serviceProvider
 exports.validateServiceProvider = [
