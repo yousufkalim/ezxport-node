@@ -13,8 +13,8 @@ Validations
 // You can create multiple validations strategies (Read express-validator documentation for more details)
 // User Signup Validation
 exports.validateUser = [
-  check('firstName', 'firstName name is required.').notEmpty(),
-  check('lastName', 'lastName name is required.').notEmpty(),
+  check('first_name', 'firstName name is required.').notEmpty(),
+  check('last_name', 'lastName name is required.').notEmpty(),
   check('email', 'Email is required.').notEmpty().isEmail().trim(),
   check('password', 'Password is required.')
     .notEmpty()
@@ -24,64 +24,135 @@ exports.validateUser = [
   check('confirm_password', 'Confirm Password is required')
     .notEmpty()
     .trim()
-    .isLength({ min: 4 })
+    .isLength({ min: 6 })
     .withMessage('Confirm Password min length must be 6 characters')
     .custom(async (confirmPassword, { req }) => {
       const password = req.body.password;
-
       if (password !== confirmPassword) {
         throw new Error('Password and Confirm Password must be same');
       }
     }),
-  check('phone', 'Telephone is required.').notEmpty().trim(),
-  check('fullAddress', 'FullAddress is required.').notEmpty().trim(),
-  check('town', 'Town is required.').notEmpty().trim(),
-  check('postelCode', 'PostelCode is required.').notEmpty().trim().isLength({ min: 5, max: 5 }),
-  check('companyInformation_lastName', 'CompanyInformation-lastName is required.').notEmpty().trim(),
-  check('typeOfSociety', 'Type Of Society is required.').notEmpty().trim(),
-  check('VatNumber', 'VatNumber is required.').notEmpty().trim(),
+  check('phone_number', 'phone_number is required.').notEmpty().trim(),
+  check('address', 'address is required.').notEmpty().trim(),
+  check('city', 'city is required.').notEmpty().trim(),
+  check('zip_code', 'zip_code is required.').notEmpty().trim().isLength({ min: 5, max: 5 }),
+  check('company.name', 'company name is required.').notEmpty().trim(),
+  check('company.type', 'company type is required.').notEmpty().trim(),
+  check('company.vat', 'vat is required.').notEmpty().trim(),
 ];
 
 // User Signup Validation
 exports.validateUserUpdate = [
-  check('name', 'Name is required.').notEmpty().trim(),
+  check('first_name', 'firstName name is required.').notEmpty(),
+  check('last_name', 'lastName name is required.').notEmpty(),
   check('email', 'Email is required.').notEmpty().isEmail().trim(),
-  check('number', 'Number is required.').notEmpty().isNumeric().trim(),
-  check('gender').trim(),
-  check('role').trim(),
-  check('address').trim(),
-  check('city').trim(),
-  check('country').trim(),
+  check('phone_number', 'phone_number is required.').notEmpty().trim(),
+  check('address', 'address is required.').notEmpty().trim(),
+  check('city', 'city is required.').notEmpty().trim(),
+  check('zip_code', 'zip_code is required.').notEmpty().trim().isLength({ min: 5, max: 5 }),
+  check('company.name', 'company name is required.').notEmpty().trim(),
+  check('company.type', 'company type is required.').notEmpty().trim(),
+  check('company.vat', 'vat is required.').notEmpty().trim(),
 ];
 //create country validation
 exports.validateCountry = [check('name', 'Country Name is required.').notEmpty().trim()];
-//create Boms
-exports.validateBoms = [
-  check('code', 'Code is required.').notEmpty().trim(),
-  check('status', 'status is required.').isIn(['subject to inspection', 'not subject']),
+//create Document
+exports.validateDocument = [
+  check('name', 'name is required').notEmpty().trim(),
+  check('countries', 'countries required').isArray({ min: 1 }),
+];
+//validate FindbyCountry
+exports.validateCountryUser = [
+  check('country', 'country_id is required').notEmpty().trim(),
+  check('user', 'userId required').notEmpty().trim(),
+];
+//validate FindbyCountry
+exports.validateCountryID = [check('country', 'country_id is required').notEmpty().trim()];
+//Frist Step of Request
+exports.validateRequestBom = [
+  check('country', 'countryId is required').notEmpty().trim(),
+  check('user', 'userId is required').notEmpty().trim(),
+  check('title', 'title is required').notEmpty().trim(),
+  check('codes', 'codes required ').isArray({ min: 1 }),
+  check('codes.*.code', 'codeId is required').notEmpty().trim(),
+  check('codes.*.monetary_value', 'monetory_value required').notEmpty().trim(),
+];
+//2nd Step of Request
+exports.validaterRequestVendor = [
+  check('user', 'userId required').notEmpty().trim(),
+  check('request', 'requestId required').notEmpty().trim(),
+  check('vendor', 'vendorId required').notEmpty().trim(),
+];
+//3rd Step of Request
+exports.validateDispatch = [
+  check('request', 'requestId required').notEmpty().trim(),
+  check('buyer.phone_number', 'phone number is required.').notEmpty().trim(),
+  check('buyer.company_name', 'company_name is required').notEmpty().trim(),
+  check('buyer.email', 'email is required').notEmpty().isEmail().trim(),
+  check('buyer.country', 'country required').notEmpty().trim(),
+  check('buyer.city', 'city is required.').notEmpty().trim(),
+  check('buyer.zip_code', 'zip_code is required.').notEmpty().trim(),
+  check('buyer.address', 'address is required.').notEmpty().trim(),
+  check('seller.phone_number', 'phone number is required.').notEmpty().trim(),
+  check('seller.company_name', 'company_name is required').notEmpty().trim(),
+  check('seller.email', 'email is required').notEmpty().isEmail().trim(),
+  check('seller.country', 'country required').notEmpty().trim(),
+  check('seller.city', 'city is required.').notEmpty().trim(),
+  check('seller.zip_code', 'zip_code is required.').notEmpty().trim(),
+  check('seller.address', 'address is required.').notEmpty().trim(),
+  check('place.phone_number', 'phone number is required.').notEmpty().trim(),
+  check('place.company_name', 'company_name is required').notEmpty().trim(),
+  check('place.email', 'email is required').notEmpty().isEmail().trim(),
+  check('place.country', 'country required').notEmpty().trim(),
+  check('place.city', 'city is required.').notEmpty().trim(),
+  check('place.zip_code', 'zip_code is required.').notEmpty().trim(),
+  check('place.address', 'address is required.').notEmpty().trim(),
+  check('place.conatct_fname', 'contact first name is required.').notEmpty().trim(),
+  check('place.contact_name', 'Contact Name  is required.').notEmpty().trim(),
 ];
 //create serviceProvider
 exports.validateServiceProvider = [
-  check('phone', 'phone number is required.').notEmpty().trim(),
+  check('phone_number', 'phone number is required.').notEmpty().trim(),
   check('name', 'name is required').notEmpty().trim(),
   check('sending_email', 'sending_email is required').notEmpty().isEmail().trim(),
   check('contact_email', 'contact_email is required').notEmpty().isEmail().trim(),
-  check('associated_countries', 'associated_countries required').isArray({ min: 1 }),
+  check('countries', 'countries required').isArray({ min: 1 }),
 ];
 //create AddressBook
-exports.validateAddressbook = [
-  check('phone', 'phone number is required.').notEmpty().trim(),
-  check('name', 'name is required').notEmpty().trim(),
+exports.validateBuyer = [
+  check('phone_number', 'phone number is required.').notEmpty().trim(),
+  check('company_name', 'company_name is required').notEmpty().trim(),
   check('email', 'email is required').notEmpty().isEmail().trim(),
   check('country', 'country required').notEmpty().trim(),
-  check('role', 'role should buyer/seller').isIn(['buyer', 'seller']),
-  check('address.city', 'city is required.').notEmpty().trim(),
-  check('address.postal_code', 'postal_code is required.').notEmpty().trim(),
-  check('address.lat', 'lat is required.').notEmpty().trim(),
-  check('address.lng', 'lng is required.').notEmpty().trim(),
+  check('city', 'city is required.').notEmpty().trim(),
+  check('zip_code', 'zip_code is required.').notEmpty().trim(),
+  check('address', 'address is required.').notEmpty().trim(),
+  check('user', 'UserId is required.').notEmpty().trim(),
 ];
 //create AddressBook
-exports.validateFilterAddressbook = [check('role', 'role should buyer/seller').isIn(['buyer', 'seller'])];
+exports.validatePlace = [
+  check('phone_number', 'phone number is required.').notEmpty().trim(),
+  check('company_name', 'company_name is required').notEmpty().trim(),
+  check('email', 'email is required').notEmpty().isEmail().trim(),
+  check('country', 'country required').notEmpty().trim(),
+  check('city', 'city is required.').notEmpty().trim(),
+  check('zip_code', 'zip_code is required.').notEmpty().trim(),
+  check('address', 'address is required.').notEmpty().trim(),
+  check('user', 'UserId is required.').notEmpty().trim(),
+  check('conatct_fname', 'contact first name is required.').notEmpty().trim(),
+  check('contact_name', 'Contact Name  is required.').notEmpty().trim(),
+];
+//create-Boms
+exports.validateBoms = [
+  check('code', 'code is required').notEmpty().trim(),
+  check('certification_required', 'certification_required true/false').notEmpty().isBoolean().trim(),
+  check('countries', 'countries required').isArray({ min: 1 }),
+];
+//create-Calculation
+exports.validateCalculation = [
+  check('type', 'type is not correct coefficient/range').notEmpty().isIn(['range', 'coefficient']).trim(),
+  check('country', 'countryId required').notEmpty().trim(),
+];
 // Login validation
 exports.validateLogin = [
   check('email', 'Email is required').notEmpty().isEmail().trim().toLowerCase(),
