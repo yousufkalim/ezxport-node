@@ -2,10 +2,11 @@
  * User auth controllers
  * @author Yousuf Kalim
  */
-const Users = require("../models/Users");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const { sendEmail } = require("../utils/sendEmail");
+const Users = require('../models/Users');
+const Admins = require('../models/Admins');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const { sendEmail } = require('../utils/sendEmail');
 const bcryptSalt = process.env.BCRYPT_SALT || 10;
 const tokenSecret = process.env.JWT_SECRET;
 
@@ -21,39 +22,49 @@ exports.login = async (req, res) => {
 
     // Getting user from db
     const user = await Users.findOne({ email });
-
-    if (!user) {
-      // If user not found
-      console.log(user);
-      return res
-        .status(404)
-        .json({ success: false, message: "User not found" });
+    const admin = await Admins.findOne({ email });
+    if (!user && !admin) {
+      return res.status(404).json({ success: false, message: 'User not found' });
     }
+    if (user) {
+      // Comparing password
+      const isMatched = bcrypt.compareSync(password, user.password);
 
+      if (!isMatched) {
+        // If password not matched
+        return res.status(400).json({ success: false, message: 'Invalid Password' });
+      }
+      // Creating payload with user object
+      const role = 'user';
+      const payload = { user };
+
+      // Generating token
+      jwt.sign(payload, tokenSecret, { expiresIn: 360000 }, (err, token) => {
+        if (err) throw err;
+        // done
+        return res.json({ success: true, user, token, role: role });
+      });
+      return;
+    }
     // Comparing password
-    const isMatched = bcrypt.compareSync(password, user.password);
-
+    const isMatched = bcrypt.compareSync(password, admin.password);
+    const role = 'admin';
     if (!isMatched) {
       // If password not matched
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid Password" });
+      return res.status(400).json({ success: false, message: 'Invalid Password' });
     }
-
-    // Creating payload with user object
-    const payload = { user };
+    const payload = { admin };
 
     // Generating token
     jwt.sign(payload, tokenSecret, { expiresIn: 360000 }, (err, token) => {
       if (err) throw err;
-
       // done
-      res.json({ success: true, user, token });
+      return res.json({ success: true, admin, token, role: role });
     });
   } catch (err) {
     // Error handling
-    console.log("Error ----> ", err);
-    res.status(500).json({ success: false, message: "Internal server error" });
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 };
 
@@ -70,7 +81,7 @@ exports.changePassword = async (req, res) => {
     if (newPassword !== confirmPassword) {
       return res.status(400).json({
         success: false,
-        message: "New password and confirm password are not same",
+        message: 'New password and confirm password are not same',
       });
     }
 
@@ -78,7 +89,7 @@ exports.changePassword = async (req, res) => {
     let user = await Users.findOne({ email: decoded });
 
     if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
+      return res.status(404).json({ success: false, message: 'User not found' });
     }
 
     // const isMatched = bcrypt.compareSync(oldPassword, user.password);
@@ -95,8 +106,8 @@ exports.changePassword = async (req, res) => {
     res.json({ success: true, user });
   } catch (err) {
     // Error handling
-    console.log("Error ----> ", err);
-    res.status(500).json({ success: false, message: "Internal server error" });
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 };
 
@@ -111,7 +122,7 @@ exports.forgot = async (req, res) => {
     let user = await Users.findOne({ email });
 
     if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
+      return res.status(404).json({ success: false, message: 'User not found' });
     }
 
     let link = jwt.sign(user.email, tokenSecret);
@@ -125,17 +136,17 @@ exports.forgot = async (req, res) => {
         // await user.save();
 
         // Done
-        res.json({ success: true, message: "Email sent successfully" });
+        res.json({ success: true, message: 'Email sent successfully' });
       })
       .catch((err) => {
         // Error handling
-        console.log("Error ----> ", err);
-        res.status(500).json({ success: false, message: "Internal server error" });
+        console.log('Error ----> ', err);
+        res.status(500).json({ success: false, message: 'Internal server error' });
       });
   } catch (err) {
     // Error handling
-    console.log("Error ----> ", err);
-    res.status(500).json({ success: false, message: "Internal server error" });
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 };
 
