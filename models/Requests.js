@@ -42,6 +42,12 @@ const followRequestSchema = new mongoose.Schema(
     status: {
       type: String,
     },
+    certification_cost: { currency: { type: String }, value: { type: String } },
+    request_method: {
+      type: String,
+      enum: ['direct', 'platform'],
+    },
+    admin_remarks: String,
   },
   {
     timestamps: true,

@@ -19,13 +19,14 @@ const Place = require('../models/Places');
  */
 exports.boms = async (req, res) => {
   try {
-    const { user } = req.body;
+    const { user, codes } = req.body;
     let existingUser = await Users.findOne({
       _id: user,
     });
     if (!existingUser) {
       return res.status(409).json({ success: false, message: 'UserId is invalid' });
     }
+    req.body.certification_cost = codes.map((code) => code.monetary_value).reduce((prev, curr) => prev + curr, 0);
     const request = await Request.create(req.body); // Adding seller in db
     existingUser.requests.push(request._id);
     await existingUser.save();
