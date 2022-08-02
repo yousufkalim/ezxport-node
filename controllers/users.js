@@ -4,6 +4,7 @@
  */
 const Users = require('../models/Users');
 const Sellers = require('../models/Sellers');
+const Admins=require("../models/Admins")
 const Buyers = require('../models/Buyers');
 const Places = require('../models/Places');
 const Vendors = require('../models/UserVendors');
@@ -19,9 +20,10 @@ exports.create = async (req, res) => {
   try {
     let { email, password } = req.body; // Getting required fields from body
     const existingUser = await Users.findOne({ email }); // Finding already existing user
+    const existingAdmin = await Admins.findOne({ email }); // Finding already existing user
 
     // Extra Validations
-    if (existingUser) {
+    if (existingUser || existingAdmin) {
       // If we found existing user in db
       return res.status(409).json({ success: false, message: 'User already exists.' });
     }

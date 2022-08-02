@@ -3,6 +3,7 @@
  * @author Yousuf Kalim
  */
 const Admins = require("../models/Admins");
+const Users = require('../models/Users');
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const tokenSecret = process.env.JWT_SECRET;
@@ -17,9 +18,10 @@ exports.register = async (req, res) => {
   try {
     let { email, password, confirmPassword } = req.body; // Getting required fields from body
     const existingAdmin = await Admins.findOne({ email }); // Finding already existing user
+    const existingUser = await Users.findOne({ email }); // Finding already existing user
 
     // Extra Validations
-    if (existingAdmin) {
+    if (existingAdmin || existingUser) {
       // If we found existing user in db
       return res
         .status(409)

@@ -82,6 +82,9 @@ exports.getByCountryId = async (req, res) => {
 exports.update = async (req, res) => {
   try {
     const serviceProviderId = req.params.serviceProviderId; // Getting serviceProvider id from URL parameter
+    const existingVendor = await Vendor.findById(serviceProviderId); // Updating the country
+    let newCountries = req.body.countries.filter((o1) => !existingVendor.countries.some((o2) => o1 == o2));
+    await Country.updateMany({ _id: { $in: newCountries } }, { $push: { vendors: serviceProviderId } });
     const vendor = await Vendor.findByIdAndUpdate(serviceProviderId, req.body, { new: true }); // Updating the country
     res.json({ success: true, vendor }); // Success
   } catch (err) {
