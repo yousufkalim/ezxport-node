@@ -4,11 +4,13 @@
  */
 const router = require('express').Router();
 const request = require('../controllers/requests');
+const { upload } = require('../middleware/multer');
 const {
   validateRequestBom,
   validaterRequestVendor,
   validateDispatch,
   ValidateDocuments,
+  validateUploadDocuments,
   isValidated,
 } = require('../middleware/validators');
 
@@ -28,9 +30,10 @@ router.put('/userVendor', validaterRequestVendor, isValidated, request.userVendo
 //  3rd Step - dispatch
 router.put('/dispatch', validateDispatch, isValidated, request.Dispatch);
 //  4th Step - document
+router.put('/documentsUpload/:requestId', upload.single('file'), validateUploadDocuments, isValidated, request.documentsUpload);
 router.put('/documents', ValidateDocuments, isValidated, request.Documents);
 // // Read
-// router.get('/', request.getAll); // Get all requestat once
+router.get('/', request.getAll); // Get all requests at once
 // router.get('/:requestId', request.getById); // Get one requestby it's id
 // // Update
 // router.put('/:requestId', validaterequests, isValidated, request.update); // Update a specific requestby it's id

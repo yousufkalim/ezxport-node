@@ -119,7 +119,7 @@ exports.validateDispatch = [
 exports.ValidateDocuments = [
   check('request', 'requestId required ').notEmpty().trim(),
   check('codes', 'codes required ').isArray({ min: 1 }),
-  check('codes.*.id', 'codeId required ').notEmpty().trim(),
+  check('codes.*.code', 'codeId required ').notEmpty().trim(),
   check('codes.*.user', 'userId required ').notEmpty().trim(),
   check('codes.*.name', 'name required ').notEmpty().trim(),
   check('codes.*.description', 'description required ').notEmpty().trim(),
@@ -132,6 +132,7 @@ exports.ValidateDocuments = [
   check('codes.*.price.currency', 'currency required ').notEmpty().trim(),
   check('codes.*.price.value', 'value required ').notEmpty().trim(),
 ];
+exports.validateUploadDocuments = [check('doc_id', 'doc_id required').notEmpty().trim()];
 //create serviceProvider
 exports.validateServiceProvider = [
   check('phone_number', 'phone number is required.').notEmpty().trim(),
@@ -179,6 +180,12 @@ exports.validateCalculation = [
 exports.validateLogin = [
   check('email', 'Email is required').notEmpty().isEmail().trim().toLowerCase(),
   check('password', 'Password is required.').notEmpty().trim().isLength({ min: 8 }),
+];
+//
+exports.validateRange = [
+  check('range.min', 'min required ').notEmpty().trim(),
+  check('range.max', 'max required ').notEmpty().trim(),
+  check('range.certificate_cost', 'certificate_cost required ').notEmpty().trim(),
 ];
 
 // Change password validation

@@ -27,13 +27,12 @@ exports.boms = async (req, res) => {
     if (!existingUser) {
       return res.status(409).json({ success: false, message: 'UserId is invalid' });
     }
-    // req.body.certification_cost = 0;
-    // for (let i = 0; i < codes.length; i++) {
-    //   if (codes[i].certification_required == 'true') {
-    //     req.body.certification_cost += codes[i].monetary_value - 0; //To deal with coercion subtracted 0 from string :)
-    //   }
-    // }
-
+    req.body.certification_cost = 0;
+    for (let i = 0; i < codes.length; i++) {
+      if (codes[i].certification_required == 'true') {
+        req.body.certification_cost += codes[i].monetary_value - 0; //To deal with coercion subtracted 0 from string :)
+      }
+    }
     const request = await Request.create(req.body); // Adding seller in db
     existingUser.requests.push(request._id);
     await existingUser.save();
@@ -139,8 +138,8 @@ exports.Dispatch = async (req, res) => {
 };
 
 /**
- * Request  Third-Step
- *        Dispatch
+ * Request  4th-Step
+ *        Documents
  * @param {object} req
  * @param {object} res
  */
@@ -151,12 +150,85 @@ exports.Documents = async (req, res) => {
     for (let i = 0; i < codes.length; i++) {
       const product = await Products.create(codes[i]);
       updateRequest = await Request.findOneAndUpdate(
-        { _id: request, 'codes.code': codes[i].id },
+        { _id: request, 'codes.code': codes[i].code },
         { $push: { 'codes.$.products': product._id } },
         { new: true }
       );
     }
     return res.status(200).json({ success: true, request: updateRequest });
+  } catch (err) {
+    // Error handling
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+/**
+ * Request  4th-Step
+ *        documentsUpload
+ * @param {object} req
+ * @param {object} res
+ */
+exports.documentsUpload = async (req, res) => {
+  try {
+    const { requestId } = req.params;
+    let file;
+    const { doc_id } = req.body;
+    if (req.file) {
+      file = req.file.path;
+    }
+    let exisitingDoc = await Request.findOne({ _id: requestId, 'documents.doc_id': doc_id });
+    if (!exisitingDoc) {
+      const documentObj = {
+        doc_id: doc_id,
+        url: [file],
+      };
+      const newDoc = await Request.findOneAndUpdate({ _id: requestId }, { $push: { documents: documentObj } }, { new: true });
+      return res.json({ success: true, message: 'new document has been created', doc: newDoc });
+    }
+    exisitingDoc = await Request.findOneAndUpdate(
+      { _id: requestId, 'documents.doc_id': doc_id },
+      { $push: { 'documents.$.url': file } },
+      { new: true }
+    );
+    return res.json({ success: true, message: ' document has been updated', doc: exisitingDoc });
+  } catch (err) {
+    // Error handling
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+/**
+ * Get All Requests
+ * @param {object} req
+ * @param {object} res
+ */
+exports.getAll = async (req, res) => {
+  try {
+    const requests = await Request.find({})
+      .populate('user')
+      .populate('country')
+      .populate('vendor')
+      .populate('place')
+      .populate('buyer')
+      .populate('seller')
+      .populate({
+        path: 'codes',
+        populate: {
+          path: 'code',
+        },
+        populate: {
+          path: 'products',
+        },
+      })
+      .populate({
+        path: 'documents',
+        populate: {
+          path: 'doc_id',
+        },
+      });
+    res.status(200).json({ success: false, requets: requests });
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
