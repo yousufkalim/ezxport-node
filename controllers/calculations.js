@@ -120,7 +120,7 @@ exports.delete = async (req, res) => {
 };
 
 /**
- * Update calculation
+ * add Range
  * @param {object} req
  * @param {object} res
  */
@@ -151,6 +151,33 @@ exports.deleteRange = async (req, res) => {
     const calculation = await Calculation.findByIdAndUpdate(
       calculationId,
       { $pull: { range: { _id: req.body.rangeId } } },
+      { new: true }
+    ); // Updating the country
+    res.json({ success: true, calculation }); // Success
+  } catch (err) {
+    // Error handling
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+/**
+ * updateRange calculation
+ * @param {object} req
+ * @param {object} res
+ */
+exports.updateRange = async (req, res) => {
+  try {
+    const calculationId = req.params.calculationId; // Getting calculation id from URL parameter
+    const calculation = await Calculation.findOneAndUpdate(
+      { _id: calculationId, 'range._id': req.body.rangeId },
+      {
+        $set: {
+          'range.$.max': req.body.range.max,
+          'range.$.min': req.body.range.min,
+          'range.$.certificate_cost': req.body.range.certificate_cost,
+        },
+      },
       { new: true }
     ); // Updating the country
     res.json({ success: true, calculation }); // Success
