@@ -4,7 +4,6 @@
  */
 const Calculation = require('../models/Calculations');
 const Country = require('../models/Countries');
-const { check, validationResult } = require('express-validator');
 /**
  * Create calculation
  * @param {object} req

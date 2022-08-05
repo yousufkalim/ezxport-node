@@ -86,14 +86,23 @@ exports.userVendor = async (req, res) => {
     if (!existingVendor) {
       return res.status(409).json({ success: false, message: 'Invalid VendorID' });
     }
+    let existingUserVendor = await userVendor.findOne({ vendor: vendor, user: user });
     if (!existingUser) {
       return res.status(409).json({ success: false, message: 'Invalid userID' });
+    }
+    if (contact_info === 'true') {
+      if (!req.body.contact_fname || !req.body.contact_fname || !req.body.contact_email) {
+        return res.status(409).json({ success: false, message: 'all fields required in contact information section' });
+      }
+      existingUserVendor.contact_fname = req.body.contact_fname;
+      existingUserVendor.contact_lname = req.body.contact_lname;
+      existingUserVendor.contact_email = req.body.contact_email;
+      await existingUserVendor.save();
     }
     if (!existingRequest) {
       return res.status(409).json({ success: false, message: 'Invalid requestID' });
     }
-    let existingUserVendor = await userVendor.findOne({ vendor: vendor, user: user });
-    // return console.log(typeof contact_info, 'contact_info');
+
     if (!existingUserVendor) {
       const UserVendor = await userVendor.create(req.body);
       existingUser.vendors.push(UserVendor._id);
