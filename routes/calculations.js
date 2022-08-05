@@ -24,7 +24,7 @@ router.get('/:calculationId', calculations.getById); // Get one Calculation sby 
 // Update
 router.put('/:calculationId', validateCalculation, isValidated, calculations.update); // Update a specific Calculation by it's id
 //updateRange
-router.put('/updateRange/:calculationId', validateRange, isValidated, calculations.addRange); // Update a specific Calculation by it's id
+router.put('/addRange/:calculationId', validateRange, isValidated, calculations.addRange); // Update a specific Calculation by it's id
 //deleteRange
 router.put('/deleteRange/:calculationId', validateRangeId, isValidated, calculations.deleteRange); // Update a specific Calculation by it's id
 // Delete
