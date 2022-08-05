@@ -124,12 +124,33 @@ exports.delete = async (req, res) => {
  * @param {object} req
  * @param {object} res
  */
-exports.updateRange = async (req, res) => {
+exports.addRange = async (req, res) => {
   try {
     const calculationId = req.params.calculationId; // Getting calculation id from URL parameter
     const calculation = await Calculation.findByIdAndUpdate(
       calculationId,
       { $push: { range: req.body.range }, type: 'range' },
+      { new: true }
+    ); // Updating the country
+    res.json({ success: true, calculation }); // Success
+  } catch (err) {
+    // Error handling
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+/**
+ * deleteRange calculation
+ * @param {object} req
+ * @param {object} res
+ */
+exports.deleteRange = async (req, res) => {
+  try {
+    const calculationId = req.params.calculationId; // Getting calculation id from URL parameter
+    const calculation = await Calculation.findByIdAndUpdate(
+      calculationId,
+      { $pull: { range: { _id: req.body.rangeId } } },
       { new: true }
     ); // Updating the country
     res.json({ success: true, calculation }); // Success

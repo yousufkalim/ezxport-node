@@ -27,15 +27,42 @@ exports.boms = async (req, res) => {
     if (!existingUser) {
       return res.status(409).json({ success: false, message: 'UserId is invalid' });
     }
-    req.body.certification_cost = 0;
-    for (let i = 0; i < codes.length; i++) {
-      if (codes[i].certification_required == 'true') {
-        req.body.certification_cost += codes[i].monetary_value - 0; //To deal with coercion subtracted 0 from string :)
-      }
-    }
+    // req.body.certification_cost = 0;
+    // for (let i = 0; i < codes.length; i++) {
+    //   console.log(typeof codes[i].certification_required);
+    //   if (codes[i].certification_required) {
+    //     req.body.certification_cost += codes[i].monetary_value - 0; //To deal with coercion subtracted 0 from string :)
+    //   }
+    // }
+    // return console.log(req.body.certification_cost, 'req.body.certification_cost');
     const request = await Request.create(req.body); // Adding seller in db
     existingUser.requests.push(request._id);
     await existingUser.save();
+    res.json({ success: true, request }); //Success
+  } catch (err) {
+    // Error handling
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+/**       Update
+ * Request  First-Step
+ *        BOM
+ * @param {object} req
+ * @param {object} res
+ */
+exports.updateBoms = async (req, res) => {
+  try {
+    const { requestId } = req.params;
+    const { codes } = req.body;
+    // req.body.certification_cost = 0;
+    // for (let i = 0; i < codes.length; i++) {
+    //   if (codes[i].certification_required ) {
+    //     req.body.certification_cost += codes[i].monetary_value - 0; //To deal with coercion subtracted 0 from string :)
+    //   }
+    // }
+    const request = await Request.findByIdAndUpdate(requestId, req.body, { new: true }); // Adding seller in db
     res.json({ success: true, request }); //Success
   } catch (err) {
     // Error handling
@@ -52,7 +79,7 @@ exports.boms = async (req, res) => {
  */
 exports.userVendor = async (req, res) => {
   try {
-    const { vendor, user, request } = req.body;
+    const { vendor, user, request, contact_info } = req.body;
     let existingVendor = await Vendors.findById(vendor);
     let existingUser = await Users.findById(user);
     let existingRequest = await Request.findById(request);
@@ -66,6 +93,7 @@ exports.userVendor = async (req, res) => {
       return res.status(409).json({ success: false, message: 'Invalid requestID' });
     }
     let existingUserVendor = await userVendor.findOne({ vendor: vendor, user: user });
+    // return console.log(typeof contact_info, 'contact_info');
     if (!existingUserVendor) {
       const UserVendor = await userVendor.create(req.body);
       existingUser.vendors.push(UserVendor._id);
@@ -228,7 +256,121 @@ exports.getAll = async (req, res) => {
           path: 'doc_id',
         },
       });
-    res.status(200).json({ success: false, requets: requests });
+    res.status(200).json({ success: true, requets: requests });
+  } catch (err) {
+    // Error handling
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+/**
+ * Get By userId
+ * @param {object} req
+ * @param {object} res
+ */
+exports.getByuserId = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const request = await Request.find({ user: userId })
+      .populate('user')
+      .populate('country')
+      .populate('vendor')
+      .populate('place')
+      .populate('buyer')
+      .populate('seller')
+      .populate({
+        path: 'codes',
+        populate: {
+          path: 'code',
+        },
+        populate: {
+          path: 'products',
+        },
+      })
+      .populate({
+        path: 'documents',
+        populate: {
+          path: 'doc_id',
+        },
+      });
+    res.status(200).json({ success: true, requet: request });
+  } catch (err) {
+    // Error handling
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+/**
+ * Get By countryId
+ * @param {object} req
+ * @param {object} res
+ */
+exports.getBycountryId = async (req, res) => {
+  try {
+    const { countryId } = req.params;
+    const request = await Request.find({ country: countryId })
+      .populate('user')
+      .populate('country')
+      .populate('vendor')
+      .populate('place')
+      .populate('buyer')
+      .populate('seller')
+      .populate({
+        path: 'codes',
+        populate: {
+          path: 'code',
+        },
+        populate: {
+          path: 'products',
+        },
+      })
+      .populate({
+        path: 'documents',
+        populate: {
+          path: 'doc_id',
+        },
+      });
+    res.status(200).json({ success: true, requet: request });
+  } catch (err) {
+    // Error handling
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+/**
+ * Get All Requests
+ * @param {object} req
+ * @param {object} res
+ */
+exports.getById = async (req, res) => {
+  try {
+    const { requestId } = req.params;
+    const request = await Request.findById(requestId)
+      .populate('user')
+      .populate('country')
+      .populate('vendor')
+      .populate('place')
+      .populate('buyer')
+      .populate('seller')
+      .populate({
+        path: 'codes',
+        populate: {
+          path: 'code',
+        },
+        populate: {
+          path: 'products',
+        },
+      })
+      .populate({
+        path: 'documents',
+        populate: {
+          path: 'doc_id',
+        },
+      });
+    res.status(200).json({ success: true, requet: request });
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
