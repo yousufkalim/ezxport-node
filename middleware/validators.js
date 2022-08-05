@@ -85,6 +85,7 @@ exports.validaterRequestVendor = [
   check('user', 'userId required').notEmpty().trim(),
   check('request', 'requestId required').notEmpty().trim(),
   check('vendor', 'vendorId required').notEmpty().trim(),
+  check('contact_info', 'contact_info true/false').notEmpty().isBoolean().trim(),
 ];
 //3rd Step of Request
 exports.validateDispatch = [
@@ -187,6 +188,9 @@ exports.validateRange = [
   check('range.max', 'max required ').notEmpty().trim(),
   check('range.certificate_cost', 'certificate_cost required ').notEmpty().trim(),
 ];
+
+//
+exports.validateRangeId = [check('rangeId', 'rangeId required ').notEmpty().trim()];
 
 // Change password validation
 exports.changePasswordValidate = [

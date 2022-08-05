@@ -34,7 +34,11 @@ router.put('/documentsUpload/:requestId', upload.single('file'), validateUploadD
 router.put('/documents', ValidateDocuments, isValidated, request.Documents);
 // // Read
 router.get('/', request.getAll); // Get all requests at once
-// router.get('/:requestId', request.getById); // Get one requestby it's id
+router.get('/:requestId', request.getById); // Get one requestby it's id
+router.get('/getByUser/:requestId', request.getByuserId); // Get one requestby it's id
+router.get('/getByCountry/:countryId', request.getBycountryId); // Get one requestby it's id
+//getBycountryId
+
 // // Update
 // router.put('/:requestId', validaterequests, isValidated, request.update); // Update a specific requestby it's id
 // // Delete

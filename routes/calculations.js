@@ -4,7 +4,7 @@
  */
 const router = require('express').Router();
 const calculations = require('../controllers/calculations');
-const { validateCalculation, validateRange, isValidated } = require('../middleware/validators');
+const { validateCalculation, validateRange, validateRangeId, isValidated } = require('../middleware/validators');
 
 /**
  * ////////////////////////// Routes /////////////////////////
@@ -24,8 +24,9 @@ router.get('/:calculationId', calculations.getById); // Get one Calculation sby 
 // Update
 router.put('/:calculationId', validateCalculation, isValidated, calculations.update); // Update a specific Calculation by it's id
 //updateRange
-router.put('/updateRange/:calculationId', validateRange, isValidated, calculations.updateRange); // Update a specific Calculation by it's id
-
+router.put('/updateRange/:calculationId', validateRange, isValidated, calculations.addRange); // Update a specific Calculation by it's id
+//deleteRange
+router.put('/deleteRange/:calculationId', validateRangeId, isValidated, calculations.deleteRange); // Update a specific Calculation by it's id
 // Delete
 router.delete('/:calculationId', calculations.delete); // delete a specific Calculation by it's id
 
