@@ -4,7 +4,7 @@
  */
 const Calculation = require('../models/Calculations');
 const Country = require('../models/Countries');
-
+const { check, validationResult } = require('express-validator');
 /**
  * Create calculation
  * @param {object} req
@@ -85,6 +85,14 @@ exports.getByCountryId = async (req, res) => {
 exports.update = async (req, res) => {
   try {
     const calculationId = req.params.calculationId; // Getting calculation id from URL parameter
+    if (req.body.type == 'range') {
+      if (!req.body.range) {
+        return res.json({ success: false, message: 'Range is required' }); // Success
+      }
+      if (req.body.range.length < 1) {
+        return res.json({ success: false, message: 'Range is required' }); // Success
+      }
+    }
     const calculation = await Calculation.findByIdAndUpdate(calculationId, req.body, { new: true }); // Updating the country
     res.json({ success: true, calculation }); // Success
   } catch (err) {
@@ -104,6 +112,27 @@ exports.delete = async (req, res) => {
     const calculationId = req.params.calculationId; // Getting calculation id from URL parameter
     const calculation = await Calculation.findByIdAndDelete(calculationId); // Deleting the calculation
     return res.status(200).json({ success: true, message: 'Successfully Deleted', calculation }); // Success
+  } catch (err) {
+    // Error handling
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+/**
+ * Update calculation
+ * @param {object} req
+ * @param {object} res
+ */
+exports.updateRange = async (req, res) => {
+  try {
+    const calculationId = req.params.calculationId; // Getting calculation id from URL parameter
+    const calculation = await Calculation.findByIdAndUpdate(
+      calculationId,
+      { $push: { range: req.body.range }, type: 'range' },
+      { new: true }
+    ); // Updating the country
+    res.json({ success: true, calculation }); // Success
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);

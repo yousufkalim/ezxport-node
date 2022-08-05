@@ -31,8 +31,8 @@ exports.create = async (req, res) => {
  */
 exports.getAll = async (req, res) => {
   try {
-    const countries = await Country.find(); // Finding all the Country from db
-    res.json({ success: true, countries }).populate('boms').populate('documents').populate('vendors').populate('calculation'); // Success
+    const countries = await Country.find().populate('boms').populate('documents').populate('vendors').populate('calculation'); // Success; // Finding all the Country from db
+    res.json({ success: true, countries });
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
