@@ -35,7 +35,7 @@ const followRequestSchema = new mongoose.Schema(
     ],
     vendor: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'vendors',
+      ref: 'user_vendors',
     },
     seller: {
       type: mongoose.Schema.Types.ObjectId,

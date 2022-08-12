@@ -55,7 +55,7 @@ exports.boms = async (req, res) => {
 exports.updateBoms = async (req, res) => {
   try {
     const { requestId } = req.params;
-    const { codes } = req.body;
+    // const { codes } = req.body;
     // req.body.certification_cost = 0;
     // for (let i = 0; i < codes.length; i++) {
     //   if (codes[i].certification_required ) {
@@ -350,7 +350,7 @@ exports.getBycountryId = async (req, res) => {
 };
 
 /**
- * Get All Requests
+ * Get Request By Id
  * @param {object} req
  * @param {object} res
  */
@@ -384,5 +384,72 @@ exports.getById = async (req, res) => {
     // Error handling
     console.log('Error ----> ', err);
     res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+/**
+ * validate Documents
+ * @param {object} req
+ * @param {object} res
+ */
+
+exports.validateDoc = async (req, res) => {
+  try {
+    const { requestId } = req.params;
+    const { doc_id, status } = req.body;
+    let exisitingDoc = await Request.findOne(
+      { _id: requestId, 'documents.doc_id': doc_id }
+      //   { 'documents.status': status },
+      //   { new: true }
+    );
+    res.status(200).json({ success: true, requet: exisitingDoc });
+  } catch (err) {
+    console.log('Error---->', err);
+    res.status(5000).jsom({ success: false, message: 'Internal SERVER eROOR' });
+  }
+};
+
+/**
+ *   Request-Missing-Docs
+ * @param {object} req
+ * @param {object} res
+ */
+
+exports.ReqmissingDocs = async (req, res) => {
+  try {
+    const { requestId } = req.params;
+    const exitingRequest = await Request.findById({ requestId });
+    if (!exitingRequest) {
+      return res.status(404).json({ success: false, message: 'Nof Found ' });
+    }
+    const new_doc = await Documents.create(req.body);
+    await exitingRequest.missing_docs.push(new_doc);
+    await exitingRequest.save();
+  } catch (err) {
+    console.log('Error---->', err);
+    res.status(5000).jsom({ success: false, message: 'Internal SERVER eROOR' });
+  }
+};
+
+/**
+ *
+ * Product-Missing-Docs
+ * @param {object} req
+ * @param {object} res
+ */
+
+exports.ProductmissingDocs = async (req, res) => {
+  try {
+    const { productId } = req.params;
+    const exitingProduct = await Request.findById({ productId });
+    if (!exitingProduct) {
+      return res.status(404).json({ success: false, message: 'Not Found ' });
+    }
+    const new_doc = await Documents.create(req.body);
+    await exitingProduct.missing_docs.push(new_doc);
+    await exitingProduct.save();
+  } catch (err) {
+    console.log('Error---->', err);
+    res.status(5000).jsom({ success: false, message: 'Internal SERVER eROOR' });
   }
 };

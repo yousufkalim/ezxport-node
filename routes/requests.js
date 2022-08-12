@@ -11,6 +11,7 @@ const {
   validateDispatch,
   ValidateDocuments,
   validateUploadDocuments,
+  validateStatusDocument,
   isValidated,
 } = require('../middleware/validators');
 
@@ -32,14 +33,19 @@ router.put('/dispatch', validateDispatch, isValidated, request.Dispatch);
 //  4th Step - document
 router.put('/documentsUpload/:requestId', upload.single('file'), validateUploadDocuments, isValidated, request.documentsUpload);
 router.put('/documents', ValidateDocuments, isValidated, request.Documents);
+
 // // Read
 router.get('/', request.getAll); // Get all requests at once
 router.get('/:requestId', request.getById); // Get one requestby it's id
 router.get('/getByUser/:requestId', request.getByuserId); // Get one requestby it's id
 router.get('/getByCountry/:countryId', request.getBycountryId); // Get one requestby it's id
+//request by admin
+router.put('/validateDoc/:requestId', validateStatusDocument, isValidated, request.validateDoc);
+router.put('/ReqmissingDocs/:requestId', request.ReqmissingDocs);
+router.put('/ProductmissingDocs/:productId', request.ProductmissingDocs);
 //getBycountryId
 
-// // Update
+// // Update--
 // router.put('/:requestId', validaterequests, isValidated, request.update); // Update a specific requestby it's id
 // // Delete
 // router.delete('/:requestId', request.delete); // delete a specific requestby it's id

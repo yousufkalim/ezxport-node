@@ -134,6 +134,10 @@ exports.ValidateDocuments = [
   check('codes.*.price.value', 'value required ').notEmpty().trim(),
 ];
 exports.validateUploadDocuments = [check('doc_id', 'doc_id required').notEmpty().trim()];
+exports.validateStatusDocument = [
+  check('doc_id', 'doc_id required').notEmpty().trim(),
+  check('status', 'status required').notEmpty().trim(),
+];
 //create serviceProvider
 exports.validateServiceProvider = [
   check('phone_number', 'phone number is required.').notEmpty().trim(),
