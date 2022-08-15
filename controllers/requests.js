@@ -55,7 +55,7 @@ exports.boms = async (req, res) => {
 exports.updateBoms = async (req, res) => {
   try {
     const { requestId } = req.params;
-    const { codes } = req.body;
+    // const { codes } = req.body;
     // req.body.certification_cost = 0;
     // for (let i = 0; i < codes.length; i++) {
     //   if (codes[i].certification_required ) {
@@ -86,14 +86,23 @@ exports.userVendor = async (req, res) => {
     if (!existingVendor) {
       return res.status(409).json({ success: false, message: 'Invalid VendorID' });
     }
+    let existingUserVendor = await userVendor.findOne({ vendor: vendor, user: user });
     if (!existingUser) {
       return res.status(409).json({ success: false, message: 'Invalid userID' });
+    }
+    if (contact_info === 'true') {
+      if (!req.body.contact_fname || !req.body.contact_fname || !req.body.contact_email) {
+        return res.status(409).json({ success: false, message: 'all fields required in contact information section' });
+      }
+      existingUserVendor.contact_fname = req.body.contact_fname;
+      existingUserVendor.contact_lname = req.body.contact_lname;
+      existingUserVendor.contact_email = req.body.contact_email;
+      await existingUserVendor.save();
     }
     if (!existingRequest) {
       return res.status(409).json({ success: false, message: 'Invalid requestID' });
     }
-    let existingUserVendor = await userVendor.findOne({ vendor: vendor, user: user });
-    // return console.log(typeof contact_info, 'contact_info');
+
     if (!existingUserVendor) {
       const UserVendor = await userVendor.create(req.body);
       existingUser.vendors.push(UserVendor._id);
@@ -341,7 +350,7 @@ exports.getBycountryId = async (req, res) => {
 };
 
 /**
- * Get All Requests
+ * Get Request By Id
  * @param {object} req
  * @param {object} res
  */
@@ -375,5 +384,72 @@ exports.getById = async (req, res) => {
     // Error handling
     console.log('Error ----> ', err);
     res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+/**
+ * validate Documents
+ * @param {object} req
+ * @param {object} res
+ */
+
+exports.validateDoc = async (req, res) => {
+  try {
+    const { requestId } = req.params;
+    const { doc_id, status } = req.body;
+    let exisitingDoc = await Request.findOne(
+      { _id: requestId, 'documents.doc_id': doc_id }
+      //   { 'documents.status': status },
+      //   { new: true }
+    );
+    res.status(200).json({ success: true, requet: exisitingDoc });
+  } catch (err) {
+    console.log('Error---->', err);
+    res.status(5000).jsom({ success: false, message: 'Internal SERVER eROOR' });
+  }
+};
+
+/**
+ *   Request-Missing-Docs
+ * @param {object} req
+ * @param {object} res
+ */
+
+exports.ReqmissingDocs = async (req, res) => {
+  try {
+    const { requestId } = req.params;
+    const exitingRequest = await Request.findById({ requestId });
+    if (!exitingRequest) {
+      return res.status(404).json({ success: false, message: 'Nof Found ' });
+    }
+    const new_doc = await Documents.create(req.body);
+    await exitingRequest.missing_docs.push(new_doc);
+    await exitingRequest.save();
+  } catch (err) {
+    console.log('Error---->', err);
+    res.status(5000).jsom({ success: false, message: 'Internal SERVER eROOR' });
+  }
+};
+
+/**
+ *
+ * Product-Missing-Docs
+ * @param {object} req
+ * @param {object} res
+ */
+
+exports.ProductmissingDocs = async (req, res) => {
+  try {
+    const { productId } = req.params;
+    const exitingProduct = await Request.findById({ productId });
+    if (!exitingProduct) {
+      return res.status(404).json({ success: false, message: 'Not Found ' });
+    }
+    const new_doc = await Documents.create(req.body);
+    await exitingProduct.missing_docs.push(new_doc);
+    await exitingProduct.save();
+  } catch (err) {
+    console.log('Error---->', err);
+    res.status(5000).jsom({ success: false, message: 'Internal SERVER eROOR' });
   }
 };
