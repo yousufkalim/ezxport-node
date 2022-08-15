@@ -42,7 +42,7 @@ exports.boms = async (req, res) => {
       const request = await Request.create(req.body); // Adding seller in db
       existingUser.requests.push(request._id);
       await existingUser.save();
-      return res.json({ success: true, request, message: 'certification not required', certification_required: false }); //Success
+      return res.json({ success: true, request, message: 'certification not required' }); //Success
     }
     //If certification  required by some of documents
     //then calculate monetory values for required codes
@@ -54,10 +54,12 @@ exports.boms = async (req, res) => {
       }
     }
 
+    req.body.certification_cost = { value: value };
+
     const request = await Request.create(req.body); // Adding seller in db
     existingUser.requests.push(request._id);
     await existingUser.save();
-    res.json({ success: true, request, certification_required: true }); //Success
+    res.json({ success: true, request }); //Success
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
@@ -98,6 +100,7 @@ exports.updateBoms = async (req, res) => {
         value = +value + +codes[i].monetary_value; //To deal with coercion subtracted 0 from string :)
       }
     }
+    req.body.certification_cost = { value: value };
     const request = await Request.findByIdAndUpdate(requestId, req.body, { new: true }); // Adding seller in db
     res.json({ success: true, request }); //Success
   } catch (err) {
