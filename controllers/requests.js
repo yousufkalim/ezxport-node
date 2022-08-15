@@ -42,7 +42,7 @@ exports.boms = async (req, res) => {
       const request = await Request.create(req.body); // Adding seller in db
       existingUser.requests.push(request._id);
       await existingUser.save();
-      return res.json({ success: true, request, message: 'certification not required' }); //Success
+      return res.json({ success: true, request, message: 'certification not required', certification_required: false }); //Success
     }
     //If certification  required by some of documents
     //then calculate monetory values for required codes
@@ -57,7 +57,7 @@ exports.boms = async (req, res) => {
     const request = await Request.create(req.body); // Adding seller in db
     existingUser.requests.push(request._id);
     await existingUser.save();
-    res.json({ success: true, request }); //Success
+    res.json({ success: true, request, certification_required: true }); //Success
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
