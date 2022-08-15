@@ -146,6 +146,8 @@ exports.validateServiceProvider = [
   check('contact_email', 'contact_email is required').notEmpty().isEmail().trim(),
   check('countries', 'countries required').isArray({ min: 1 }),
 ];
+//name
+exports.validateMissingDoc = [check('name', 'Doc name is required').notEmpty().trim()];
 //create AddressBook
 exports.validateBuyer = [
   check('phone_number', 'phone number is required.').notEmpty().trim(),
