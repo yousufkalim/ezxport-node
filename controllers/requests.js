@@ -53,7 +53,7 @@ exports.boms = async (req, res) => {
         value = +value + +codes[i].monetary_value; //To deal with coercion subtracted 0 from string :)
       }
     }
-    return console.log(req.body.certification_cost);
+
     const request = await Request.create(req.body); // Adding seller in db
     existingUser.requests.push(request._id);
     await existingUser.save();
