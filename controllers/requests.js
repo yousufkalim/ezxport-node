@@ -3,6 +3,7 @@
  * @author Shuja Naqvi
  */
 const Codes = require('../models/Boms');
+const Documents = require('../models/Documents');
 const Users = require('../models/Users');
 const Vendors = require('../models/Vendors');
 const Request = require('../models/Requests');
@@ -27,15 +28,77 @@ exports.boms = async (req, res) => {
     if (!existingUser) {
       return res.status(409).json({ success: false, message: 'UserId is invalid' });
     }
-    req.body.certification_cost = 0;
+    //If certification not required by all of documents
+    const certificationNotReq = codes.every(function (v) {
+      const boolVal = JSON.parse(v.certification_required);
+      return !boolVal;
+    });
+    //If certification not required by all of documents
+    //then set its request status will be not required
+    //and cost value will be 0
+    if (certificationNotReq) {
+      req.body.status = 'not required';
+      req.body.certification_cost = { value: 0 };
+      const request = await Request.create(req.body); // Adding seller in db
+      existingUser.requests.push(request._id);
+      await existingUser.save();
+      return res.json({ success: true, request, message: 'certification not required' }); //Success
+    }
+    //If certification  required by some of documents
+    //then calculate monetory values for required codes
+    let value = 0;
     for (let i = 0; i < codes.length; i++) {
-      if (codes[i].certification_required == 'true') {
-        req.body.certification_cost += codes[i].monetary_value - 0; //To deal with coercion subtracted 0 from string :)
+      const boolVal = JSON.parse(codes[i].certification_required);
+      if (boolVal) {
+        value = +value + +codes[i].monetary_value; //To deal with coercion subtracted 0 from string :)
       }
     }
+    return console.log(req.body.certification_cost);
     const request = await Request.create(req.body); // Adding seller in db
     existingUser.requests.push(request._id);
     await existingUser.save();
+    res.json({ success: true, request }); //Success
+  } catch (err) {
+    // Error handling
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+/**       Update
+ * Request  First-Step
+ *        BOM
+ * @param {object} req
+ * @param {object} res
+ */
+exports.updateBoms = async (req, res) => {
+  try {
+    const { requestId } = req.params;
+    const { codes } = req.body;
+    //If certification not required by all of documents
+    const certificationNotReq = codes.every(function (v) {
+      const boolVal = JSON.parse(v.certification_required);
+      return !boolVal;
+    });
+    //If certification not required by all of documents
+    //then set its request status will be not required
+    //and cost value will be 0
+    if (certificationNotReq) {
+      req.body.status = 'not required';
+      req.body.certification_cost = { value: 0 };
+      const request = await Request.findByIdAndUpdate(requestId, req.body, { new: true }); // Adding seller in db
+      return res.json({ success: true, request }); //Success
+    }
+    //If certification  required by some of documents
+    //then calculate monetory values for required codes
+    let value = 0;
+    for (let i = 0; i < codes.length; i++) {
+      const boolVal = JSON.parse(codes[i].certification_required);
+      if (boolVal) {
+        value = +value + +codes[i].monetary_value; //To deal with coercion subtracted 0 from string :)
+      }
+    }
+    const request = await Request.findByIdAndUpdate(requestId, req.body, { new: true }); // Adding seller in db
     res.json({ success: true, request }); //Success
   } catch (err) {
     // Error handling
@@ -52,20 +115,30 @@ exports.boms = async (req, res) => {
  */
 exports.userVendor = async (req, res) => {
   try {
-    const { vendor, user, request } = req.body;
+    const { vendor, user, request, contact_info } = req.body;
     let existingVendor = await Vendors.findById(vendor);
     let existingUser = await Users.findById(user);
     let existingRequest = await Request.findById(request);
     if (!existingVendor) {
       return res.status(409).json({ success: false, message: 'Invalid VendorID' });
     }
+    let existingUserVendor = await userVendor.findOne({ vendor: vendor, user: user });
     if (!existingUser) {
       return res.status(409).json({ success: false, message: 'Invalid userID' });
+    }
+    if (contact_info === 'true') {
+      if (!req.body.contact_fname || !req.body.contact_fname || !req.body.contact_email) {
+        return res.status(409).json({ success: false, message: 'all fields required in contact information section' });
+      }
+      existingUserVendor.contact_fname = req.body.contact_fname;
+      existingUserVendor.contact_lname = req.body.contact_lname;
+      existingUserVendor.contact_email = req.body.contact_email;
+      await existingUserVendor.save();
     }
     if (!existingRequest) {
       return res.status(409).json({ success: false, message: 'Invalid requestID' });
     }
-    let existingUserVendor = await userVendor.findOne({ vendor: vendor, user: user });
+
     if (!existingUserVendor) {
       const UserVendor = await userVendor.create(req.body);
       existingUser.vendors.push(UserVendor._id);
@@ -213,6 +286,7 @@ exports.getAll = async (req, res) => {
       .populate('place')
       .populate('buyer')
       .populate('seller')
+      .populate('missing_docs')
       .populate({
         path: 'codes',
         populate: {
@@ -228,10 +302,234 @@ exports.getAll = async (req, res) => {
           path: 'doc_id',
         },
       });
-    res.status(200).json({ success: false, requets: requests });
+    res.status(200).json({ success: true, requets: requests });
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
     res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+/**
+ * Get By userId
+ * @param {object} req
+ * @param {object} res
+ */
+exports.getByuserId = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const request = await Request.find({ user: userId })
+      .populate('user')
+      .populate('country')
+      .populate('vendor')
+      .populate('place')
+      .populate('buyer')
+      .populate('missing_docs')
+      .populate('seller')
+      .populate({
+        path: 'codes',
+        populate: {
+          path: 'code',
+        },
+        populate: {
+          path: 'products',
+        },
+      })
+      .populate({
+        path: 'documents',
+        populate: {
+          path: 'doc_id',
+        },
+      });
+    res.status(200).json({ success: true, requet: request });
+  } catch (err) {
+    // Error handling
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+/**
+ * Get By countryId
+ * @param {object} req
+ * @param {object} res
+ */
+exports.getBycountryId = async (req, res) => {
+  try {
+    const { countryId } = req.params;
+    const request = await Request.find({ country: countryId })
+      .populate('user')
+      .populate('country')
+      .populate('vendor')
+      .populate('place')
+      .populate('missing_docs')
+      .populate('buyer')
+      .populate('seller')
+      .populate({
+        path: 'codes',
+        populate: {
+          path: 'code',
+        },
+        populate: {
+          path: 'products',
+        },
+      })
+      .populate({
+        path: 'documents',
+        populate: {
+          path: 'doc_id',
+        },
+      });
+    res.status(200).json({ success: true, requet: request });
+  } catch (err) {
+    // Error handling
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+/**
+ * Get Request By Id
+ * @param {object} req
+ * @param {object} res
+ */
+exports.getById = async (req, res) => {
+  try {
+    const { requestId } = req.params;
+    const request = await Request.findById(requestId)
+      .populate('user')
+      .populate('country')
+      .populate('missing_docs')
+      .populate('vendor')
+      .populate('place')
+      .populate('buyer')
+      .populate('seller')
+      .populate({
+        path: 'codes',
+        populate: {
+          path: 'code',
+        },
+        populate: {
+          path: 'products',
+        },
+      })
+      .populate({
+        path: 'documents',
+        populate: {
+          path: 'doc_id',
+        },
+      });
+    res.status(200).json({ success: true, requet: request });
+  } catch (err) {
+    // Error handling
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+/**
+ * validate Documents
+ * @param {object} req
+ * @param {object} res
+ */
+
+exports.validateDoc = async (req, res) => {
+  try {
+    const { requestId } = req.params;
+    const { doc_id, status } = req.body;
+    let exisitingDoc = await Request.findOneAndUpdate(
+      { _id: requestId, 'documents.doc_id': doc_id },
+      { 'documents.$.status': status },
+      { new: true }
+    );
+    res.status(200).json({ success: true, requet: exisitingDoc });
+  } catch (err) {
+    console.log('Error---->', err);
+    res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+};
+
+/**
+ * validate Product Document
+ * @param {object} req
+ * @param {object} res
+ */
+
+exports.validateProductDoc = async (req, res) => {
+  try {
+    const { productId } = req.params;
+    let exisitingProduct = await Products.findById(productId);
+    if (!exisitingProduct) {
+      res.status(404).json({ success: false, message: 'Product Not Found' });
+    }
+    if (req.body.technical_sheet) {
+      exisitingProduct.technical_sheet.status = req.body.technical_sheet.status;
+    }
+    if (req.body.test_report) {
+      exisitingProduct.test_report.status = req.body.test_report.status;
+    }
+    if (req.body.analysis_certificate) {
+      exisitingProduct.analysis_certificate.status = req.body.analysis_certificate.status;
+    }
+    if (req.body.plan) {
+      exisitingProduct.plan.status = req.body.plan.status;
+    }
+    if (req.body.other_docs) {
+      exisitingProduct.other_docs.status = req.body.other_docs.status;
+    }
+    await exisitingProduct.save();
+    res.status(200).json({ success: true, product: exisitingProduct });
+  } catch (err) {
+    console.log('Error---->', err);
+    res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+};
+
+/**
+ *   Request-Missing-Docs
+ * @param {object} req
+ * @param {object} res
+ */
+
+exports.ReqmissingDocs = async (req, res) => {
+  try {
+    const { requestId } = req.params;
+    const exitingRequest = await Request.findById(requestId);
+    if (!exitingRequest) {
+      return res.status(404).json({ success: false, message: 'Request Not Found ' });
+    }
+    req.body.countries = [exitingRequest.country];
+    const new_doc = await Documents.create(req.body);
+    exitingRequest.missing_docs.push(new_doc._id);
+    await exitingRequest.save();
+    return res.status(202).json({ success: false, message: 'Missing Doc Updated ', exitingRequest });
+  } catch (err) {
+    console.log('Error---->', err);
+    res.status(5000).json({ success: false, message: 'Internal Server Error' });
+  }
+};
+
+/**
+ *
+ * Product-Missing-Docs
+ * @param {object} req
+ * @param {object} res
+ */
+
+exports.ProductmissingDocs = async (req, res) => {
+  try {
+    const { productId } = req.params;
+    const exitingProduct = await Products.findById(productId);
+    if (!exitingProduct) {
+      return res.status(404).json({ success: false, message: 'Not Found ' });
+    }
+    req.body.countries = [exitingProduct.country];
+    const new_doc = await Documents.create(req.body);
+    exitingProduct.missing_docs.push(new_doc._id);
+    await exitingProduct.save();
+    return res.status(202).json({ success: false, message: 'Missing Doc Updated ', exitingProduct });
+  } catch (err) {
+    console.log('Error---->', err);
+    res.status(5000).json({ success: false, message: 'Internal Server Error' });
   }
 };

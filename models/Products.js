@@ -12,6 +12,7 @@ const productSchema = new mongoose.Schema(
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
     country: { type: mongoose.Schema.Types.ObjectId, ref: 'countries' },
     name: String,
+    status: String,
     description: String,
     condition: String,
     amount: Number,

@@ -85,6 +85,7 @@ exports.validaterRequestVendor = [
   check('user', 'userId required').notEmpty().trim(),
   check('request', 'requestId required').notEmpty().trim(),
   check('vendor', 'vendorId required').notEmpty().trim(),
+  check('contact_info', 'contact_info true/false').notEmpty().isBoolean().trim(),
 ];
 //3rd Step of Request
 exports.validateDispatch = [
@@ -133,6 +134,10 @@ exports.ValidateDocuments = [
   check('codes.*.price.value', 'value required ').notEmpty().trim(),
 ];
 exports.validateUploadDocuments = [check('doc_id', 'doc_id required').notEmpty().trim()];
+exports.validateStatusDocument = [
+  check('doc_id', 'doc_id required').notEmpty().trim(),
+  check('status', 'status required').notEmpty().trim(),
+];
 //create serviceProvider
 exports.validateServiceProvider = [
   check('phone_number', 'phone number is required.').notEmpty().trim(),
@@ -141,6 +146,8 @@ exports.validateServiceProvider = [
   check('contact_email', 'contact_email is required').notEmpty().isEmail().trim(),
   check('countries', 'countries required').isArray({ min: 1 }),
 ];
+//name
+exports.validateMissingDoc = [check('name', 'Doc name is required').notEmpty().trim()];
 //create AddressBook
 exports.validateBuyer = [
   check('phone_number', 'phone number is required.').notEmpty().trim(),
@@ -187,6 +194,9 @@ exports.validateRange = [
   check('range.max', 'max required ').notEmpty().trim(),
   check('range.certificate_cost', 'certificate_cost required ').notEmpty().trim(),
 ];
+
+//
+exports.validateRangeId = [check('rangeId', 'rangeId required ').notEmpty().trim()];
 
 // Change password validation
 exports.changePasswordValidate = [

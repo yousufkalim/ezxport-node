@@ -24,7 +24,7 @@ const followRequestSchema = new mongoose.Schema(
       {
         doc_id: { type: mongoose.Schema.Types.ObjectId, ref: 'documents' },
         url: [{ type: String }],
-        status: { type: String, enum: ['valid', 'invalid', 'pending'] },
+        status: { type: String, enum: ['valid', 'invalid', 'pending'], default: 'pending' },
       },
     ],
     missing_docs: [
@@ -35,7 +35,7 @@ const followRequestSchema = new mongoose.Schema(
     ],
     vendor: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'vendors',
+      ref: 'user_vendors',
     },
     seller: {
       type: mongoose.Schema.Types.ObjectId,
@@ -55,7 +55,7 @@ const followRequestSchema = new mongoose.Schema(
     status: {
       type: String,
     },
-    certification_cost: { currency: { type: String }, value: { type: String } },
+    certification_cost: { currency: { type: String, default: 'USD' }, value: { type: String } },
     request_method: {
       type: String,
       enum: ['direct', 'platform'],
