@@ -53,7 +53,9 @@ exports.boms = async (req, res) => {
         value = +value + +codes[i].monetary_value; //To deal with coercion subtracted 0 from string :)
       }
     }
-    return console.log(req.body.certification_cost);
+
+    req.body.certification_cost = { value: value };
+
     const request = await Request.create(req.body); // Adding seller in db
     existingUser.requests.push(request._id);
     await existingUser.save();
@@ -98,6 +100,7 @@ exports.updateBoms = async (req, res) => {
         value = +value + +codes[i].monetary_value; //To deal with coercion subtracted 0 from string :)
       }
     }
+    req.body.certification_cost = { value: value };
     const request = await Request.findByIdAndUpdate(requestId, req.body, { new: true }); // Adding seller in db
     res.json({ success: true, request }); //Success
   } catch (err) {
@@ -126,7 +129,7 @@ exports.userVendor = async (req, res) => {
     if (!existingUser) {
       return res.status(409).json({ success: false, message: 'Invalid userID' });
     }
-    if (contact_info === 'true') {
+    if (contact_info) {
       if (!req.body.contact_fname || !req.body.contact_fname || !req.body.contact_email) {
         return res.status(409).json({ success: false, message: 'all fields required in contact information section' });
       }
