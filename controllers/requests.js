@@ -129,7 +129,7 @@ exports.userVendor = async (req, res) => {
     if (!existingUser) {
       return res.status(409).json({ success: false, message: 'Invalid userID' });
     }
-    if (contact_info === 'true') {
+    if (contact_info) {
       if (!req.body.contact_fname || !req.body.contact_fname || !req.body.contact_email) {
         return res.status(409).json({ success: false, message: 'all fields required in contact information section' });
       }
