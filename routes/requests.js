@@ -12,6 +12,7 @@ const {
   ValidateDocuments,
   validateUploadDocuments,
   validateStatusDocument,
+  validateMissingDoc,
   isValidated,
 } = require('../middleware/validators');
 
@@ -41,14 +42,9 @@ router.get('/getByUser/:requestId', request.getByuserId); // Get one requestby i
 router.get('/getByCountry/:countryId', request.getBycountryId); // Get one requestby it's id
 //request by admin
 router.put('/validateDoc/:requestId', validateStatusDocument, isValidated, request.validateDoc);
-router.put('/ReqmissingDocs/:requestId', request.ReqmissingDocs);
-router.put('/ProductmissingDocs/:productId', request.ProductmissingDocs);
-//getBycountryId
-
-// // Update--
-// router.put('/:requestId', validaterequests, isValidated, request.update); // Update a specific requestby it's id
-// // Delete
-// router.delete('/:requestId', request.delete); // delete a specific requestby it's id
+router.put('/validateProductDoc/:productId', request.validateProductDoc);
+router.put('/ReqmissingDocs/:requestId', validateMissingDoc, isValidated, request.ReqmissingDocs);
+router.put('/ProductmissingDocs/:productId', validateMissingDoc, isValidated, request.ProductmissingDocs);
 
 // Export
 module.exports = router;
