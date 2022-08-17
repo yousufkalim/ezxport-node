@@ -7,6 +7,8 @@ const request = require('../controllers/requests');
 const { upload } = require('../middleware/multer');
 const {
   validateRequestBom,
+  validateSearchTitle,
+  validateCreateTitle,
   validaterRequestVendor,
   validateDispatch,
   ValidateDocuments,
@@ -24,9 +26,10 @@ const {
  * @method put update request
  * @method delete delete request
  */
-// First Step - Boms
-router.post('/createName', request.createName);
-
+// Create Name
+router.post('/createName', validateCreateTitle, isValidated, request.createName);
+//Search Name
+router.post('/searchName', validateSearchTitle, isValidated, request.searchName);
 // First Step - Boms
 router.post('/boms', validateRequestBom, isValidated, request.boms);
 // 2nd Step - userVendor
