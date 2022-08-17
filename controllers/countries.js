@@ -14,6 +14,10 @@ const Boms = require('../models/Boms');
  */
 exports.create = async (req, res) => {
   try {
+    const exisingCountry = await Country.findOne({ name: req.body.name });
+    if (exisingCountry) {
+      return res.status(404).json({ success: false, message: 'Country exist' });
+    }
     const country = await Country.create(req.body); // Adding country in db
     // Done
     res.json({ success: true, country }); //Success
