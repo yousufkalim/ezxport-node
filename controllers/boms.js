@@ -62,6 +62,23 @@ exports.getById = async (req, res) => {
 };
 
 /**
+ * Get bom by id
+ * @param {object} req
+ * @param {object} res
+ */
+exports.getByCountryId = async (req, res) => {
+  try {
+    const countryId = req.params.countryId; // Getting bom id from URL parameter
+    const bom = await Boms.find({ countries: countryId }).populate('countries'); // Finding bom by id
+    res.json({ success: true, bom }); // Success
+  } catch (err) {
+    // Error handling
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+/**
  * Update bom
  * @param {object} req
  * @param {object} res
@@ -111,6 +128,7 @@ exports.filterCode = async (req, res) => {
     }
     const { country } = req.body;
     let data = [];
+    let data2 = [];
     var array = [];
     const boms = await Boms.find({ countries: country });
     if (boms.length < 1) {
@@ -128,7 +146,21 @@ exports.filterCode = async (req, res) => {
         }
       });
     });
-    res.status(200).json({ success: true, matchedData: data });
+    for (let i = 0; i < data.length; i++) {
+      const dObj = data[i];
+      for (let j = 0; j < boms.length; j++) {
+        const bObj = boms[j];
+        if (!dObj.bom._id.equals(bObj._id)) {
+          data2.push({
+            bom: bObj,
+          });
+        }
+      }
+    }
+
+    data2 = [...new Set(data2)];
+
+    res.status(200).json({ success: true, matchedData: data, unMatched: data2 });
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);

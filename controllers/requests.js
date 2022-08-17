@@ -2,8 +2,10 @@
  * Requets controllers
  * @author Shuja Naqvi
  */
+const fs = require('fs');
 const Codes = require('../models/Boms');
 const Documents = require('../models/Documents');
+const Country = require('../models/Countries');
 const Users = require('../models/Users');
 const Vendors = require('../models/Vendors');
 const Request = require('../models/Requests');
@@ -12,6 +14,56 @@ const Seller = require('../models/Sellers');
 const Buyer = require('../models/Buyers');
 const Place = require('../models/Places');
 const Products = require('../models/Products');
+const { CountryNameCode } = require('../utils/Countries');
+/**
+ * Request  First-Step
+ *        BOM
+ * @param {object} req
+ * @param {object} res
+ */
+
+exports.createName = async (req, res) => {
+  try {
+    const { userId, countryId } = req.body;
+    let existingUser = await Users.findOne({
+      _id: userId,
+    });
+    if (!existingUser) {
+      return res.status(409).json({ success: false, message: 'UserId is invalid' });
+    }
+    const country = await Country.findById(countryId);
+    const Requests = await Request.find();
+    //Find Country Code from file
+    const code = CountryNameCode.filter((e) => e.name.toLowerCase() === country.name.toLowerCase());
+    if (Requests.length === 0) {
+      const number = '000';
+    }
+    if (Requests.length > 0 && Requests.length < 9) {
+      const number = '00' + Requests.length + 1;
+    }
+    if (Requests.length === 9) {
+      const number = '010';
+    }
+    if (Requests.length > 9 && Requests.length < 99) {
+      const number = '00' + Requests.length + 1;
+    }
+    if (Requests.length === 90) {
+      const number = '100';
+    }
+    if (Requests.length > 99) {
+      const number = Requests.length + 1;
+    }
+    console.log(existingUser.company.name, 'country');
+    console.log(number, 'number');
+    return console.log(code);
+
+    // console.log(data.toString());
+  } catch (err) {
+    // Error handling
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
 
 /**
  * Request  First-Step
@@ -133,10 +185,6 @@ exports.userVendor = async (req, res) => {
       if (!req.body.contact_fname || !req.body.contact_fname || !req.body.contact_email) {
         return res.status(409).json({ success: false, message: 'all fields required in contact information section' });
       }
-      existingUserVendor.contact_fname = req.body.contact_fname;
-      existingUserVendor.contact_lname = req.body.contact_lname;
-      existingUserVendor.contact_email = req.body.contact_email;
-      await existingUserVendor.save();
     }
     if (!existingRequest) {
       return res.status(409).json({ success: false, message: 'Invalid requestID' });
@@ -150,6 +198,10 @@ exports.userVendor = async (req, res) => {
       await existingRequest.save();
       return res.status(200).json({ success: true, message: 'userVendor created', request: existingRequest });
     }
+    existingUserVendor.contact_fname = req.body.contact_fname;
+    existingUserVendor.contact_lname = req.body.contact_lname;
+    existingUserVendor.contact_email = req.body.contact_email;
+    await existingUserVendor.save();
     existingRequest.vendor = existingUserVendor._id;
     await existingRequest.save();
     return res.status(200).json({ success: true, message: 'userVendor updated', request: existingRequest });

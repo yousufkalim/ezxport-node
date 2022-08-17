@@ -24,6 +24,8 @@ const {
  * @method put update request
  * @method delete delete request
  */
+// First Step - Boms
+router.post('/createName', request.createName);
 
 // First Step - Boms
 router.post('/boms', validateRequestBom, isValidated, request.boms);
