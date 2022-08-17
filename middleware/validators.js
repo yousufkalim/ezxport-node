@@ -93,6 +93,7 @@ exports.validateDispatch = [
   check('buyer.phone_number', 'phone number is required.').notEmpty().trim(),
   check('buyer.company_name', 'company_name is required').notEmpty().trim(),
   check('buyer.email', 'email is required').notEmpty().isEmail().trim(),
+  check('buyer.user', 'buyer user is required').notEmpty().trim(),
   check('buyer.country', 'country required').notEmpty().trim(),
   check('buyer.city', 'city is required.').notEmpty().trim(),
   check('buyer.zipcode', 'zipcode is required.').notEmpty().trim(),
@@ -104,6 +105,7 @@ exports.validateDispatch = [
   check('seller.city', 'city is required.').notEmpty().trim(),
   check('seller.zipcode', 'zipcode is required.').notEmpty().trim(),
   check('seller.address', 'address is required.').notEmpty().trim(),
+  check('seller.user', 'Seller user is required').notEmpty().trim(),
   check('place.phone_number', 'phone number is required.').notEmpty().trim(),
   check('place.company_name', 'company_name is required').notEmpty().trim(),
   check('place.email', 'email is required').notEmpty().isEmail().trim(),
@@ -113,6 +115,7 @@ exports.validateDispatch = [
   check('place.address', 'address is required.').notEmpty().trim(),
   check('place.conatct_fname', 'contact first name is required.').notEmpty().trim(),
   check('place.contact_name', 'Contact Name  is required.').notEmpty().trim(),
+  check('place.user', 'place user  is required.').notEmpty().trim(),
   check('inspection_date', 'inspection date required').toDate(),
 ];
 

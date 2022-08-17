@@ -22,6 +22,7 @@ router.post('/', validateBoms, isValidated, bom.create);
 router.post('/filterCodes', upload.single('file'), validateCountryID, isValidated, bom.filterCode);
 // Read
 router.get('/', bom.getAll); // Get all bomat once
+router.get('/getByCountryId/:countryId', bom.getByCountryId); // Get all bomat once
 router.get('/:bomId', bom.getById); // Get one bomby it's id
 // Update
 router.put('/:bomId', validateBoms, isValidated, bom.update); // Update a specific bomby it's id
