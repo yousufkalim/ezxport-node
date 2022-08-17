@@ -80,6 +80,11 @@ exports.validateRequestBom = [
   check('codes.*.monetary_value', 'monetory_value required').notEmpty().trim(),
   check('codes.*.certification_required', 'certification_required true/false').notEmpty().isBoolean().trim(),
 ];
+exports.validateCreateTitle = [
+  check('countryId', 'countryId is required').notEmpty().trim(),
+  check('userId', 'userId is required').notEmpty().trim(),
+];
+exports.validateSearchTitle = [check('title', 'title is required').notEmpty().trim()];
 //2nd Step of Request
 exports.validaterRequestVendor = [
   check('user', 'userId required').notEmpty().trim(),

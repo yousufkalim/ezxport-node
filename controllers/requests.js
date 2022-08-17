@@ -16,8 +16,8 @@ const Place = require('../models/Places');
 const Products = require('../models/Products');
 const { CountryNameCode } = require('../utils/Countries');
 /**
- * Request  First-Step
- *        BOM
+ * Request  Create-Title
+ *        Request
  * @param {object} req
  * @param {object} res
  */
@@ -25,6 +25,7 @@ const { CountryNameCode } = require('../utils/Countries');
 exports.createName = async (req, res) => {
   try {
     const { userId, countryId } = req.body;
+    var number;
     let existingUser = await Users.findOne({
       _id: userId,
     });
@@ -35,29 +36,56 @@ exports.createName = async (req, res) => {
     const Requests = await Request.find();
     //Find Country Code from file
     const code = CountryNameCode.filter((e) => e.name.toLowerCase() === country.name.toLowerCase());
+    console.log(Requests.length);
     if (Requests.length === 0) {
-      const number = '000';
+      number = '000';
     }
     if (Requests.length > 0 && Requests.length < 9) {
-      const number = '00' + Requests.length + 1;
+      number = '00' + (+Requests.length + +1);
     }
     if (Requests.length === 9) {
-      const number = '010';
+      number = '010';
     }
     if (Requests.length > 9 && Requests.length < 99) {
-      const number = '00' + Requests.length + 1;
+      number = '0' + (+Requests.length + +1);
     }
     if (Requests.length === 90) {
-      const number = '100';
+      number = '100';
     }
     if (Requests.length > 99) {
-      const number = Requests.length + 1;
+      number = Requests.length + 1;
     }
-    console.log(existingUser.company.name, 'country');
-    console.log(number, 'number');
-    return console.log(code);
 
-    // console.log(data.toString());
+    const name = code[0].code + '-' + existingUser.company.name + '-' + number;
+    const exisitingRequest = await Request.findOne({ title: name });
+    if (exisitingRequest) {
+      const name = '0' + code[0].code + '-' + existingUser.company.name + '-' + number + '00';
+      return res.json({ success: true, message: 'Request Title', tile: name });
+    }
+    return res.json({ success: true, message: 'Request Title', tile: name });
+  } catch (err) {
+    // Error handling
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+/**
+ * Request  Search-Title
+ *        Request
+ * @param {object} req
+ * @param {object} res
+ */
+
+exports.searchName = async (req, res) => {
+  try {
+    const { title } = req.body;
+
+    const exisitingRequest = await Request.findOne({ title: title });
+    if (exisitingRequest) {
+      return res.status(404).json({ success: false, message: 'title  already in use' });
+    }
+    res.json({ success: true, message: 'title is unique' });
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
