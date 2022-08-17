@@ -36,7 +36,6 @@ exports.createName = async (req, res) => {
     const Requests = await Request.find();
     //Find Country Code from file
     const code = CountryNameCode.filter((e) => e.name.toLowerCase() === country.name.toLowerCase());
-    console.log(Requests.length);
     if (Requests.length === 0) {
       number = '000';
     }
@@ -56,11 +55,13 @@ exports.createName = async (req, res) => {
       number = Requests.length + 1;
     }
 
-    const name = code[0].code + '-' + existingUser.company.name + '-' + number;
+    let name = code[0].code + '-' + existingUser.company.name + '-' + number;
+    name = name.replace(/\s*$/, '');
     const exisitingRequest = await Request.findOne({ title: name });
     if (exisitingRequest) {
-      const name = '0' + code[0].code + '-' + existingUser.company.name + '-' + number + '00';
-      return res.json({ success: true, message: 'Request Title', tile: name });
+      let name = '0' + code[0].code + '-' + existingUser.company.name + '-' + number + '00';
+      name = name.replace(/\s*$/, '');
+      return res.json({ success: true, message: 'Request Title', title: name });
     }
     return res.json({ success: true, message: 'Request Title', tile: name });
   } catch (err) {
@@ -79,8 +80,8 @@ exports.createName = async (req, res) => {
 
 exports.searchName = async (req, res) => {
   try {
-    const { title } = req.body;
-
+    let { title } = req.body;
+    title = title.replace(/\s*$/, '');
     const exisitingRequest = await Request.findOne({ title: title });
     if (exisitingRequest) {
       return res.status(404).json({ success: false, message: 'title  already in use' });
