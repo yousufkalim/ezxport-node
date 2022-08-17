@@ -49,7 +49,7 @@ exports.createName = async (req, res) => {
     if (Requests.length > 9 && Requests.length < 99) {
       number = '0' + (+Requests.length + +1);
     }
-    if (Requests.length === 90) {
+    if (Requests.length === 99) {
       number = '100';
     }
     if (Requests.length > 99) {
