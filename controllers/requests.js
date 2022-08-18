@@ -33,7 +33,7 @@ exports.createName = async (req, res) => {
       return res.status(409).json({ success: false, message: 'UserId is invalid' });
     }
     const country = await Country.findById(countryId);
-    const Requests = await Request.find();
+    const Requests = await Request.find().sort({ createdAt: -1 });
     //Find Country Code from file
     const code = CountryNameCode.filter((e) => e.name.toLowerCase() === country.name.toLowerCase());
     if (Requests.length === 0) {
@@ -59,7 +59,9 @@ exports.createName = async (req, res) => {
     name = name.replace(/\s*$/, '');
     const exisitingRequest = await Request.findOne({ title: name });
     if (exisitingRequest) {
-      let name = '0' + code[0].code + '-' + existingUser.company.name + '-' + number + '00';
+      let number = Requests[0].title.substr(Requests[0].title.length - 3);
+      number = +number + +1;
+      let name = code[0].code + '-' + existingUser.company.name + '-' + number;
       name = name.replace(/\s*$/, '');
       return res.json({ success: true, message: 'Request Title', title: name });
     }
