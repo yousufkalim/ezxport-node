@@ -55,13 +55,13 @@ exports.createName = async (req, res) => {
       number = Requests.length + 1;
     }
 
-    let name = code[0].code + '-' + existingUser.company.name + '-' + number;
+    let name = existingUser.company.name + code[0].code + number;
     name = name.replace(/\s*$/, '');
     const exisitingRequest = await Request.findOne({ title: name });
     if (exisitingRequest) {
       let number = Requests[0].title.substr(Requests[0].title.length - 3);
       number = +number + +1;
-      let name = code[0].code + '-' + existingUser.company.name + '-' + number;
+      let name = existingUser.company.name + code[0].code + number;
       name = name.replace(/\s*$/, '');
       return res.json({ success: true, message: 'Request Title', title: name });
     }
