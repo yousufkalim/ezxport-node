@@ -15,7 +15,7 @@ const followRequestSchema = new mongoose.Schema(
     title: { type: String, required: true, unique: true },
     codes: [
       {
-        code: { type: mongoose.Schema.Types.ObjectId, ref: 'codes' },
+        code: { type: mongoose.Schema.Types.ObjectId, ref: 'boms' },
         monetary_value: Number,
         products: [{ type: mongoose.Schema.Types.ObjectId, ref: 'products' }],
       },

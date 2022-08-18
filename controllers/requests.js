@@ -252,29 +252,7 @@ exports.userVendor = async (req, res) => {
 exports.Dispatch = async (req, res) => {
   try {
     const { place, seller, buyer, request } = req.body;
-    let existingRequest = await Request.findById(request)
-      .populate('user')
-      .populate('country')
-      .populate('missing_docs')
-      .populate('vendor')
-      .populate('place')
-      .populate('buyer')
-      .populate('seller')
-      .populate({
-        path: 'codes',
-        populate: {
-          path: 'code',
-        },
-        populate: {
-          path: 'products',
-        },
-      })
-      .populate({
-        path: 'documents',
-        populate: {
-          path: 'doc_id',
-        },
-      });
+    let existingRequest = await Request.findById(request);
     let existingUser = await Users.findById(existingRequest.user);
     if (!existingRequest) {
       return res.status(409).json({ success: false, message: 'Invalid RequestId' });
@@ -318,15 +296,8 @@ exports.Dispatch = async (req, res) => {
       .populate('place')
       .populate('buyer')
       .populate('seller')
-      .populate({
-        path: 'codes',
-        populate: {
-          path: 'code',
-        },
-        populate: {
-          path: 'products',
-        },
-      })
+      .populate('codes.code')
+      .populate('codes.products')
       .populate({
         path: 'documents',
         populate: {
@@ -423,15 +394,8 @@ exports.getAll = async (req, res) => {
       .populate('buyer')
       .populate('seller')
       .populate('missing_docs')
-      .populate({
-        path: 'codes',
-        populate: {
-          path: 'code',
-        },
-        populate: {
-          path: 'products',
-        },
-      })
+      .populate('codes.code')
+      .populate('codes.products')
       .populate({
         path: 'documents',
         populate: {
@@ -462,15 +426,8 @@ exports.getByuserId = async (req, res) => {
       .populate('buyer')
       .populate('missing_docs')
       .populate('seller')
-      .populate({
-        path: 'codes',
-        populate: {
-          path: 'code',
-        },
-        populate: {
-          path: 'products',
-        },
-      })
+      .populate('codes.code')
+      .populate('codes.products')
       .populate({
         path: 'documents',
         populate: {
