@@ -1,5 +1,6 @@
 exports.CountryNameCode = [
   { name: 'Afghanistan', code: 'AF' },
+  { name: 'America', code: 'USA' },
   { name: 'land Islands', code: 'AX' },
   { name: 'Albania', code: 'AL' },
   { name: 'Algeria', code: 'DZ' },

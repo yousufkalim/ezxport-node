@@ -33,10 +33,9 @@ exports.createName = async (req, res) => {
       return res.status(409).json({ success: false, message: 'UserId is invalid' });
     }
     const country = await Country.findById(countryId);
-    const Requests = await Request.find();
+    const Requests = await Request.find().sort({ createdAt: -1 });
     //Find Country Code from file
     const code = CountryNameCode.filter((e) => e.name.toLowerCase() === country.name.toLowerCase());
-    console.log(Requests.length);
     if (Requests.length === 0) {
       number = '000';
     }
@@ -56,11 +55,15 @@ exports.createName = async (req, res) => {
       number = Requests.length + 1;
     }
 
-    const name = code[0].code + '-' + existingUser.company.name + '-' + number;
+    let name = code[0].code + '-' + existingUser.company.name + '-' + number;
+    name = name.replace(/\s*$/, '');
     const exisitingRequest = await Request.findOne({ title: name });
     if (exisitingRequest) {
-      const name = '0' + code[0].code + '-' + existingUser.company.name + '-' + number + '00';
-      return res.json({ success: true, message: 'Request Title', tile: name });
+      let number = Requests[0].title.substr(Requests[0].title.length - 3);
+      number = +number + +1;
+      let name = code[0].code + '-' + existingUser.company.name + '-' + number;
+      name = name.replace(/\s*$/, '');
+      return res.json({ success: true, message: 'Request Title', title: name });
     }
     return res.json({ success: true, message: 'Request Title', tile: name });
   } catch (err) {
@@ -79,8 +82,8 @@ exports.createName = async (req, res) => {
 
 exports.searchName = async (req, res) => {
   try {
-    const { title } = req.body;
-
+    let { title } = req.body;
+    title = title.replace(/\s*$/, '');
     const exisitingRequest = await Request.findOne({ title: title });
     if (exisitingRequest) {
       return res.status(404).json({ success: false, message: 'title  already in use' });
@@ -249,7 +252,29 @@ exports.userVendor = async (req, res) => {
 exports.Dispatch = async (req, res) => {
   try {
     const { place, seller, buyer, request } = req.body;
-    let existingRequest = await Request.findById(request);
+    let existingRequest = await Request.findById(request)
+      .populate('user')
+      .populate('country')
+      .populate('missing_docs')
+      .populate('vendor')
+      .populate('place')
+      .populate('buyer')
+      .populate('seller')
+      .populate({
+        path: 'codes',
+        populate: {
+          path: 'code',
+        },
+        populate: {
+          path: 'products',
+        },
+      })
+      .populate({
+        path: 'documents',
+        populate: {
+          path: 'doc_id',
+        },
+      });
     let existingUser = await Users.findById(existingRequest.user);
     if (!existingRequest) {
       return res.status(409).json({ success: false, message: 'Invalid RequestId' });
@@ -333,7 +358,11 @@ exports.documentsUpload = async (req, res) => {
     if (req.file) {
       file = req.file.path;
     }
+    //If missing_docs has doc_id then pull it
+    await Request.findByIdAndUpdate({ _id: requestId }, { $pull: { missing_docs: doc_id } });
+    //Check if request has create document with one file atleast...?
     let exisitingDoc = await Request.findOne({ _id: requestId, 'documents.doc_id': doc_id });
+    // if document with provided id is not created
     if (!exisitingDoc) {
       const documentObj = {
         doc_id: doc_id,
@@ -342,6 +371,7 @@ exports.documentsUpload = async (req, res) => {
       const newDoc = await Request.findOneAndUpdate({ _id: requestId }, { $push: { documents: documentObj } }, { new: true });
       return res.json({ success: true, message: 'new document has been created', doc: newDoc });
     }
+    // else if  request has already document with provided id then this will updated request!
     exisitingDoc = await Request.findOneAndUpdate(
       { _id: requestId, 'documents.doc_id': doc_id },
       { $push: { 'documents.$.url': file } },
@@ -569,7 +599,7 @@ exports.validateProductDoc = async (req, res) => {
 };
 
 /**
- *   Request-Missing-Docs
+ *  Request-Missing-Docs
  * @param {object} req
  * @param {object} res
  */
