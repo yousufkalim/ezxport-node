@@ -252,7 +252,29 @@ exports.userVendor = async (req, res) => {
 exports.Dispatch = async (req, res) => {
   try {
     const { place, seller, buyer, request } = req.body;
-    let existingRequest = await Request.findById(request);
+    let existingRequest = await Request.findById(request)
+      .populate('user')
+      .populate('country')
+      .populate('missing_docs')
+      .populate('vendor')
+      .populate('place')
+      .populate('buyer')
+      .populate('seller')
+      .populate({
+        path: 'codes',
+        populate: {
+          path: 'code',
+        },
+        populate: {
+          path: 'products',
+        },
+      })
+      .populate({
+        path: 'documents',
+        populate: {
+          path: 'doc_id',
+        },
+      });
     let existingUser = await Users.findById(existingRequest.user);
     if (!existingRequest) {
       return res.status(409).json({ success: false, message: 'Invalid RequestId' });
