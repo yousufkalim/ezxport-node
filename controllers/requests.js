@@ -336,7 +336,11 @@ exports.documentsUpload = async (req, res) => {
     if (req.file) {
       file = req.file.path;
     }
+    //If missing_docs has doc_id then pull it
+    await Request.findByIdAndUpdate({ _id: requestId }, { $pull: { missing_docs: doc_id } });
+    //Check if request has create document with one file atleast...?
     let exisitingDoc = await Request.findOne({ _id: requestId, 'documents.doc_id': doc_id });
+    // if document with provided id is not created
     if (!exisitingDoc) {
       const documentObj = {
         doc_id: doc_id,
@@ -345,6 +349,7 @@ exports.documentsUpload = async (req, res) => {
       const newDoc = await Request.findOneAndUpdate({ _id: requestId }, { $push: { documents: documentObj } }, { new: true });
       return res.json({ success: true, message: 'new document has been created', doc: newDoc });
     }
+    // else if  request has already document with provided id then this will updated request!
     exisitingDoc = await Request.findOneAndUpdate(
       { _id: requestId, 'documents.doc_id': doc_id },
       { $push: { 'documents.$.url': file } },
@@ -572,7 +577,7 @@ exports.validateProductDoc = async (req, res) => {
 };
 
 /**
- *   Request-Missing-Docs
+ *  Request-Missing-Docs
  * @param {object} req
  * @param {object} res
  */
