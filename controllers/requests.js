@@ -310,6 +310,29 @@ exports.Dispatch = async (req, res) => {
       await existingUser.save();
     }
     await existingRequest.save();
+    existingRequest = await Request.findById(request)
+      .populate('user')
+      .populate('country')
+      .populate('missing_docs')
+      .populate('vendor')
+      .populate('place')
+      .populate('buyer')
+      .populate('seller')
+      .populate({
+        path: 'codes',
+        populate: {
+          path: 'code',
+        },
+        populate: {
+          path: 'products',
+        },
+      })
+      .populate({
+        path: 'documents',
+        populate: {
+          path: 'doc_id',
+        },
+      });
     return res.status(200).json({ success: true, message: 'Dispatched', request: existingRequest });
   } catch (err) {
     // Error handling
