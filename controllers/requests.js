@@ -386,7 +386,7 @@ exports.documentsUpload = async (req, res) => {
  */
 exports.getAll = async (req, res) => {
   try {
-    const requests = await Request.find({})
+    const requests = await Request.find()
       .populate('user')
       .populate('country')
       .populate('vendor')
@@ -418,6 +418,7 @@ exports.getAll = async (req, res) => {
 exports.getByuserId = async (req, res) => {
   try {
     const { userId } = req.params;
+
     const request = await Request.find({ user: userId })
       .populate('user')
       .populate('country')
@@ -434,7 +435,7 @@ exports.getByuserId = async (req, res) => {
           path: 'doc_id',
         },
       });
-    res.status(200).json({ success: true, requet: request });
+    res.status(200).json({ success: true, request: request });
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
