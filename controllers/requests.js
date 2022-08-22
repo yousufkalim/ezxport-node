@@ -15,6 +15,7 @@ const Buyer = require('../models/Buyers');
 const Place = require('../models/Places');
 const Products = require('../models/Products');
 const { CountryNameCode } = require('../utils/Countries');
+const { sendRequestEmail } = require('../utils/sendRequestEmail');
 /**
  * Request  Create-Title
  *        Request
@@ -320,8 +321,25 @@ exports.Dispatch = async (req, res) => {
  */
 exports.Documents = async (req, res) => {
   try {
-    const { request, codes } = req.body;
+    const { request, codes, platform } = req.body;
+    const findReq = await Request.findById(request)
+      .populate('user')
+      .populate('country')
+      .populate('missing_docs')
+      .populate('vendor')
+      .populate('place')
+      .populate('buyer')
+      .populate('seller')
+      .populate('codes.code')
+      .populate('codes.products')
+      .populate({
+        path: 'documents',
+        populate: {
+          path: 'doc_id',
+        },
+      });
     let updateRequest;
+    // return sendRequestEmail(findReq);
     for (let i = 0; i < codes.length; i++) {
       const product = await Products.create(codes[i]);
       updateRequest = await Request.findOneAndUpdate(
@@ -330,6 +348,12 @@ exports.Documents = async (req, res) => {
         { new: true }
       );
     }
+
+    // const platfromChk = JSON.parse(platform);
+    // if (platfromChk) {
+    //   return res.status(200).json({ success: true, request: updateRequest });
+    // }
+
     return res.status(200).json({ success: true, request: updateRequest });
   } catch (err) {
     // Error handling
