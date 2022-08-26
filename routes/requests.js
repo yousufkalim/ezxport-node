@@ -51,5 +51,8 @@ router.put('/validateProductDoc/:productId', request.validateProductDoc);
 router.put('/ReqmissingDocs/:requestId', validateMissingDoc, isValidated, request.ReqmissingDocs);
 router.put('/ProductmissingDocs/:productId', validateMissingDoc, isValidated, request.ProductmissingDocs);
 
+//Test
+router.post('/convertBase64', request.convertBase64);
+
 // Export
 module.exports = router;
