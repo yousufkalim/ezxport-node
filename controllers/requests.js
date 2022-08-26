@@ -202,7 +202,13 @@ exports.updateBoms = async (req, res) => {
  */
 exports.userVendor = async (req, res) => {
   try {
-    const { vendor, user, request, contact_info } = req.body;
+    const { vendor, user, request } = req.body;
+    const contact_info = JSON.parse(req.body.contact_info);
+    if (contact_info) {
+      if (!req.body.contact_fname || !req.body.contact_fname || !req.body.contact_email) {
+        return res.status(409).json({ success: false, message: 'all fields required in contact information section' });
+      }
+    }
     let existingVendor = await Vendors.findById(vendor);
     let existingUser = await Users.findById(user);
     let existingRequest = await Request.findById(request);
@@ -212,11 +218,6 @@ exports.userVendor = async (req, res) => {
     let existingUserVendor = await userVendor.findOne({ vendor: vendor, user: user });
     if (!existingUser) {
       return res.status(409).json({ success: false, message: 'Invalid userID' });
-    }
-    if (contact_info) {
-      if (!req.body.contact_fname || !req.body.contact_fname || !req.body.contact_email) {
-        return res.status(409).json({ success: false, message: 'all fields required in contact information section' });
-      }
     }
     if (!existingRequest) {
       return res.status(409).json({ success: false, message: 'Invalid requestID' });
@@ -229,12 +230,13 @@ exports.userVendor = async (req, res) => {
       existingRequest.vendor = UserVendor._id;
       await existingRequest.save();
       return res.status(200).json({ success: true, message: 'userVendor created', request: existingRequest });
-    } else {
+    }
+    if (existingUserVendor && contact_info) {
       existingUserVendor.contact_fname = req.body.contact_fname;
       existingUserVendor.contact_lname = req.body.contact_lname;
       existingUserVendor.contact_email = req.body.contact_email;
+      await existingUserVendor.save();
     }
-    await existingUserVendor.save();
     existingRequest.vendor = existingUserVendor._id;
     await existingRequest.save();
     return res.status(200).json({ success: true, message: 'userVendor updated', request: existingRequest });
@@ -323,24 +325,26 @@ exports.Dispatch = async (req, res) => {
 exports.Documents = async (req, res) => {
   try {
     const { request, codes } = req.body;
-    let findReq = await Request.findById(request)
-      .populate('user')
-      .populate('country')
-      .populate('missing_docs')
-      .populate('vendor')
-      .populate('place')
-      .populate('buyer')
-      .populate('seller')
-      .populate('codes.code')
-      .populate('codes.products')
-      .populate({
-        path: 'documents',
-        populate: {
-          path: 'doc_id',
-        },
-      });
+    let findReq = await Request.findById(request);
+    // .populate('user')
+    // .populate('country')
+    // .populate('missing_docs')
+    // .populate('vendor')
+    // .populate('place')
+    // .populate('buyer')
+    // .populate('seller')
+    // .populate('codes.code')
+    // .populate('codes.products')
+    // .populate({
+    //   path: 'documents',
+    //   populate: {
+    //     path: 'doc_id',
+    //   },
+    // });
     // return sendRequestEmail(findReq);
     for (let i = 0; i < codes.length; i++) {
+      const price = { value: codes[i].price, currency: codes[i].currency };
+      codes[i].price = price;
       const product = await CreateProduct(codes[i]);
       updateRequest = await Request.findOneAndUpdate(
         { _id: request, 'codes.code': codes[i].code },

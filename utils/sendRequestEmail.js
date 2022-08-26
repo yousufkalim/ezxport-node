@@ -395,7 +395,7 @@ ${
         .map(
           (e) =>
             `
-            <p align="center "style="color: #000; font-family: Verdana; margin:3px; text-align:center !important;
+            <p align="center "style="color: #000; font-family: Verdana; ; text-align:center !important;
             border-bottom: 1px solid black;background: rgba(206, 197, 237, 0.3)
             ">
             ${process.env.SERVER_URL}${e}
