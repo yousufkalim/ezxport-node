@@ -325,22 +325,22 @@ exports.Dispatch = async (req, res) => {
 exports.Documents = async (req, res) => {
   try {
     const { request, codes } = req.body;
-    let findReq = await Request.findById(request)
-      .populate('user')
-      .populate('country')
-      .populate('missing_docs')
-      .populate('vendor')
-      .populate('place')
-      .populate('buyer')
-      .populate('seller')
-      .populate('codes.code')
-      .populate('codes.products')
-      .populate({
-        path: 'documents',
-        populate: {
-          path: 'doc_id',
-        },
-      });
+    let findReq = await Request.findById(request);
+    // .populate('user')
+    // .populate('country')
+    // .populate('missing_docs')
+    // .populate('vendor')
+    // .populate('place')
+    // .populate('buyer')
+    // .populate('seller')
+    // .populate('codes.code')
+    // .populate('codes.products')
+    // .populate({
+    //   path: 'documents',
+    //   populate: {
+    //     path: 'doc_id',
+    //   },
+    // });
     // return sendRequestEmail(findReq);
     for (let i = 0; i < codes.length; i++) {
       const price = { value: codes[i].price, currency: codes[i].currency };
