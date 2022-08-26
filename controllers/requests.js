@@ -15,6 +15,7 @@ const Buyer = require('../models/Buyers');
 const Place = require('../models/Places');
 const Products = require('../models/Products');
 const { CountryNameCode } = require('../utils/Countries');
+const { sendRequestEmail } = require('../utils/sendRequestEmail');
 /**
  * Request  Create-Title
  *        Request
@@ -228,10 +229,11 @@ exports.userVendor = async (req, res) => {
       existingRequest.vendor = UserVendor._id;
       await existingRequest.save();
       return res.status(200).json({ success: true, message: 'userVendor created', request: existingRequest });
+    } else {
+      existingUserVendor.contact_fname = req.body.contact_fname;
+      existingUserVendor.contact_lname = req.body.contact_lname;
+      existingUserVendor.contact_email = req.body.contact_email;
     }
-    existingUserVendor.contact_fname = req.body.contact_fname;
-    existingUserVendor.contact_lname = req.body.contact_lname;
-    existingUserVendor.contact_email = req.body.contact_email;
     await existingUserVendor.save();
     existingRequest.vendor = existingUserVendor._id;
     await existingRequest.save();
@@ -321,16 +323,55 @@ exports.Dispatch = async (req, res) => {
 exports.Documents = async (req, res) => {
   try {
     const { request, codes } = req.body;
-    let updateRequest;
+    let findReq = await Request.findById(request)
+      .populate('user')
+      .populate('country')
+      .populate('missing_docs')
+      .populate('vendor')
+      .populate('place')
+      .populate('buyer')
+      .populate('seller')
+      .populate('codes.code')
+      .populate('codes.products')
+      .populate({
+        path: 'documents',
+        populate: {
+          path: 'doc_id',
+        },
+      });
+    // return sendRequestEmail(findReq);
     for (let i = 0; i < codes.length; i++) {
-      const product = await Products.create(codes[i]);
+      const product = await CreateProduct(codes[i]);
       updateRequest = await Request.findOneAndUpdate(
         { _id: request, 'codes.code': codes[i].code },
         { $push: { 'codes.$.products': product._id } },
         { new: true }
       );
     }
-    return res.status(200).json({ success: true, request: updateRequest });
+
+    // const platfromChk = JSON.parse(platform);
+    // if (platfromChk) {
+    //   return res.status(200).json({ success: true, request: updateRequest });
+    // }
+    // findReq = await Request.findById(request)
+    //   .populate('user')
+    //   .populate('country')
+    //   .populate('missing_docs')
+    //   .populate('vendor')
+    //   .populate('place')
+    //   .populate('buyer')
+    //   .populate('seller')
+    //   .populate('codes.code')
+    //   .populate('codes.products')
+    //   .populate({
+    //     path: 'documents',
+    //     populate: {
+    //       path: 'doc_id',
+    //     },
+    //   });
+    // // return sendRequestEmail(findReq);
+    // // let updateRequest;
+    return res.status(200).json({ success: true, request: findReq });
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
@@ -386,7 +427,7 @@ exports.documentsUpload = async (req, res) => {
  */
 exports.getAll = async (req, res) => {
   try {
-    const requests = await Request.find({})
+    const requests = await Request.find()
       .populate('user')
       .populate('country')
       .populate('vendor')
@@ -418,6 +459,7 @@ exports.getAll = async (req, res) => {
 exports.getByuserId = async (req, res) => {
   try {
     const { userId } = req.params;
+
     const request = await Request.find({ user: userId })
       .populate('user')
       .populate('country')
@@ -434,7 +476,7 @@ exports.getByuserId = async (req, res) => {
           path: 'doc_id',
         },
       });
-    res.status(200).json({ success: true, requet: request });
+    res.status(200).json({ success: true, request: request });
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
@@ -625,4 +667,113 @@ exports.ProductmissingDocs = async (req, res) => {
     console.log('Error---->', err);
     res.status(5000).json({ success: false, message: 'Internal Server Error' });
   }
+};
+
+exports.convertBase64 = async (req, res) => {
+  try {
+    var file = req.body.file;
+    var bitmap = new Buffer(file, 'base64');
+    const filePath = `./uploads/${Date.now()}-file-.pdf`;
+    fs.writeFileSync(filePath, bitmap);
+  } catch (err) {
+    console.log('Error---->', err);
+    res.status(5000).json({ success: false, message: 'Internal Server Error' });
+  }
+};
+
+const CreateProduct = async (Product) => {
+  try {
+    if (Product.technical_sheet) {
+      let filePaths = [];
+      for (let i = 0; i < Product.technical_sheet.url.length; i++) {
+        const file = Product.technical_sheet.url[i];
+        const fileExt = fileExtension(file);
+        const bitmap = new Buffer(file, 'base64');
+        const filePath = `./uploads/${Date.now()}-technical_sheet${i}-file-.${fileExt}`;
+        fs.writeFileSync(filePath, bitmap);
+        filePaths.push(filePath.substring(2));
+      }
+      Product.technical_sheet.url = filePaths;
+    }
+    if (Product.test_report) {
+      let filePaths = [];
+      for (let i = 0; i < Product.test_report.url.length; i++) {
+        const file = Product.test_report.url[i];
+        const fileExt = fileExtension(file);
+        const bitmap = new Buffer(file, 'base64');
+        const filePath = `./uploads/${Date.now()}-test_report${i}-file-.${fileExt}`;
+        fs.writeFileSync(filePath, bitmap);
+        filePaths.push(filePath.substring(2));
+      }
+      Product.test_report.url = filePaths;
+    }
+    if (Product.plan) {
+      let filePaths = [];
+      for (let i = 0; i < Product.plan.url.length; i++) {
+        const file = Product.plan.url[i];
+        const fileExt = fileExtension(file);
+        const bitmap = new Buffer(file, 'base64');
+        const filePath = `./uploads/${Date.now()}-plan${i}-file-.${fileExt}`;
+        fs.writeFileSync(filePath, bitmap);
+        filePaths.push(filePath.substring(2));
+      }
+      Product.plan.url = filePaths;
+    }
+    if (Product.other_docs) {
+      let filePaths = [];
+      for (let i = 0; i < Product.other_docs.url.length; i++) {
+        const file = Product.other_docs.url[i];
+        const fileExt = fileExtension(file);
+        const bitmap = new Buffer(file, 'base64');
+        const filePath = `./uploads/${Date.now()}-other_docs${i}-file-.${fileExt}`;
+        fs.writeFileSync(filePath, bitmap);
+        filePaths.push(filePath.substring(2));
+      }
+      Product.other_docs.url = filePaths;
+    }
+    if (Product.analysis_certificate) {
+      let filePaths = [];
+      for (let i = 0; i < Product.analysis_certificate.url.length; i++) {
+        const file = Product.analysis_certificate.url[i];
+        const fileExt = fileExtension(file);
+        const bitmap = new Buffer(file, 'base64');
+        const filePath = `./uploads/${Date.now()}-analysis_certificate${i}-file-.${fileExt}`;
+        fs.writeFileSync(filePath, bitmap);
+        filePaths.push(filePath.substring(2));
+      }
+      Product.analysis_certificate.url = filePaths;
+    }
+    const product = await Products.create(Product);
+    return product;
+  } catch (err) {
+    console.log('Error---->', err);
+    res.status(5000).json({ success: false, message: 'Internal Server Error' });
+  }
+};
+
+const fileExtension = (fileBase64) => {
+  let fileHeader = new Map();
+  //get the first 3 char of base64
+  fileHeader.set('/9j', 'jpg');
+  fileHeader.set('iVB', 'png');
+  fileHeader.set('Qk0', 'bmp');
+  fileHeader.set('SUk', 'tiff');
+  fileHeader.set('JVB', 'pdf');
+  fileHeader.set('UEs', 'docx');
+
+  let res = '';
+
+  fileHeader.forEach((v, k) => {
+    if (k == fileBase64.substr(0, 3)) {
+      res = v;
+    }
+  });
+
+  //if file is not supported
+  if (res == '') {
+    res = 'pdf';
+  }
+
+  //return map value
+  return res;
 };
