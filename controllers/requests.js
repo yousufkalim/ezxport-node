@@ -343,6 +343,8 @@ exports.Documents = async (req, res) => {
       });
     // return sendRequestEmail(findReq);
     for (let i = 0; i < codes.length; i++) {
+      const price = { value: codes[i].price, currency: codes[i].currency };
+      codes[i].price = price;
       const product = await CreateProduct(codes[i]);
       updateRequest = await Request.findOneAndUpdate(
         { _id: request, 'codes.code': codes[i].code },
