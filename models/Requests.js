@@ -15,7 +15,7 @@ const followRequestSchema = new mongoose.Schema(
     title: { type: String, required: true, unique: true },
     codes: [
       {
-        code: { type: mongoose.Schema.Types.ObjectId, ref: 'codes' },
+        code: { type: mongoose.Schema.Types.ObjectId, ref: 'boms' },
         monetary_value: Number,
         products: [{ type: mongoose.Schema.Types.ObjectId, ref: 'products' }],
       },
@@ -24,7 +24,7 @@ const followRequestSchema = new mongoose.Schema(
       {
         doc_id: { type: mongoose.Schema.Types.ObjectId, ref: 'documents' },
         url: [{ type: String }],
-        status: { type: String, enum: ['valid', 'invalid', 'pending'], default: 'pending' },
+        status: { type: String, enum: ['Sent', 'Valid', 'Missing Documents'] },
       },
     ],
     missing_docs: [

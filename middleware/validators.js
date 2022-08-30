@@ -80,6 +80,11 @@ exports.validateRequestBom = [
   check('codes.*.monetary_value', 'monetory_value required').notEmpty().trim(),
   check('codes.*.certification_required', 'certification_required true/false').notEmpty().isBoolean().trim(),
 ];
+exports.validateCreateTitle = [
+  check('countryId', 'countryId is required').notEmpty().trim(),
+  check('userId', 'userId is required').notEmpty().trim(),
+];
+exports.validateSearchTitle = [check('title', 'title is required').notEmpty().trim()];
 //2nd Step of Request
 exports.validaterRequestVendor = [
   check('user', 'userId required').notEmpty().trim(),
@@ -93,6 +98,7 @@ exports.validateDispatch = [
   check('buyer.phone_number', 'phone number is required.').notEmpty().trim(),
   check('buyer.company_name', 'company_name is required').notEmpty().trim(),
   check('buyer.email', 'email is required').notEmpty().isEmail().trim(),
+  check('buyer.user', 'buyer user is required').notEmpty().trim(),
   check('buyer.country', 'country required').notEmpty().trim(),
   check('buyer.city', 'city is required.').notEmpty().trim(),
   check('buyer.zipcode', 'zipcode is required.').notEmpty().trim(),
@@ -104,6 +110,7 @@ exports.validateDispatch = [
   check('seller.city', 'city is required.').notEmpty().trim(),
   check('seller.zipcode', 'zipcode is required.').notEmpty().trim(),
   check('seller.address', 'address is required.').notEmpty().trim(),
+  check('seller.user', 'Seller user is required').notEmpty().trim(),
   check('place.phone_number', 'phone number is required.').notEmpty().trim(),
   check('place.company_name', 'company_name is required').notEmpty().trim(),
   check('place.email', 'email is required').notEmpty().isEmail().trim(),
@@ -113,6 +120,7 @@ exports.validateDispatch = [
   check('place.address', 'address is required.').notEmpty().trim(),
   check('place.conatct_fname', 'contact first name is required.').notEmpty().trim(),
   check('place.contact_name', 'Contact Name  is required.').notEmpty().trim(),
+  check('place.user', 'place user  is required.').notEmpty().trim(),
   check('inspection_date', 'inspection date required').toDate(),
 ];
 
@@ -130,8 +138,8 @@ exports.ValidateDocuments = [
   check('codes.*.mark', 'mark required ').notEmpty().trim(),
   check('codes.*.builder', 'builder required ').notEmpty().trim(),
   check('codes.*.country', 'country required ').notEmpty().trim(),
-  check('codes.*.price.currency', 'currency required ').notEmpty().trim(),
-  check('codes.*.price.value', 'value required ').notEmpty().trim(),
+  check('codes.*.currency', 'currency required ').notEmpty().trim(),
+  check('codes.*.price', 'value required ').notEmpty().trim(),
 ];
 exports.validateUploadDocuments = [check('doc_id', 'doc_id required').notEmpty().trim()];
 exports.validateStatusDocument = [

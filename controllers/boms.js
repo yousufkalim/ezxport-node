@@ -62,6 +62,23 @@ exports.getById = async (req, res) => {
 };
 
 /**
+ * Get bom by id
+ * @param {object} req
+ * @param {object} res
+ */
+exports.getByCountryId = async (req, res) => {
+  try {
+    const countryId = req.params.countryId; // Getting bom id from URL parameter
+    const bom = await Boms.find({ countries: countryId }).populate('countries'); // Finding bom by id
+    res.json({ success: true, bom }); // Success
+  } catch (err) {
+    // Error handling
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+/**
  * Update bom
  * @param {object} req
  * @param {object} res
@@ -111,24 +128,44 @@ exports.filterCode = async (req, res) => {
     }
     const { country } = req.body;
     let data = [];
-    var array = [];
+    let data2 = [];
+    var codes = [];
+    var values = [];
     const boms = await Boms.find({ countries: country });
-    if (boms.length < 1) {
-      return res.status(404).json({ success: false, message: 'Codes not found for this country' });
-    }
-    await xlsxFile(req.file.path).then((rows) => {
-      rows.forEach(async (item) => {
-        array = item[0].split('\n');
+    await xlsxFile(req.file.path).then(async (rows) => {
+      for (let k = 0; k < rows.length; k++) {
+        let item = rows[k];
+        codes = item[0].toString();
+        values = item[1];
         for (let i = 0; i < boms.length; i++) {
-          if (boms[i].code === array[0]) {
+          boms[i].monetary_value = values;
+          if (boms[i].code.substring(0, 4) === codes.substring(0, 4) || boms[i].code === codes) {
             data.push({
               bom: boms[i],
+              monetary_value: values,
             });
+          } else {
+            const findBom = await Boms.findOne({ code: codes, countries: country });
+            if (findBom === null) {
+              let newBom = await Boms.create({ code: codes, countries: country, certification_required: false });
+              newBom.monetary_value = values;
+              data.push({ bom: newBom, monetary_value: values });
+            }
           }
         }
-      });
+      }
     });
-    res.status(200).json({ success: true, matchedData: data });
+    //Because of iteration there are chances of duplicate data :}
+    var uniqueArr = [];
+    data.forEach((item) => {
+      if (uniqueArr.some((el) => el.bom.code === item.bom.code) === false) {
+        uniqueArr.push(item);
+      }
+    });
+    //Find Boms exist in db but user did'nt addin file  :\
+    const filtered = boms.filter((obj1) => !uniqueArr.find((obj2) => obj1._id === obj2.bom._id));
+
+    res.status(200).json({ success: true, matchedData: uniqueArr, unMatched: filtered });
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);

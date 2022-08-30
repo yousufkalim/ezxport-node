@@ -2,8 +2,10 @@
  * Requets controllers
  * @author Shuja Naqvi
  */
+const fs = require('fs');
 const Codes = require('../models/Boms');
 const Documents = require('../models/Documents');
+const Country = require('../models/Countries');
 const Users = require('../models/Users');
 const Vendors = require('../models/Vendors');
 const Request = require('../models/Requests');
@@ -12,6 +14,89 @@ const Seller = require('../models/Sellers');
 const Buyer = require('../models/Buyers');
 const Place = require('../models/Places');
 const Products = require('../models/Products');
+const { CountryNameCode } = require('../utils/Countries');
+const { sendRequestEmail } = require('../utils/sendRequestEmail');
+const stripe = require('stripe')(process.env.SECRET_KEY);
+/**
+ * Request  Create-Title
+ *      Request
+ * @param {object} req
+ * @param {object} res
+ */
+
+exports.createName = async (req, res) => {
+  try {
+    const { userId, countryId } = req.body;
+    var number;
+    let existingUser = await Users.findOne({
+      _id: userId,
+    });
+    if (!existingUser) {
+      return res.status(409).json({ success: false, message: 'UserId is invalid' });
+    }
+    const country = await Country.findById(countryId);
+    const Requests = await Request.find().sort({ createdAt: -1 });
+    //Find Country Code from file
+    const code = CountryNameCode.filter((e) => e.name.toLowerCase() === country.name.toLowerCase());
+    if (Requests.length === 0) {
+      number = '000';
+    }
+    if (Requests.length > 0 && Requests.length < 9) {
+      number = '00' + (+Requests.length + +1);
+    }
+    if (Requests.length === 9) {
+      number = '010';
+    }
+    if (Requests.length > 9 && Requests.length < 99) {
+      number = '0' + (+Requests.length + +1);
+    }
+    if (Requests.length === 99) {
+      number = '100';
+    }
+    if (Requests.length > 99) {
+      number = Requests.length + 1;
+    }
+
+    let name = existingUser.company.name + code[0].code + number;
+    name = name.replace(/\s*$/, '');
+    const exisitingRequest = await Request.findOne({ title: name });
+    if (exisitingRequest) {
+      let number = Requests[0].title.substr(Requests[0].title.length - 3);
+      number = +number + +1;
+      let name = existingUser.company.name + code[0].code + number;
+      name = name.replace(/\s*$/, '');
+      return res.json({ success: true, message: 'Request Title', title: name });
+    }
+    return res.json({ success: true, message: 'Request Title', tile: name });
+  } catch (err) {
+    // Error handling
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+/**
+ * Request  Search-Title
+ *      Request
+ * @param {object} req
+ * @param {object} res
+ */
+
+exports.searchName = async (req, res) => {
+  try {
+    let { title } = req.body;
+    title = title.replace(/\s*$/, '');
+    const exisitingRequest = await Request.findOne({ title: title });
+    if (exisitingRequest) {
+      return res.status(404).json({ success: false, message: 'title  already in use' });
+    }
+    res.json({ success: true, message: 'title is unique' });
+  } catch (err) {
+    // Error handling
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
 
 /**
  * Request  First-Step
@@ -118,7 +203,13 @@ exports.updateBoms = async (req, res) => {
  */
 exports.userVendor = async (req, res) => {
   try {
-    const { vendor, user, request, contact_info } = req.body;
+    const { vendor, user, request } = req.body;
+    const contact_info = JSON.parse(req.body.contact_info);
+    if (contact_info) {
+      if (!req.body.contact_fname || !req.body.contact_fname || !req.body.contact_email) {
+        return res.status(409).json({ success: false, message: 'all fields required in contact information section' });
+      }
+    }
     let existingVendor = await Vendors.findById(vendor);
     let existingUser = await Users.findById(user);
     let existingRequest = await Request.findById(request);
@@ -128,15 +219,6 @@ exports.userVendor = async (req, res) => {
     let existingUserVendor = await userVendor.findOne({ vendor: vendor, user: user });
     if (!existingUser) {
       return res.status(409).json({ success: false, message: 'Invalid userID' });
-    }
-    if (contact_info) {
-      if (!req.body.contact_fname || !req.body.contact_fname || !req.body.contact_email) {
-        return res.status(409).json({ success: false, message: 'all fields required in contact information section' });
-      }
-      existingUserVendor.contact_fname = req.body.contact_fname;
-      existingUserVendor.contact_lname = req.body.contact_lname;
-      existingUserVendor.contact_email = req.body.contact_email;
-      await existingUserVendor.save();
     }
     if (!existingRequest) {
       return res.status(409).json({ success: false, message: 'Invalid requestID' });
@@ -149,6 +231,12 @@ exports.userVendor = async (req, res) => {
       existingRequest.vendor = UserVendor._id;
       await existingRequest.save();
       return res.status(200).json({ success: true, message: 'userVendor created', request: existingRequest });
+    }
+    if (existingUserVendor && contact_info) {
+      existingUserVendor.contact_fname = req.body.contact_fname;
+      existingUserVendor.contact_lname = req.body.contact_lname;
+      existingUserVendor.contact_email = req.body.contact_email;
+      await existingUserVendor.save();
     }
     existingRequest.vendor = existingUserVendor._id;
     await existingRequest.save();
@@ -205,6 +293,22 @@ exports.Dispatch = async (req, res) => {
       await existingUser.save();
     }
     await existingRequest.save();
+    existingRequest = await Request.findById(request)
+      .populate('user')
+      .populate('country')
+      .populate('missing_docs')
+      .populate('vendor')
+      .populate('place')
+      .populate('buyer')
+      .populate('seller')
+      .populate('codes.code')
+      .populate('codes.products')
+      .populate({
+        path: 'documents',
+        populate: {
+          path: 'doc_id',
+        },
+      });
     return res.status(200).json({ success: true, message: 'Dispatched', request: existingRequest });
   } catch (err) {
     // Error handling
@@ -224,14 +328,60 @@ exports.Documents = async (req, res) => {
     const { request, codes } = req.body;
     let updateRequest;
     for (let i = 0; i < codes.length; i++) {
-      const product = await Products.create(codes[i]);
+      const price = { value: codes[i].price, currency: codes[i].currency };
+      codes[i].price = price;
+      codes[i].request = request;
+      const product = await CreateProduct(codes[i]);
       updateRequest = await Request.findOneAndUpdate(
         { _id: request, 'codes.code': codes[i].code },
         { $push: { 'codes.$.products': product._id } },
         { new: true }
       );
     }
-    return res.status(200).json({ success: true, request: updateRequest });
+    res.status(200).json({ success: true, request: updateRequest });
+  } catch (err) {
+    // Error handling
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+/**
+ *   5th-Step
+ *  send Email
+ * @param {object} req
+ * @param {object} res
+ */
+exports.sendEmail = async (req, res) => {
+  try {
+    const requestId = req.params.requestId;
+    let findReq = await Request.findById(requestId)
+      .populate('user')
+      .populate('country')
+      .populate('missing_docs')
+      .populate({
+        path: 'vendor',
+        populate: {
+          path: 'vendor',
+        },
+      })
+      .populate('place')
+      .populate('buyer')
+      .populate('seller')
+      .populate('codes.code')
+      .populate('codes.products')
+      .populate({
+        path: 'documents',
+        populate: {
+          path: 'doc_id',
+        },
+      });
+    await sendRequestEmail(findReq);
+    findReq.status = 'sent';
+    findReq.request_method = 'direct';
+    await findReq.save();
+    return res.json({ success: true, message: 'Email has been sent to vendor' });
+    // let updateRequest;
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
@@ -253,7 +403,11 @@ exports.documentsUpload = async (req, res) => {
     if (req.file) {
       file = req.file.path;
     }
-    let exisitingDoc = await Request.findOne({ _id: requestId, 'documents.doc_id': doc_id });
+    //If missing_docs has doc_id then pull it
+    await Request.findByIdAndUpdate({ _id: requestId }, { $pull: { missing_docs: doc_id } });
+    //Check if request has create document with one file atleast...?
+    let exisitingDoc = await Request.findOne({ _id: requestId, 'documents.doc_id': doc_id, 'documents.status': 'sent' });
+    // if document with provided id is not created
     if (!exisitingDoc) {
       const documentObj = {
         doc_id: doc_id,
@@ -262,6 +416,7 @@ exports.documentsUpload = async (req, res) => {
       const newDoc = await Request.findOneAndUpdate({ _id: requestId }, { $push: { documents: documentObj } }, { new: true });
       return res.json({ success: true, message: 'new document has been created', doc: newDoc });
     }
+    // else if  request has already document with provided id then this will updated request!
     exisitingDoc = await Request.findOneAndUpdate(
       { _id: requestId, 'documents.doc_id': doc_id },
       { $push: { 'documents.$.url': file } },
@@ -282,7 +437,7 @@ exports.documentsUpload = async (req, res) => {
  */
 exports.getAll = async (req, res) => {
   try {
-    const requests = await Request.find({})
+    const requests = await Request.find()
       .populate('user')
       .populate('country')
       .populate('vendor')
@@ -290,15 +445,8 @@ exports.getAll = async (req, res) => {
       .populate('buyer')
       .populate('seller')
       .populate('missing_docs')
-      .populate({
-        path: 'codes',
-        populate: {
-          path: 'code',
-        },
-        populate: {
-          path: 'products',
-        },
-      })
+      .populate('codes.code')
+      .populate('codes.products')
       .populate({
         path: 'documents',
         populate: {
@@ -321,6 +469,7 @@ exports.getAll = async (req, res) => {
 exports.getByuserId = async (req, res) => {
   try {
     const { userId } = req.params;
+
     const request = await Request.find({ user: userId })
       .populate('user')
       .populate('country')
@@ -329,22 +478,15 @@ exports.getByuserId = async (req, res) => {
       .populate('buyer')
       .populate('missing_docs')
       .populate('seller')
-      .populate({
-        path: 'codes',
-        populate: {
-          path: 'code',
-        },
-        populate: {
-          path: 'products',
-        },
-      })
+      .populate('codes.code')
+      .populate('codes.products')
       .populate({
         path: 'documents',
         populate: {
           path: 'doc_id',
         },
       });
-    res.status(200).json({ success: true, requet: request });
+    res.status(200).json({ success: true, request: request });
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
@@ -489,7 +631,7 @@ exports.validateProductDoc = async (req, res) => {
 };
 
 /**
- *   Request-Missing-Docs
+ *  Request-Missing-Docs
  * @param {object} req
  * @param {object} res
  */
@@ -503,7 +645,14 @@ exports.ReqmissingDocs = async (req, res) => {
     }
     req.body.countries = [exitingRequest.country];
     const new_doc = await Documents.create(req.body);
+    const docObj = {
+      status: 'Missing Documents',
+      url: [],
+      doc_id: new_doc._id,
+    };
     exitingRequest.missing_docs.push(new_doc._id);
+    exitingRequest.documents.push(docObj);
+    exitingRequest.status = 'Missing Documents';
     await exitingRequest.save();
     return res.status(202).json({ success: false, message: 'Missing Doc Updated ', exitingRequest });
   } catch (err) {
@@ -524,15 +673,215 @@ exports.ProductmissingDocs = async (req, res) => {
     const { productId } = req.params;
     const exitingProduct = await Products.findById(productId);
     if (!exitingProduct) {
-      return res.status(404).json({ success: false, message: 'Not Found ' });
+      return res.status(404).json({ success: false, message: 'Product Not Found ' });
+    }
+    const exitingRequest = await Request.findById(exitingProduct.request);
+    if (!exitingRequest) {
+      return res.status(404).json({ success: false, message: 'Request Not Found ' });
     }
     req.body.countries = [exitingProduct.country];
     const new_doc = await Documents.create(req.body);
     exitingProduct.missing_docs.push(new_doc._id);
+    exitingRequest.status = 'Product Documents Missing';
     await exitingProduct.save();
-    return res.status(202).json({ success: false, message: 'Missing Doc Updated ', exitingProduct });
+    return res.status(202).json({ success: true, message: 'Missing Doc Updated ', exitingProduct });
   } catch (err) {
     console.log('Error---->', err);
     res.status(5000).json({ success: false, message: 'Internal Server Error' });
   }
+};
+
+/**
+ *
+ * Validated By Admin
+ * @param {object} req
+ * @param {object} res
+ */
+
+exports.validateRequest = async (req, res) => {
+  try {
+    const { requestId } = req.params;
+    const exitingRequest = await Request.findById(requestId);
+    if (!exitingRequest) {
+      return res.status(404).json({ success: false, message: 'Request Not Found' });
+    }
+    exitingRequest.status = 'Validate By Admin';
+    await exitingRequest.save();
+    return res.status(202).json({ success: true, exitingRequest });
+  } catch (err) {
+    console.log('Error---->', err);
+    res.status(5000).json({ success: false, message: 'Internal Server Error' });
+  }
+};
+
+/**
+ *
+ * Create Product from iteration
+ * @param {object} req
+ * @param {object} res
+ */
+
+const CreateProduct = async (Product) => {
+  try {
+    if (Product.technical_sheet) {
+      let filePaths = [];
+      for (let i = 0; i < Product.technical_sheet.url.length; i++) {
+        const file = Product.technical_sheet.url[i];
+        const fileExt = fileExtension(file);
+        const bitmap = new Buffer(file, 'base64');
+        const filePath = `./uploads/${Date.now()}-technical_sheet${i}-file-.${fileExt}`;
+        fs.writeFileSync(filePath, bitmap);
+        filePaths.push(filePath.substring(2));
+      }
+      Product.technical_sheet.url = filePaths;
+    }
+    if (Product.test_report) {
+      let filePaths = [];
+      for (let i = 0; i < Product.test_report.url.length; i++) {
+        const file = Product.test_report.url[i];
+        const fileExt = fileExtension(file);
+        const bitmap = new Buffer(file, 'base64');
+        const filePath = `./uploads/${Date.now()}-test_report${i}-file-.${fileExt}`;
+        fs.writeFileSync(filePath, bitmap);
+        filePaths.push(filePath.substring(2));
+      }
+      Product.test_report.url = filePaths;
+    }
+    if (Product.plan) {
+      let filePaths = [];
+      for (let i = 0; i < Product.plan.url.length; i++) {
+        const file = Product.plan.url[i];
+        const fileExt = fileExtension(file);
+        const bitmap = new Buffer(file, 'base64');
+        const filePath = `./uploads/${Date.now()}-plan${i}-file-.${fileExt}`;
+        fs.writeFileSync(filePath, bitmap);
+        filePaths.push(filePath.substring(2));
+      }
+      Product.plan.url = filePaths;
+    }
+    if (Product.other_docs) {
+      let filePaths = [];
+      for (let i = 0; i < Product.other_docs.url.length; i++) {
+        const file = Product.other_docs.url[i];
+        const fileExt = fileExtension(file);
+        const bitmap = new Buffer(file, 'base64');
+        const filePath = `./uploads/${Date.now()}-other_docs${i}-file-.${fileExt}`;
+        fs.writeFileSync(filePath, bitmap);
+        filePaths.push(filePath.substring(2));
+      }
+      Product.other_docs.url = filePaths;
+    }
+    if (Product.analysis_certificate) {
+      let filePaths = [];
+      for (let i = 0; i < Product.analysis_certificate.url.length; i++) {
+        const file = Product.analysis_certificate.url[i];
+        const fileExt = fileExtension(file);
+        const bitmap = new Buffer(file, 'base64');
+        const filePath = `./uploads/${Date.now()}-analysis_certificate${i}-file-.${fileExt}`;
+        fs.writeFileSync(filePath, bitmap);
+        filePaths.push(filePath.substring(2));
+      }
+      Product.analysis_certificate.url = filePaths;
+    }
+    const product = await Products.create(Product);
+    return product;
+  } catch (err) {
+    console.log('Error---->', err);
+    res.status(5000).json({ success: false, message: 'Internal Server Error' });
+  }
+};
+/**
+ *
+ * Find Extension of file
+ * @param {object} req
+ * @param {object} res
+ */
+const fileExtension = (fileBase64) => {
+  let fileHeader = new Map();
+  //get the first 3 char of base64
+  fileHeader.set('/9j', 'jpg');
+  fileHeader.set('iVB', 'png');
+  fileHeader.set('Qk0', 'bmp');
+  fileHeader.set('SUk', 'tiff');
+  fileHeader.set('JVB', 'pdf');
+  fileHeader.set('UEs', 'docx');
+
+  let res = '';
+
+  fileHeader.forEach((v, k) => {
+    if (k == fileBase64.substr(0, 3)) {
+      res = v;
+    }
+  });
+
+  //if file is not supported
+  if (res == '') {
+    res = 'pdf';
+  }
+
+  //return map value
+  return res;
+};
+
+/**
+ *
+ * Proceed to payment
+ * @param {object} req
+ * @param {object} res
+ */
+
+exports.Checkout = async (req, res, next) => {
+  try {
+    let metaData = req.body.metaData;
+    let lineItems = req.body.line_items; // => get the line items array from the resposne
+    // => stripe api to create a checkout seesion url
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'], // => A list of the types of payment methods (e.g., card)
+      line_items: lineItems, // => A list of items the customer is purchasing. For payment mode, there is a maximum of 100 line items
+      locale: 'fr', // => The IETF language tag of the locale Checkout is displayed in.
+      mode: 'payment', // => The mode of the Checkout Session. Possible type: payment, setup and subscription
+      success_url: `${process.env.CLIENT_URL}/`, // => The URL the customer will be directed to if they decide to cancel payment and return to your website. example http://localhost:3001/home?success
+      cancel_url: `${process.env.CLIENT_URL}/`, // => The URL to which Stripe should send customers when payment or setup is complete. If you’d like to use information from the successful Checkout Session on your page. example http://localhost:3001/not_home?reject
+      metadata: metaData,
+    });
+    // => return the url of the checkout session page
+    res.status(200).json({
+      url: session.url,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.Webhook = async (req, res) => {
+  let sig = req.headers['stripe-signature'];
+  let event;
+  try {
+    event = stripe.webhooks.constructEvent(
+      req.rawBody,
+      sig,
+      process.env.WEB_HOOK_KEY //////webhook scret key,
+    );
+  } catch (error) {
+    res.status(400).send(`Webhook Error: ${error.message}`);
+    return;
+  }
+
+  switch (event.type) {
+    case 'checkout.session.completed':
+      {
+        const session = event.data.object;
+        const metaData = session.metadata;
+        const request = metaData.id;
+        const findReq = await Request.findById(request);
+        if (!findReq) return res.json({ success: false, message: 'RequestId is invalid' });
+        findReq.status = 'Benig Checked By Expert';
+        findReq.request_method = 'platform';
+        await findReq.save();
+      }
+      break;
+    default:
+      console.trace(`Unhandled event type ${event.type}`);
+  }
+  res.send();
 };
