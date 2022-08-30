@@ -4,7 +4,7 @@
  */
 const Users = require('../models/Users');
 const Sellers = require('../models/Sellers');
-const Admins=require("../models/Admins")
+const Admins = require('../models/Admins');
 const Buyers = require('../models/Buyers');
 const Places = require('../models/Places');
 const Vendors = require('../models/UserVendors');
