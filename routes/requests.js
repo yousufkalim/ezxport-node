@@ -39,7 +39,10 @@ router.put('/dispatch', validateDispatch, isValidated, request.Dispatch);
 //  4th Step - document
 router.put('/documentsUpload/:requestId', upload.single('file'), validateUploadDocuments, isValidated, request.documentsUpload);
 router.put('/documents', ValidateDocuments, isValidated, request.Documents);
-
+//Checkout Request --
+router.post('/checkout', request.Checkout);
+//Send Email
+router.put('/sendEmail/:requestId', request.sendEmail);
 // // Read
 router.get('/', request.getAll); // Get all requests at once
 router.get('/:requestId', request.getById); // Get one requestby it's id
@@ -50,9 +53,7 @@ router.put('/validateDoc/:requestId', validateStatusDocument, isValidated, reque
 router.put('/validateProductDoc/:productId', request.validateProductDoc);
 router.put('/ReqmissingDocs/:requestId', validateMissingDoc, isValidated, request.ReqmissingDocs);
 router.put('/ProductmissingDocs/:productId', validateMissingDoc, isValidated, request.ProductmissingDocs);
-
-//Test
-router.post('/convertBase64', request.convertBase64);
+router.put('/validateRequest/:requestId', request.validateRequest);
 
 // Export
 module.exports = router;

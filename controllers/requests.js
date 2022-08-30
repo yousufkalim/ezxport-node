@@ -16,9 +16,10 @@ const Place = require('../models/Places');
 const Products = require('../models/Products');
 const { CountryNameCode } = require('../utils/Countries');
 const { sendRequestEmail } = require('../utils/sendRequestEmail');
+const stripe = require('stripe')(process.env.SECRET_KEY);
 /**
  * Request  Create-Title
- *        Request
+ *      Request
  * @param {object} req
  * @param {object} res
  */
@@ -76,7 +77,7 @@ exports.createName = async (req, res) => {
 
 /**
  * Request  Search-Title
- *        Request
+ *      Request
  * @param {object} req
  * @param {object} res
  */
@@ -325,26 +326,11 @@ exports.Dispatch = async (req, res) => {
 exports.Documents = async (req, res) => {
   try {
     const { request, codes } = req.body;
-    let findReq = await Request.findById(request);
-    // .populate('user')
-    // .populate('country')
-    // .populate('missing_docs')
-    // .populate('vendor')
-    // .populate('place')
-    // .populate('buyer')
-    // .populate('seller')
-    // .populate('codes.code')
-    // .populate('codes.products')
-    // .populate({
-    //   path: 'documents',
-    //   populate: {
-    //     path: 'doc_id',
-    //   },
-    // });
-    // return sendRequestEmail(findReq);
+    let updateRequest;
     for (let i = 0; i < codes.length; i++) {
       const price = { value: codes[i].price, currency: codes[i].currency };
       codes[i].price = price;
+      codes[i].request = request;
       const product = await CreateProduct(codes[i]);
       updateRequest = await Request.findOneAndUpdate(
         { _id: request, 'codes.code': codes[i].code },
@@ -352,30 +338,50 @@ exports.Documents = async (req, res) => {
         { new: true }
       );
     }
+    res.status(200).json({ success: true, request: updateRequest });
+  } catch (err) {
+    // Error handling
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
 
-    // const platfromChk = JSON.parse(platform);
-    // if (platfromChk) {
-    //   return res.status(200).json({ success: true, request: updateRequest });
-    // }
-    // findReq = await Request.findById(request)
-    //   .populate('user')
-    //   .populate('country')
-    //   .populate('missing_docs')
-    //   .populate('vendor')
-    //   .populate('place')
-    //   .populate('buyer')
-    //   .populate('seller')
-    //   .populate('codes.code')
-    //   .populate('codes.products')
-    //   .populate({
-    //     path: 'documents',
-    //     populate: {
-    //       path: 'doc_id',
-    //     },
-    //   });
-    // // return sendRequestEmail(findReq);
-    // // let updateRequest;
-    return res.status(200).json({ success: true, request: findReq });
+/**
+ *   5th-Step
+ *  send Email
+ * @param {object} req
+ * @param {object} res
+ */
+exports.sendEmail = async (req, res) => {
+  try {
+    const requestId = req.params.requestId;
+    let findReq = await Request.findById(requestId)
+      .populate('user')
+      .populate('country')
+      .populate('missing_docs')
+      .populate({
+        path: 'vendor',
+        populate: {
+          path: 'vendor',
+        },
+      })
+      .populate('place')
+      .populate('buyer')
+      .populate('seller')
+      .populate('codes.code')
+      .populate('codes.products')
+      .populate({
+        path: 'documents',
+        populate: {
+          path: 'doc_id',
+        },
+      });
+    await sendRequestEmail(findReq);
+    findReq.status = 'sent';
+    findReq.request_method = 'direct';
+    await findReq.save();
+    return res.json({ success: true, message: 'Email has been sent to vendor' });
+    // let updateRequest;
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
@@ -640,6 +646,7 @@ exports.ReqmissingDocs = async (req, res) => {
     req.body.countries = [exitingRequest.country];
     const new_doc = await Documents.create(req.body);
     exitingRequest.missing_docs.push(new_doc._id);
+    exitingRequest.status = 'Missing Documents';
     await exitingRequest.save();
     return res.status(202).json({ success: false, message: 'Missing Doc Updated ', exitingRequest });
   } catch (err) {
@@ -660,30 +667,53 @@ exports.ProductmissingDocs = async (req, res) => {
     const { productId } = req.params;
     const exitingProduct = await Products.findById(productId);
     if (!exitingProduct) {
-      return res.status(404).json({ success: false, message: 'Not Found ' });
+      return res.status(404).json({ success: false, message: 'Product Not Found ' });
+    }
+    const exitingRequest = await Request.findById(exitingProduct.request);
+    if (!exitingRequest) {
+      return res.status(404).json({ success: false, message: 'Request Not Found ' });
     }
     req.body.countries = [exitingProduct.country];
     const new_doc = await Documents.create(req.body);
     exitingProduct.missing_docs.push(new_doc._id);
+    exitingRequest.status = 'Product Documents Missing';
     await exitingProduct.save();
-    return res.status(202).json({ success: false, message: 'Missing Doc Updated ', exitingProduct });
+    return res.status(202).json({ success: true, message: 'Missing Doc Updated ', exitingProduct });
   } catch (err) {
     console.log('Error---->', err);
     res.status(5000).json({ success: false, message: 'Internal Server Error' });
   }
 };
 
-exports.convertBase64 = async (req, res) => {
+/**
+ *
+ * Validated By Admin
+ * @param {object} req
+ * @param {object} res
+ */
+
+exports.validateRequest = async (req, res) => {
   try {
-    var file = req.body.file;
-    var bitmap = new Buffer(file, 'base64');
-    const filePath = `./uploads/${Date.now()}-file-.pdf`;
-    fs.writeFileSync(filePath, bitmap);
+    const { requestId } = req.params;
+    const exitingRequest = await Request.findById(requestId);
+    if (!exitingRequest) {
+      return res.status(404).json({ success: false, message: 'Request Not Found' });
+    }
+    exitingRequest.status = 'Validate By Admin';
+    await exitingRequest.save();
+    return res.status(202).json({ success: true, exitingRequest });
   } catch (err) {
     console.log('Error---->', err);
     res.status(5000).json({ success: false, message: 'Internal Server Error' });
   }
 };
+
+/**
+ *
+ * Create Product from iteration
+ * @param {object} req
+ * @param {object} res
+ */
 
 const CreateProduct = async (Product) => {
   try {
@@ -754,7 +784,12 @@ const CreateProduct = async (Product) => {
     res.status(5000).json({ success: false, message: 'Internal Server Error' });
   }
 };
-
+/**
+ *
+ * Find Extension of file
+ * @param {object} req
+ * @param {object} res
+ */
 const fileExtension = (fileBase64) => {
   let fileHeader = new Map();
   //get the first 3 char of base64
@@ -780,4 +815,67 @@ const fileExtension = (fileBase64) => {
 
   //return map value
   return res;
+};
+
+/**
+ *
+ * Proceed to payment
+ * @param {object} req
+ * @param {object} res
+ */
+
+exports.Checkout = async (req, res, next) => {
+  try {
+    let metaData = req.body.metaData;
+    let lineItems = req.body.line_items; // => get the line items array from the resposne
+    // => stripe api to create a checkout seesion url
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'], // => A list of the types of payment methods (e.g., card)
+      line_items: lineItems, // => A list of items the customer is purchasing. For payment mode, there is a maximum of 100 line items
+      locale: 'fr', // => The IETF language tag of the locale Checkout is displayed in.
+      mode: 'payment', // => The mode of the Checkout Session. Possible type: payment, setup and subscription
+      success_url: `${process.env.CLIENT_URL}/`, // => The URL the customer will be directed to if they decide to cancel payment and return to your website. example http://localhost:3001/home?success
+      cancel_url: `${process.env.CLIENT_URL}/`, // => The URL to which Stripe should send customers when payment or setup is complete. If you’d like to use information from the successful Checkout Session on your page. example http://localhost:3001/not_home?reject
+      metadata: metaData,
+    });
+    // => return the url of the checkout session page
+    res.status(200).json({
+      url: session.url,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.Webhook = async (req, res) => {
+  let sig = req.headers['stripe-signature'];
+  let event;
+  try {
+    event = stripe.webhooks.constructEvent(
+      req.rawBody,
+      sig,
+      process.env.WEB_HOOK_KEY //////webhook scret key,
+    );
+  } catch (error) {
+    res.status(400).send(`Webhook Error: ${error.message}`);
+    return;
+  }
+
+  switch (event.type) {
+    case 'checkout.session.completed':
+      {
+        const session = event.data.object;
+        const metaData = session.metadata;
+        const request = metaData.id;
+        const findReq = await Request.findById(request);
+        if (!findReq) return res.json({ success: false, message: 'RequestId is invalid' });
+        findReq.status = 'Benig Checked By Expert';
+        findReq.request_method = 'platform';
+        await findReq.save();
+      }
+      break;
+    default:
+      console.trace(`Unhandled event type ${event.type}`);
+  }
+  res.send();
 };
