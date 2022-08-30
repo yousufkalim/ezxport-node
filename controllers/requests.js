@@ -3,7 +3,6 @@
  * @author Shuja Naqvi
  */
 const fs = require('fs');
-const Codes = require('../models/Boms');
 const Documents = require('../models/Documents');
 const Country = require('../models/Countries');
 const Users = require('../models/Users');
