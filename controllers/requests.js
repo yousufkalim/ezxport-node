@@ -406,7 +406,7 @@ exports.documentsUpload = async (req, res) => {
     //If missing_docs has doc_id then pull it
     await Request.findByIdAndUpdate({ _id: requestId }, { $pull: { missing_docs: doc_id } });
     //Check if request has create document with one file atleast...?
-    let exisitingDoc = await Request.findOne({ _id: requestId, 'documents.doc_id': doc_id });
+    let exisitingDoc = await Request.findOne({ _id: requestId, 'documents.doc_id': doc_id, 'documents.status': 'sent' });
     // if document with provided id is not created
     if (!exisitingDoc) {
       const documentObj = {
@@ -645,7 +645,13 @@ exports.ReqmissingDocs = async (req, res) => {
     }
     req.body.countries = [exitingRequest.country];
     const new_doc = await Documents.create(req.body);
+    const docObj = {
+      status: 'Missing Documents',
+      url: [],
+      doc_id: new_doc._id,
+    };
     exitingRequest.missing_docs.push(new_doc._id);
+    exitingRequest.documents.push(docObj);
     exitingRequest.status = 'Missing Documents';
     await exitingRequest.save();
     return res.status(202).json({ success: false, message: 'Missing Doc Updated ', exitingRequest });
