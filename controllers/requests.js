@@ -151,6 +151,43 @@ exports.boms = async (req, res) => {
   }
 };
 
+/**
+ * Request  First-Step
+ *        BOM
+ * @param {object} req
+ * @param {object} res
+ */
+exports.calculateCost = async (req, res) => {
+  try {
+    const { codes } = req.body;
+    //If certification not required by all of documents
+    const certificationNotReq = codes.every(function (v) {
+      const boolVal = JSON.parse(v.certification_required);
+      return !boolVal;
+    });
+    //If certification not required by all of documents
+    //then set its request status will be not required
+    //and cost value will be 0
+    if (certificationNotReq) {
+      return res.json({ success: true, status: 'Not Required', certification_cost: 0 }); //Success
+    }
+    //If certification  required by some of documents
+    //then calculate monetory values for required codes
+    let value = 0;
+    for (let i = 0; i < codes.length; i++) {
+      const boolVal = JSON.parse(codes[i].certification_required);
+      if (boolVal) {
+        value = +value + +codes[i].monetary_value; //To deal with coercion subtracted 0 from string :)
+      }
+    }
+    res.json({ success: true, status: ' Required', certification_cost: value }); //Success
+  } catch (err) {
+    // Error handling
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
 /**       Update
  * Request  First-Step
  *        BOM

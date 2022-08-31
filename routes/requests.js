@@ -16,6 +16,7 @@ const {
   validateStatusDocument,
   validateMissingDoc,
   isValidated,
+  validateCalculationCost,
 } = require('../middleware/validators');
 
 /**
@@ -26,6 +27,8 @@ const {
  * @method put update request
  * @method delete delete request
  */
+//Calculate Certification Cost
+router.post('/calculateCost', validateCalculationCost, isValidated, request.calculateCost);
 // Create Name
 router.post('/createName', validateCreateTitle, isValidated, request.createName);
 //Search Name
