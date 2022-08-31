@@ -7,7 +7,6 @@ var nodemailer = require('nodemailer');
 const sender_name = process.env.MAILER_DOMAIN;
 const sender_email = process.env.MAILER_EMAIL;
 const sender_password = process.env.MAILER_PASSWORD;
-const Request = require('../models/Requests');
 /**
  * sendEmail
  * @param {string} subject
@@ -25,13 +24,13 @@ exports.sendRequestEmail = (request) => {
       },
     });
     // Send email options
+    console.log(request.vendor.vendor.contact_email, 'request.vendor.vendor.sending_email');
     var mailOptions = {
       from: `${sender_name} <${sender_email}>`,
-      to: 'shujanaqvi288@gmail.com',
+      to: request.vendor.vendor.contact_email,
       subject: 'Certfication  Request',
       html: RequestTemplate(request),
     };
-
     // Sending email
     transporter.sendMail(mailOptions, function (error, info) {
       if (error) {
@@ -45,9 +44,9 @@ exports.sendRequestEmail = (request) => {
   });
 };
 
+//Please Never touch my html :}
 const RequestTemplate = (request) => {
   return `
-
 <body style="margin: 0; padding: 0">
     <table role="presentation" style="width: 100%; border-collapse: collapse; border: 0; border-spacing: 0; background: #ffffff">
         <tr>
