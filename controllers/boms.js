@@ -133,7 +133,7 @@ exports.filterCode = async (req, res) => {
     var values = [];
     const boms = await Boms.find({ countries: country });
     await xlsxFile(req.file.path).then(async (rows) => {
-      for (let k = 0; k < rows.length; k++) {
+      for (let k = 1; k < rows.length; k++) {
         let item = rows[k];
         codes = item[0].toString();
         values = item[1];
