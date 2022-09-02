@@ -149,7 +149,7 @@ exports.filterCode = async (req, res) => {
                 monetary_value: values,
               });
             } else {
-              const findBom = await Boms.findOne({ code: codes, countries: country });
+              const findBom = await Boms.findOne({ code: codes });
               if (findBom === null) {
                 let newBom = await Boms.create({ code: codes, countries: country, certification_required: false });
                 newBom.monetary_value = values;
