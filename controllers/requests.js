@@ -160,7 +160,7 @@ exports.boms = async (req, res) => {
 exports.calculateCost = async (req, res) => {
   try {
     const { codes, country } = req.body;
-    const existingCountry = await Country.findById(country);
+    const existingCountry = await Country.findById(country).populate('calculation');
     if (!existingCountry) {
       return res.json({ success: false, message: 'Country not found' });
     }
@@ -184,7 +184,54 @@ exports.calculateCost = async (req, res) => {
         value = +value + +codes[i].monetary_value; //To deal with coercion subtracted 0 from string :)
       }
     }
-    res.json({ success: true, status: 'Required', certification_cost: value, country: existingCountry.name }); //Success
+    if (existingCountry.calculation) {
+      if (existingCountry.calculation.type === 'coefficient') {
+        if (existingCountry.calculation.min_threshold.value > value) {
+          return res.json({ success: true, status: 'Not Required', certification_cost: value, country: existingCountry.name }); //Success
+        }
+        const coefficientMultiple = +existingCountry.calculation.coefficient * value;
+        if (coefficientMultiple < existingCountry.calculation.min_cost.value) {
+          return res.json({
+            success: true,
+            status: 'Required',
+            certification_cost: existingCountry.calculation.min_cost.value,
+            country: existingCountry.name,
+          }); //Success
+        } else if (coefficientMultiple > existingCountry.calculation.max_cost.value) {
+          return res.json({
+            success: true,
+            status: 'Required',
+            certification_cost: existingCountry.calculation.max_cost.value,
+            country: existingCountry.name,
+          }); //Success
+        } else {
+          return res.json({
+            success: true,
+            status: 'Required',
+            certification_cost: value,
+            country: existingCountry.name,
+          }); //Success
+        }
+      } else if (existingCountry.calculation.type === 'range') {
+        for (let i = 0; i < existingCountry.calculation.range.length; i++) {
+          if (existingCountry.calculation.range[i].min <= value && value <= existingCountry.calculation.range[i].max) {
+            return res.json({
+              success: true,
+              status: 'Required',
+              certification_cost: existingCountry.calculation.range[i].certificate_cost,
+              country: existingCountry.name,
+            }); //Success
+          }
+        }
+        return res.json({
+          success: true,
+          status: 'Required',
+          certification_cost: value,
+          message: 'do not match the criteria',
+          country: existingCountry.name,
+        }); //Success
+      }
+    }
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
@@ -566,7 +613,7 @@ exports.getBycountryId = async (req, res) => {
           path: 'doc_id',
         },
       });
-    res.status(200).json({ success: true, requet: request });
+    res.status(200).json({ success: true, request: request });
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
@@ -620,7 +667,7 @@ exports.getById = async (req, res) => {
           path: 'doc_id',
         },
       });
-    res.status(200).json({ success: true, requet: request });
+    res.status(200).json({ success: true, request: request });
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
@@ -643,7 +690,7 @@ exports.validateDoc = async (req, res) => {
       { 'documents.$.status': status },
       { new: true }
     );
-    res.status(200).json({ success: true, requet: exisitingDoc });
+    res.status(200).json({ success: true, request: exisitingDoc });
   } catch (err) {
     console.log('Error---->', err);
     res.status(500).json({ success: false, message: 'Internal Server Error' });
