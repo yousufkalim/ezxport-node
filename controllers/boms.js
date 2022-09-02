@@ -140,21 +140,27 @@ exports.filterCode = async (req, res) => {
         let item = rows[k];
         codes = item[0].toString();
         values = item[1];
-        for (let i = 0; i < boms.length; i++) {
-          boms[i].monetary_value = values;
-          if (boms[i].code.substring(0, 4) === codes.substring(0, 4) || boms[i].code === codes) {
-            data.push({
-              bom: boms[i],
-              monetary_value: values,
-            });
-          } else {
-            const findBom = await Boms.findOne({ code: codes, countries: country });
-            if (findBom === null) {
-              let newBom = await Boms.create({ code: codes, countries: country, certification_required: false });
-              newBom.monetary_value = values;
-              data.push({ bom: newBom, monetary_value: values });
+        if (boms.length > 0) {
+          for (let i = 0; i < boms.length; i++) {
+            boms[i].monetary_value = values;
+            if (boms[i].code.substring(0, 4) === codes.substring(0, 4) || boms[i].code === codes) {
+              data.push({
+                bom: boms[i],
+                monetary_value: values,
+              });
+            } else {
+              const findBom = await Boms.findOne({ code: codes, countries: country });
+              if (findBom === null) {
+                let newBom = await Boms.create({ code: codes, countries: country, certification_required: false });
+                newBom.monetary_value = values;
+                data.push({ bom: newBom, monetary_value: values });
+              }
             }
           }
+        } else {
+          let newBom = await Boms.create({ code: codes, countries: country, certification_required: false });
+          newBom.monetary_value = values;
+          data.push({ bom: newBom, monetary_value: values });
         }
       }
     });

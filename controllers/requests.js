@@ -180,7 +180,7 @@ exports.calculateCost = async (req, res) => {
         value = +value + +codes[i].monetary_value; //To deal with coercion subtracted 0 from string :)
       }
     }
-    res.json({ success: true, status: ' Required', certification_cost: value }); //Success
+    res.json({ success: true, status: 'Required', certification_cost: value }); //Success
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
