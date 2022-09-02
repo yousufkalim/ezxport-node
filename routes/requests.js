@@ -5,6 +5,7 @@
 const router = require('express').Router();
 const request = require('../controllers/requests');
 const { upload } = require('../middleware/multer');
+const express = require('express');
 const {
   validateRequestBom,
   validateSearchTitle,
@@ -44,6 +45,8 @@ router.put('/documentsUpload/:requestId', upload.single('file'), validateUploadD
 router.put('/documents', ValidateDocuments, isValidated, request.Documents);
 //Checkout Request --
 router.post('/checkout', request.Checkout);
+// post - webhook
+router.post('/stripe/webhook', express.raw({ type: 'application/json' }), request.Webhook);
 //Send Email
 router.put('/sendEmail/:requestId', request.sendEmail);
 // // Read
