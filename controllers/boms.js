@@ -133,6 +133,9 @@ exports.filterCode = async (req, res) => {
     var values = [];
     const boms = await Boms.find({ countries: country });
     await xlsxFile(req.file.path).then(async (rows) => {
+      if (rows.length > 300) {
+        return res.json({ success: fasle, message: 'File is too large' });
+      }
       for (let k = 1; k < rows.length; k++) {
         let item = rows[k];
         codes = item[0].toString();
