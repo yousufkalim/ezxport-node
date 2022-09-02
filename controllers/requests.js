@@ -159,7 +159,11 @@ exports.boms = async (req, res) => {
  */
 exports.calculateCost = async (req, res) => {
   try {
-    const { codes } = req.body;
+    const { codes, country } = req.body;
+    const existingCountry = await Country.findById(country);
+    if (!existingCountry) {
+      return res.json({ success: false, message: 'Country not found' });
+    }
     //If certification not required by all of documents
     const certificationNotReq = codes.every(function (v) {
       const boolVal = JSON.parse(v.certification_required);
@@ -169,7 +173,7 @@ exports.calculateCost = async (req, res) => {
     //then set its request status will be not required
     //and cost value will be 0
     if (certificationNotReq) {
-      return res.json({ success: true, status: 'Not Required', certification_cost: 0 }); //Success
+      return res.json({ success: true, status: 'Not Required', certification_cost: 0, country: existingCountry.name }); //Success
     }
     //If certification  required by some of documents
     //then calculate monetory values for required codes
@@ -180,7 +184,7 @@ exports.calculateCost = async (req, res) => {
         value = +value + +codes[i].monetary_value; //To deal with coercion subtracted 0 from string :)
       }
     }
-    res.json({ success: true, status: 'Required', certification_cost: value }); //Success
+    res.json({ success: true, status: 'Required', certification_cost: value, country: existingCountry.name }); //Success
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);

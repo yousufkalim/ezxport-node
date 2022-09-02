@@ -131,6 +131,7 @@ exports.filterCode = async (req, res) => {
     let data2 = [];
     var codes = [];
     var values = [];
+    const existingCountry = await Country.findById(country);
     const boms = await Boms.find({ countries: country });
     await xlsxFile(req.file.path).then(async (rows) => {
       if (rows.length > 300) {
@@ -152,6 +153,8 @@ exports.filterCode = async (req, res) => {
               const findBom = await Boms.findOne({ code: codes });
               if (findBom === null) {
                 let newBom = await Boms.create({ code: codes, countries: country, certification_required: false });
+                existingCountry.boms.push(newBom);
+                await existingCountry.save();
                 newBom.monetary_value = values;
                 data.push({ bom: newBom, monetary_value: values });
               }
@@ -159,6 +162,8 @@ exports.filterCode = async (req, res) => {
           }
         } else {
           let newBom = await Boms.create({ code: codes, countries: country, certification_required: false });
+          existingCountry.boms.push(newBom);
+          await existingCountry.save();
           newBom.monetary_value = values;
           data.push({ bom: newBom, monetary_value: values });
         }
