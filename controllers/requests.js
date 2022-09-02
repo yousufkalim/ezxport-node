@@ -292,7 +292,7 @@ exports.userVendor = async (req, res) => {
  */
 exports.Dispatch = async (req, res) => {
   try {
-    const { place, seller, buyer, request } = req.body;
+    const { place, seller, buyer, request, inspection_date } = req.body;
     let existingRequest = await Request.findById(request);
     let existingUser = await Users.findById(existingRequest.user);
     if (!existingRequest) {
@@ -328,6 +328,7 @@ exports.Dispatch = async (req, res) => {
       existingRequest.place = new_place._id;
       await existingUser.save();
     }
+    existingRequest.inspection_date = new Date(inspection_date);
     await existingRequest.save();
     existingRequest = await Request.findById(request)
       .populate('user')
@@ -582,9 +583,24 @@ exports.getById = async (req, res) => {
       .populate('country')
       .populate('missing_docs')
       .populate('vendor')
-      .populate('place')
-      .populate('buyer')
-      .populate('seller')
+      .populate({
+        path: 'place',
+        populate: {
+          path: 'country',
+        },
+      })
+      .populate({
+        path: 'buyer',
+        populate: {
+          path: 'country',
+        },
+      })
+      .populate({
+        path: 'seller',
+        populate: {
+          path: 'country',
+        },
+      })
       .populate({
         path: 'codes',
         populate: {
