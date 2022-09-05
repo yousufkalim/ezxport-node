@@ -190,7 +190,7 @@ exports.calculateCost = async (req, res) => {
         if (existingCountry.calculation.min_threshold.value > value) {
           return res.json({ success: true, status: 'Not Required', certification_cost: value, country: existingCountry.name }); //Success
         }
-        const coefficientMultiple = +existingCountry.calculation.coefficient * value;
+        const coefficientMultiple = (+existingCountry.calculation.coefficient * value) / 100;
         if (coefficientMultiple < existingCountry.calculation.min_cost.value) {
           return res.json({
             success: true,
