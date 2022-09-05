@@ -25,7 +25,7 @@ const productSchema = new mongoose.Schema(
     analysis_certificate: { url: [{ type: String }], status: String },
     plan: { url: [{ type: String }], status: String },
     other_docs: { url: [{ type: String }], status: String },
-    missing_docs: [{ type: mongoose.Schema.Types.ObjectId, ref: 'documents' }],
+    missing_docs: [],
   },
   {
     timestamps: true,
