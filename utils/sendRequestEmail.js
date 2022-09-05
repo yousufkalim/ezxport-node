@@ -396,7 +396,7 @@ ${
             <p align="center "style="color: #000; font-family: Verdana; ; text-align:center !important;
             border-bottom: 1px solid black;background: rgba(206, 197, 237, 0.3)
             ">
-            ${process.env.BASE_URL}${e}
+            ${process.env.BASE_URL}/${e}
             </p>
       `
         )
