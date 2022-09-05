@@ -16,6 +16,7 @@ const Products = require('../models/Products');
 const { CountryNameCode } = require('../utils/Countries');
 const { sendRequestEmail } = require('../utils/sendRequestEmail');
 const stripe = require('stripe')(process.env.SECRET_KEY);
+const ObjectId = require('mongodb').ObjectID;
 /**
  * Request  Create-Title
  *      Request
@@ -223,13 +224,36 @@ exports.calculateCost = async (req, res) => {
             }); //Success
           }
         }
-        return res.json({
-          success: true,
-          status: 'Required',
-          certification_cost: value,
-          message: 'do not match the criteria',
-          country: existingCountry.name,
-        }); //Success
+        let range = existingCountry.calculation.range;
+        let maxObj = range[0];
+        let minObj = range[0];
+        let tempMax = range[0].max;
+        let tempMin = range[0].min;
+        for (i = 0; i < range.length; i++) {
+          if (range[i].max > tempMax) {
+            maxObj = range[i];
+            tempMax = range[i].max;
+          }
+          if (range[i].min < tempMin) {
+            minObj = range[i];
+            tempMin = range[i].min;
+          }
+        }
+        if (value < tempMin) {
+          return res.json({
+            success: true,
+            status: 'Required',
+            certification_cost: minObj.certificate_cost,
+            country: existingCountry.name,
+          }); //Success
+        } else if (value > tempMax) {
+          return res.json({
+            success: true,
+            status: 'Required',
+            certification_cost: maxObj.certificate_cost,
+            country: existingCountry.name,
+          }); //Success
+        }
       }
     }
   } catch (err) {
@@ -494,7 +518,7 @@ exports.documentsUpload = async (req, res) => {
     //If missing_docs has doc_id then pull it
     await Request.findByIdAndUpdate({ _id: requestId }, { $pull: { missing_docs: doc_id } });
     //Check if request has create document with one file atleast...?
-    let exisitingDoc = await Request.findOne({ _id: requestId, 'documents.doc_id': doc_id, 'documents.status': 'sent' });
+    let exisitingDoc = await Request.findOne({ _id: requestId, 'documents.doc_id': doc_id });
     // if document with provided id is not created
     if (!exisitingDoc) {
       const documentObj = {
@@ -733,6 +757,43 @@ exports.validateProductDoc = async (req, res) => {
   }
 };
 
+exports.ProductdocumentsUpload = async (req, res) => {
+  try {
+    const { productId } = req.params;
+    var file = '';
+    let exisitingProduct = await Products.findById(productId);
+    if (!exisitingProduct) {
+      res.status(404).json({ success: false, message: 'Product Not Found' });
+    }
+    //If missing_docs has doc_id then pull it
+    await Products.findByIdAndUpdate(productId, { $pull: { missing_docs: { _id: ObjectId(req.body.doc_id) } } });
+    if (req.file) {
+      file = req.file.path;
+      if (req.body.technical_sheet) {
+        exisitingProduct.technical_sheet.url.push(file);
+      }
+      if (req.body.test_report) {
+        exisitingProduct.test_report.url.push(file);
+      }
+      if (req.body.analysis_certificate) {
+        exisitingProduct.analysis_certificate.url.push(file);
+      }
+      if (req.body.plan) {
+        exisitingProduct.plan.url.push(file);
+      }
+      if (req.body.other_docs) {
+        exisitingProduct.other_docs.url.push(file);
+      }
+      await exisitingProduct.save();
+      return res.status(200).json({ success: true, product: exisitingProduct });
+    }
+    res.status(200).json({ success: true, message: 'No File Added' });
+  } catch (err) {
+    console.log('Error---->', err);
+    res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+};
+
 /**
  *  Request-Missing-Docs
  * @param {object} req
@@ -742,21 +803,35 @@ exports.validateProductDoc = async (req, res) => {
 exports.ReqmissingDocs = async (req, res) => {
   try {
     const { requestId } = req.params;
+    const { documents, products } = req.body;
     const exitingRequest = await Request.findById(requestId);
     if (!exitingRequest) {
       return res.status(404).json({ success: false, message: 'Request Not Found ' });
     }
-    req.body.countries = [exitingRequest.country];
-    const new_doc = await Documents.create(req.body);
-    const docObj = {
-      status: 'Missing Documents',
-      url: [],
-      doc_id: new_doc._id,
-    };
-    exitingRequest.missing_docs.push(new_doc._id);
-    exitingRequest.documents.push(docObj);
-    exitingRequest.status = 'Missing Documents';
-    await exitingRequest.save();
+    for (let i = 0; i < documents.length; i++) {
+      documents[i].countries = [exitingRequest.country];
+      const new_doc = await Documents.create(documents[i]);
+      const docObj = {
+        status: 'Missing Documents',
+        url: [],
+        doc_id: new_doc._id,
+      };
+      exitingRequest.missing_docs.push(new_doc._id);
+      exitingRequest.documents.push(docObj);
+      exitingRequest.status = 'Missing Documents';
+      await exitingRequest.save();
+    }
+
+    for (let i = 0; i < products.length; i++) {
+      const missingDocObj = {
+        name: products[i].name,
+        _id: ObjectId(),
+      };
+      const exitingProduct = await Products.findById(products[i].product);
+      exitingProduct.missing_docs.push(missingDocObj);
+      exitingRequest.status = 'Product Documents Missing';
+      await exitingProduct.save();
+    }
     return res.status(202).json({ success: false, message: 'Missing Doc Updated ', exitingRequest });
   } catch (err) {
     console.log('Error---->', err);

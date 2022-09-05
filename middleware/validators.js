@@ -127,7 +127,7 @@ exports.validateDispatch = [
   check('place.city', 'city is required.').notEmpty().trim(),
   check('place.zipcode', 'zipcode is required.').notEmpty().trim(),
   check('place.address', 'address is required.').notEmpty().trim(),
-  check('place.conatct_fname', 'contact first name is required.').notEmpty().trim(),
+  check('place.contact_fname', 'contact first name is required.').notEmpty().trim(),
   check('place.contact_lname', 'Contact Last Name  is required.').notEmpty().trim(),
   check('place.user', 'place user  is required.').notEmpty().trim(),
   check('inspection_date', 'inspection date required').notEmpty().trim(),
