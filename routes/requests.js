@@ -57,9 +57,9 @@ router.get('/getByCountry/:countryId', request.getBycountryId); // Get one reque
 //request by admin
 router.put('/validateDoc/:requestId', validateStatusDocument, isValidated, request.validateDoc);
 router.put('/validateProductDoc/:productId', request.validateProductDoc);
-router.put('/ReqmissingDocs/:requestId', validateMissingDoc, isValidated, request.ReqmissingDocs);
+router.put('/ReqmissingDocs/:requestId', request.ReqmissingDocs);
 router.put('/ProductmissingDocs/:productId', validateMissingDoc, isValidated, request.ProductmissingDocs);
 router.put('/validateRequest/:requestId', request.validateRequest);
-
+router.put('/ProductdocumentsUpload/:productId', upload.single('file'), request.ProductdocumentsUpload);
 // Export
 module.exports = router;
