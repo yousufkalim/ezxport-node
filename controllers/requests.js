@@ -657,7 +657,12 @@ exports.getById = async (req, res) => {
       .populate('user')
       .populate('country')
       .populate('missing_docs')
-      .populate('vendor')
+      .populate({
+        path: 'vendor',
+        populate: {
+          path: 'vendor',
+        },
+      })
       .populate({
         path: 'place',
         populate: {
@@ -683,6 +688,9 @@ exports.getById = async (req, res) => {
         },
         populate: {
           path: 'products',
+          populate: {
+            path: 'country',
+          },
         },
       })
       .populate({
