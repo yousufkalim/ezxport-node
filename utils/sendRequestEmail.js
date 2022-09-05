@@ -24,7 +24,6 @@ exports.sendRequestEmail = (request) => {
       },
     });
     // Send email options
-    console.log(request.vendor.vendor.contact_email, 'request.vendor.vendor.sending_email');
     var mailOptions = {
       from: `${sender_name} <${sender_email}>`,
       to: request.vendor.vendor.contact_email,
@@ -397,7 +396,7 @@ ${
             <p align="center "style="color: #000; font-family: Verdana; ; text-align:center !important;
             border-bottom: 1px solid black;background: rgba(206, 197, 237, 0.3)
             ">
-            ${process.env.SERVER_URL}${e}
+            ${process.env.BASE_URL}${e}
             </p>
       `
         )

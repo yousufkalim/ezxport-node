@@ -11,6 +11,7 @@ const countrySchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    currency: String,
     vendors: [
       {
         type: mongoose.Schema.Types.ObjectId,
