@@ -162,7 +162,7 @@ exports.filterCode = async (req, res) => {
           }
         } else {
           let newBom = await Boms.create({ code: codes, countries: country, certification_required: false });
-          existingCountry.boms.push(newBom);
+          existingCountry.boms.push(newBom._id);
           await existingCountry.save();
           newBom.monetary_value = values;
           data.push({ bom: newBom, monetary_value: values });
@@ -186,3 +186,52 @@ exports.filterCode = async (req, res) => {
     res.status(500).json({ success: false, message: 'Internal server error' });
   }
 };
+
+/**
+ * Upload bom
+ * @param {object} req
+ * @param {object} res
+ */
+exports.uploadCodes = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(404).json({ success: false, message: 'File is required' });
+    }
+    const { country } = req.body;
+    let newBom;
+    var codes = [];
+    var certification_required = [];
+    const existingCountry = await Country.findById(country);
+    const boms = await Boms.find();
+    const Bcodes = boms.map((e) => {
+      return e.code;
+    });
+    await xlsxFile(req.file.path).then(async (rows) => {
+      if (rows.length > 300) {
+        return res.json({ success: false, message: 'File is too large' });
+      }
+      for (let k = 1; k < rows.length; k++) {
+        let item = rows[k];
+        codes = item[0];
+        certification_required = item[1].toString().toLowerCase();
+        certification_required = JSON.parse(certification_required.replace(/^"(.*)"$/, '$1'));
+        if (isBoolean(certification_required)) {
+          if (Bcodes.indexOf(codes.toString()) === -1) {
+            newBom = await Boms.create({ code: codes, countries: country, certification_required: certification_required });
+            existingCountry.boms.push(newBom._id);
+            await existingCountry.save();
+          }
+        }
+      }
+    });
+    res.status(200).json({ success: true, message: 'Codes Uploaded Successfully' });
+  } catch (err) {
+    // Error handling
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+function isBoolean(val) {
+  return val === false || val === true;
+}
