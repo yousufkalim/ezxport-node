@@ -12,7 +12,14 @@ const Country = require('../models/Countries');
  */
 exports.create = async (req, res) => {
   try {
-    const { countries } = req.body;
+    const { countries, contact_email } = req.body;
+    const existingVendor = await Vendor.findOne({
+      $or: [{ sending_email: req.body.contact_email }, { contact_email: req.body.contact_email }],
+    });
+    if (existingVendor) {
+      return res.json({ success: false, message: 'vendor already exist' }); //Success
+    }
+
     const vendor = await Vendor.create(req.body); // Adding serviceProvider in db
     await Country.updateMany({ _id: { $in: countries } }, { $push: { vendors: vendor._id } });
 
@@ -83,6 +90,16 @@ exports.update = async (req, res) => {
   try {
     const serviceProviderId = req.params.serviceProviderId; // Getting serviceProvider id from URL parameter
     const existingVendor = await Vendor.findById(serviceProviderId); // Updating the country
+    if (existingVendor) {
+      if (existingVendor.sending_email !== req.body.sending_email) {
+        const existingVendorS = await Vendor.findOne({
+          $or: [{ sending_email: req.body.sending_email }, { contact_email: req.body.sending_email }],
+        });
+        if (existingVendorS) {
+          return res.json({ success: false, message: 'sending_email is already associated with another vendor' }); //Success
+        }
+      }
+    }
     let newCountries = req.body.countries.filter((o1) => !existingVendor.countries.some((o2) => o1 == o2));
     await Country.updateMany({ _id: { $in: newCountries } }, { $push: { vendors: serviceProviderId } });
     const vendor = await Vendor.findByIdAndUpdate(serviceProviderId, req.body, { new: true }); // Updating the country
