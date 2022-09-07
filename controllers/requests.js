@@ -920,7 +920,7 @@ exports.ReqmissingDocs = async (req, res) => {
       };
       const exitingProduct = await Products.findById(products[i].product);
       exitingProduct.missing_docs.push(missingDocObj);
-      exitingRequest.status = 'Product Documents Missing';
+      exitingRequest.status = 'Missing Documents';
       await exitingProduct.save();
     }
     return res.status(202).json({ success: false, message: 'Missing Doc Updated ', exitingRequest });
