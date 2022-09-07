@@ -20,11 +20,26 @@ const productSchema = new mongoose.Schema(
     price: { currency: String, value: String },
     mark: String,
     builder: String,
-    technical_sheet: { url: [{ type: String }], status: String },
-    test_report: { url: [{ type: String }], status: String },
-    analysis_certificate: { url: [{ type: String }], status: String },
-    plan: { url: [{ type: String }], status: String },
-    other_docs: { url: [{ type: String }], status: String },
+    technical_sheet: {
+      url: [{ type: String }],
+      status: { type: String, default: 'Sent' },
+    },
+    test_report: {
+      url: [{ type: String }],
+      status: { type: String, default: 'Sent' },
+    },
+    analysis_certificate: {
+      url: [{ type: String }],
+      status: { type: String, default: 'Sent' },
+    },
+    plan: {
+      url: [{ type: String }],
+      status: { type: String, default: 'Sent' },
+    },
+    other_docs: {
+      url: [{ type: String }],
+      status: { type: String, default: 'Sent' },
+    },
     missing_docs: [],
   },
   {
