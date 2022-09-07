@@ -552,13 +552,43 @@ exports.getAll = async (req, res) => {
     const requests = await Request.find()
       .populate('user')
       .populate('country')
-      .populate('vendor')
-      .populate('place')
-      .populate('buyer')
-      .populate('seller')
       .populate('missing_docs')
-      .populate('codes.code')
-      .populate('codes.products')
+      .populate({
+        path: 'vendor',
+        populate: {
+          path: 'vendor',
+        },
+      })
+      .populate({
+        path: 'place',
+        populate: {
+          path: 'country',
+        },
+      })
+      .populate({
+        path: 'buyer',
+        populate: {
+          path: 'country',
+        },
+      })
+      .populate({
+        path: 'seller',
+        populate: {
+          path: 'country',
+        },
+      })
+      .populate({
+        path: 'codes',
+        populate: {
+          path: 'code',
+        },
+        populate: {
+          path: 'products',
+          populate: {
+            path: 'country',
+          },
+        },
+      })
       .populate({
         path: 'documents',
         populate: {
@@ -585,13 +615,43 @@ exports.getByuserId = async (req, res) => {
     const request = await Request.find({ user: userId })
       .populate('user')
       .populate('country')
-      .populate('vendor')
-      .populate('place')
-      .populate('buyer')
       .populate('missing_docs')
-      .populate('seller')
-      .populate('codes.code')
-      .populate('codes.products')
+      .populate({
+        path: 'vendor',
+        populate: {
+          path: 'vendor',
+        },
+      })
+      .populate({
+        path: 'place',
+        populate: {
+          path: 'country',
+        },
+      })
+      .populate({
+        path: 'buyer',
+        populate: {
+          path: 'country',
+        },
+      })
+      .populate({
+        path: 'seller',
+        populate: {
+          path: 'country',
+        },
+      })
+      .populate({
+        path: 'codes',
+        populate: {
+          path: 'code',
+        },
+        populate: {
+          path: 'products',
+          populate: {
+            path: 'country',
+          },
+        },
+      })
       .populate({
         path: 'documents',
         populate: {
@@ -617,11 +677,31 @@ exports.getBycountryId = async (req, res) => {
     const request = await Request.find({ country: countryId })
       .populate('user')
       .populate('country')
-      .populate('vendor')
-      .populate('place')
       .populate('missing_docs')
-      .populate('buyer')
-      .populate('seller')
+      .populate({
+        path: 'vendor',
+        populate: {
+          path: 'vendor',
+        },
+      })
+      .populate({
+        path: 'place',
+        populate: {
+          path: 'country',
+        },
+      })
+      .populate({
+        path: 'buyer',
+        populate: {
+          path: 'country',
+        },
+      })
+      .populate({
+        path: 'seller',
+        populate: {
+          path: 'country',
+        },
+      })
       .populate({
         path: 'codes',
         populate: {
@@ -629,6 +709,9 @@ exports.getBycountryId = async (req, res) => {
         },
         populate: {
           path: 'products',
+          populate: {
+            path: 'country',
+          },
         },
       })
       .populate({
@@ -837,7 +920,7 @@ exports.ReqmissingDocs = async (req, res) => {
       };
       const exitingProduct = await Products.findById(products[i].product);
       exitingProduct.missing_docs.push(missingDocObj);
-      exitingRequest.status = 'Product Documents Missing';
+      exitingRequest.status = 'Missing Documents';
       await exitingProduct.save();
     }
     return res.status(202).json({ success: false, message: 'Missing Doc Updated ', exitingRequest });
