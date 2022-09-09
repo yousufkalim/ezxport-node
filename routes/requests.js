@@ -51,10 +51,15 @@ router.post('/stripe/webhook', express.raw({ type: 'application/json' }), reques
 router.put('/sendEmail/:requestId', request.sendEmail);
 // // Read
 router.get('/', request.getAll); // Get all requests at once
-router.get('/:requestId', request.getById); // Get one requestby it's id
+///returnFormatedRequest
+router.get('/returnFormatedRequest/:requestId', request.returnFormatedRequest); // Get all requests at once
 router.get('/getByUser/:userId', request.getByuserId); // Get one requestby it's id
 router.get('/getByCountry/:countryId', request.getBycountryId); // Get one requestby it's id
 router.get('/zipFile/:requestId', request.zipFile); // Get all requests at once
+router.get('/zipFileProduct/:productId', request.zipFileProduct); // Get all requests at once
+router.get('/zipFileDocument/:requestId/:doc_id', request.zipFileDocument); // Get all requests at once
+router.get('/zipFileCode/:requestId/:code_id', request.zipFileCode); // Get all requests at once
+router.get('/:requestId', request.getById); // Get one requestby it's id
 //request by admin
 router.put('/validateDoc/:requestId', validateStatusDocument, isValidated, request.validateDoc);
 router.put('/validateProductDoc/:productId', request.validateProductDoc);
