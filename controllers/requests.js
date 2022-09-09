@@ -1372,6 +1372,13 @@ exports.zipFileProduct = async (req, res) => {
   }
 };
 
+/**
+ *
+ * Return Single Request Format
+ * @param {object} req
+ * @param {object} res
+ */
+
 exports.returnFormatedRequest = async (req, res) => {
   try {
     const { requestId } = req.params;
@@ -1391,6 +1398,45 @@ exports.returnFormatedRequest = async (req, res) => {
       codes: requiredCodes,
     };
     return res.json({ success: true, Request: requiredFormat });
+  } catch (err) {
+    console.log('Error---->', err);
+    res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+};
+
+//returnMultipleFormatedRequest
+/**
+ *
+ * Return Multiple  Request Format
+ * @param {object} req
+ * @param {object} res
+ */
+
+exports.returnMultipleFormatedRequest = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    let data = [];
+    const existingRequests = await Request.find({ user: userId })
+      .populate('documents.doc_id')
+      .populate('codes.code')
+      .populate('codes.products');
+    if (existingRequests.length < 1) {
+      return res.status(404).json({ success: false, message: 'Request not Found' });
+    }
+    for (i = 0; i < existingRequests.length; i++) {
+      let existingRequest = existingRequests[i];
+      const requiredDocuments = existingRequest.documents.filter((e) => e.url.length > 0);
+      const requiredCodes = existingRequest.codes.filter((e) => e.products.length > 0);
+      const requiredFormat = {
+        requestId: existingRequest._id,
+        title: existingRequest.title,
+        documents: requiredDocuments,
+        codes: requiredCodes,
+      };
+      data.push(requiredFormat);
+    }
+
+    return res.json({ success: true, Request: data });
   } catch (err) {
     console.log('Error---->', err);
     res.status(500).json({ success: false, message: 'Internal Server Error' });
