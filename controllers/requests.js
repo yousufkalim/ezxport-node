@@ -1375,7 +1375,10 @@ exports.zipFileProduct = async (req, res) => {
 exports.returnFormatedRequest = async (req, res) => {
   try {
     const { requestId } = req.params;
-    const existingRequest = await Request.findById(requestId).populate('documents.doc_id').populate('codes.products');
+    const existingRequest = await Request.findById(requestId)
+      .populate('documents.doc_id')
+      .populate('codes.code')
+      .populate('codes.products');
     if (!existingRequest) {
       return res.status(404).json({ success: false, message: 'Request not Found' });
     }
