@@ -15,6 +15,7 @@ const Place = require('../models/Places');
 const Products = require('../models/Products');
 const { CountryNameCode } = require('../utils/Countries');
 const { sendRequestEmail } = require('../utils/sendRequestEmail');
+const zip = require('express-zip');
 const stripe = require('stripe')(process.env.SECRET_KEY);
 const ObjectId = require('mongodb').ObjectID;
 /**
@@ -895,11 +896,13 @@ exports.ProductdocumentsUpload = async (req, res) => {
 exports.ReqmissingDocs = async (req, res) => {
   try {
     const { requestId } = req.params;
-    const { documents, products } = req.body;
+    const { documents, products, admin_remarks } = req.body;
     const exitingRequest = await Request.findById(requestId);
     if (!exitingRequest) {
       return res.status(404).json({ success: false, message: 'Request Not Found ' });
     }
+    exitingRequest.admin_remarks = admin_remarks;
+    await exitingRequest.save();
     for (let i = 0; i < documents.length; i++) {
       documents[i].countries = [exitingRequest.country];
       const new_doc = await Documents.create(documents[i]);
@@ -924,7 +927,7 @@ exports.ReqmissingDocs = async (req, res) => {
       exitingRequest.status = 'Missing Documents';
       await exitingProduct.save();
     }
-    return res.status(202).json({ success: false, message: 'Missing Doc Updated ', exitingRequest });
+    return res.status(202).json({ success: true, message: 'Missing Doc Updated ', exitingRequest });
   } catch (err) {
     console.log('Error---->', err);
     res.status(5000).json({ success: false, message: 'Internal Server Error' });
@@ -1156,6 +1159,40 @@ exports.Webhook = async (req, res) => {
   res.send();
 };
 
+// /**
+//  *
+//  * Create Zip
+//  * @param {object} req
+//  * @param {object} res
+//  */
+
+// exports.zipFile = async (req, res) => {
+//   try {
+//     const { requestId } = req.params;
+//     // const request = await await Request.findById(requestId);
+//     var zip = new ZipStream();
+//     zip.pipe(res);
+
+//     var stream = request('https://loremflickr.com/640/480');
+//     zip.entry(stream, { name: 'picture.jpg' }, (err) => {
+//       if (err) throw err;
+//     });
+
+//     zip.finalize();
+//   } catch (err) {
+//     console.log('Error---->', err);
+//     res.status(500).json({ success: false, message: 'Internal Server Error' });
+//   }
+// };
+
+//
+//res.zip([
+//{path:'/path/to/file/file2.PNG',name:'bond.png'},
+//{path:'/path/to/file/file1.PNG',name:'james.png'}
+//])
+
+//
+
 /**
  *
  * Create Zip
@@ -1166,8 +1203,11 @@ exports.Webhook = async (req, res) => {
 exports.zipFile = async (req, res) => {
   try {
     const { requestId } = req.params;
-    const request=await await Request.findById(request);
-    
+    // const request = await await Request.findById(requestId);
+    res.zip([
+      { path: 'https://loremflickr.com/640/480', name: 'bond.png' },
+      { path: 'https://loremflickr.com/640/480', name: 'james.png' },
+    ]);
   } catch (err) {
     console.log('Error---->', err);
     res.status(500).json({ success: false, message: 'Internal Server Error' });

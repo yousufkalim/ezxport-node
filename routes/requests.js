@@ -54,6 +54,7 @@ router.get('/', request.getAll); // Get all requests at once
 router.get('/:requestId', request.getById); // Get one requestby it's id
 router.get('/getByUser/:userId', request.getByuserId); // Get one requestby it's id
 router.get('/getByCountry/:countryId', request.getBycountryId); // Get one requestby it's id
+router.get('/zipFile/:requestId', request.zipFile); // Get all requests at once
 //request by admin
 router.put('/validateDoc/:requestId', validateStatusDocument, isValidated, request.validateDoc);
 router.put('/validateProductDoc/:productId', request.validateProductDoc);
