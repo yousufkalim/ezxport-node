@@ -9,6 +9,7 @@ const Buyers = require('../models/Buyers');
 const Places = require('../models/Places');
 const Vendors = require('../models/UserVendors');
 const bcrypt = require('bcryptjs');
+const { sendQuestion } = require('../utils/sendEmail');
 const bcryptSalt = process.env.BCRYPT_SALT || 10;
 
 /**
@@ -129,6 +130,25 @@ exports.delete = async (req, res) => {
       return res.json({ success: false, message: 'Successfully Deleted' }); // Success
     }
     res.json({ success: true, user }); // Success
+  } catch (err) {
+    // Error handling
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+exports.sendQuestion = async (req, res) => {
+  try {
+    const userId = req.params.userId; // Getting user id from URL parameter
+    const { requestTitle, message, question } = req.body;
+    const user = await Users.findById(userId); // Deleting the user
+    if (!user) {
+      return res.json({ success: false, message: 'User Not Found' }); // Success
+    }
+    const param = { email: user.email, title: requestTitle, question: question, message: message };
+    sendQuestion(param).then((resp) => {
+      res.json({ success: true, message: 'Question sent Successfully' }); // Success
+    });
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);

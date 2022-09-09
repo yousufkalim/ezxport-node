@@ -4,7 +4,7 @@
  */
 const router = require('express').Router();
 const users = require('../controllers/users');
-const { validateUser, validateUserUpdate, isValidated } = require('../middleware/validators');
+const { validateUser, validateUserUpdate, validateQuestion, isValidated } = require('../middleware/validators');
 
 /**
  * ////////////////////////// Routes /////////////////////////
@@ -27,6 +27,9 @@ router.put('/:userId', validateUserUpdate, isValidated, users.update); // Update
 
 // Delete
 router.delete('/:userId', users.delete); // delete a specific user by it's id
+
+// Ask me a Question
+router.post('/sendQuestion/:userId', validateQuestion, isValidated, users.sendQuestion);
 
 // Export
 module.exports = router;

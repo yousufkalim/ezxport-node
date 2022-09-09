@@ -13,6 +13,10 @@ const userSchema = new mongoose.Schema(
     last_name: {
       type: String,
     },
+    // active: {
+    //   type: Boolean,
+    //   default: true,
+    // },
     email: {
       type: String,
     },

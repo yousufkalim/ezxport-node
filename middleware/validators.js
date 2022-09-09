@@ -56,6 +56,14 @@ exports.validateUserUpdate = [
   check('company.type', 'company type is required.').notEmpty().trim(),
   check('company.vat', 'vat is required.').notEmpty().trim(),
 ];
+
+//create country validation
+exports.validateQuestion = [
+  check('requestTitle', 'Request Title is required').notEmpty().trim(),
+  check('question', 'Question is required').notEmpty().trim(),
+  check('message', 'Message is required').notEmpty().trim(),
+];
+
 //create country validation
 exports.validateCountry = [
   check('name', 'Country Name is required.').notEmpty().trim(),
