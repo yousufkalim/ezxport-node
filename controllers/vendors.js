@@ -136,7 +136,7 @@ exports.delete = async (req, res) => {
 exports.getuserVendor = async (req, res) => {
   try {
     const userId = req.params.userId; // Getting serviceProvider id from URL parameter
-    const Uservendors = await userVendor.find({ user: userId }); // Deleting the serviceProvider
+    const Uservendors = await userVendor.find({ user: userId }).populate('vendor'); // Deleting the serviceProvider
     res.json({ success: false, Uservendors: Uservendors }); // Already Deleted
   } catch (err) {
     // Error handling
