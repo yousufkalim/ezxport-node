@@ -3,6 +3,7 @@
  * @author Shuja Naqvi
  */
 const Vendor = require('../models/Vendors');
+const userVendor = require('../models/UserVendors');
 const Country = require('../models/Countries');
 
 /**
@@ -55,7 +56,7 @@ exports.getAll = async (req, res) => {
  */
 exports.getById = async (req, res) => {
   try {
-    const serviceProviderId = req.params.serviceProviderId; // Getting serviceProvider id from URL parameter
+    const userId = req.params.serviceProviderId; // Getting serviceProvider id from URL parameter
     const vendor = await Vendor.findById(serviceProviderId).populate('countries'); // Finding serviceProvider by id
     res.json({ success: true, vendor }); // Success
   } catch (err) {
@@ -125,6 +126,18 @@ exports.delete = async (req, res) => {
       return res.status(200).json({ success: true, message: 'Successfully Deleted', vendor }); // Success
     }
     res.json({ success: false, message: 'Already Deleted' }); // Already Deleted
+  } catch (err) {
+    // Error handling
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+exports.getuserVendor = async (req, res) => {
+  try {
+    const userId = req.params.userId; // Getting serviceProvider id from URL parameter
+    const Uservendors = await userVendor.find({ user: userId }); // Deleting the serviceProvider
+    res.json({ success: false, Uservendors: Uservendors }); // Already Deleted
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);

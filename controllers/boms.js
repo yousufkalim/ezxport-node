@@ -202,6 +202,9 @@ exports.uploadCodes = async (req, res) => {
     var codes = [];
     var certification_required = [];
     const existingCountry = await Country.findById(country);
+    if (!existingCountry) {
+      return res.status(404).json({ success: false, message: 'Country not found' });
+    }
     const boms = await Boms.find();
     const Bcodes = boms.map((e) => {
       return e.code;
@@ -232,6 +235,7 @@ exports.uploadCodes = async (req, res) => {
   }
 };
 
-function isBoolean(val) {
+//This will check whether passed value is Boolean or not
+const isBoolean = (val) => {
   return val === false || val === true;
-}
+};
