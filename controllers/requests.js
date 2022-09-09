@@ -15,7 +15,9 @@ const Place = require('../models/Places');
 const Products = require('../models/Products');
 const { CountryNameCode } = require('../utils/Countries');
 const { sendRequestEmail } = require('../utils/sendRequestEmail');
-const zip = require('express-zip');
+// const admz = require('adm-zip');
+const request = require('request');
+const ZipStream = require('zip-stream');
 const stripe = require('stripe')(process.env.SECRET_KEY);
 const ObjectId = require('mongodb').ObjectID;
 /**
@@ -1166,48 +1168,30 @@ exports.Webhook = async (req, res) => {
 //  * @param {object} res
 //  */
 
-// exports.zipFile = async (req, res) => {
-//   try {
-//     const { requestId } = req.params;
-//     // const request = await await Request.findById(requestId);
-//     var zip = new ZipStream();
-//     zip.pipe(res);
-
-//     var stream = request('https://loremflickr.com/640/480');
-//     zip.entry(stream, { name: 'picture.jpg' }, (err) => {
-//       if (err) throw err;
-//     });
-
-//     zip.finalize();
-//   } catch (err) {
-//     console.log('Error---->', err);
-//     res.status(500).json({ success: false, message: 'Internal Server Error' });
-//   }
-// };
-
-//
-//res.zip([
-//{path:'/path/to/file/file2.PNG',name:'bond.png'},
-//{path:'/path/to/file/file1.PNG',name:'james.png'}
-//])
-
-//
-
-/**
- *
- * Create Zip
- * @param {object} req
- * @param {object} res
- */
-
 exports.zipFile = async (req, res) => {
   try {
     const { requestId } = req.params;
-    // const request = await await Request.findById(requestId);
-    res.zip([
-      { path: 'https://loremflickr.com/640/480', name: 'bond.png' },
-      { path: 'https://loremflickr.com/640/480', name: 'james.png' },
-    ]);
+    const existingRequest = await await Request.findById(requestId);
+    var queue = [];
+    for (let i = 0; i < existingRequest.documents.length; i++) {
+      let doc = existingRequest.documents[i];
+      for (let j = 0; j < doc.url.length; j++) {
+        queue.push({ url: `${process.env.BASE_URL}/${doc.url[j]}`, name: doc.url[j] });
+      }
+    }
+    var zip = new ZipStream();
+    zip.pipe(res);
+
+    function addNextFile() {
+      var elem = queue.shift();
+      var stream = request(elem.url);
+      zip.entry(stream, { name: elem.name }, (err) => {
+        if (err) throw err;
+        if (queue.length > 0) addNextFile();
+        else zip.finalize();
+      });
+    }
+    addNextFile();
   } catch (err) {
     console.log('Error---->', err);
     res.status(500).json({ success: false, message: 'Internal Server Error' });
