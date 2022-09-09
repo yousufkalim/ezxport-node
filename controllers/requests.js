@@ -524,6 +524,7 @@ exports.documentsUpload = async (req, res) => {
       const documentObj = {
         doc_id: doc_id,
         url: [file],
+        status: 'sent',
       };
       const newDoc = await Request.findOneAndUpdate({ _id: requestId }, { $push: { documents: documentObj } }, { new: true });
       return res.json({ success: true, message: 'new document has been created', doc: newDoc });
@@ -920,7 +921,7 @@ exports.ReqmissingDocs = async (req, res) => {
       };
       const exitingProduct = await Products.findById(products[i].product);
       exitingProduct.missing_docs.push(missingDocObj);
-      exitingRequest.status = 'Product Documents Missing';
+      exitingRequest.status = 'Missing Documents';
       await exitingProduct.save();
     }
     return res.status(202).json({ success: false, message: 'Missing Doc Updated ', exitingRequest });
@@ -1153,4 +1154,22 @@ exports.Webhook = async (req, res) => {
       console.trace(`Unhandled event type ${event.type}`);
   }
   res.send();
+};
+
+/**
+ *
+ * Create Zip
+ * @param {object} req
+ * @param {object} res
+ */
+
+exports.zipFile = async (req, res) => {
+  try {
+    const { requestId } = req.params;
+    const request=await await Request.findById(request);
+    
+  } catch (err) {
+    console.log('Error---->', err);
+    res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
 };

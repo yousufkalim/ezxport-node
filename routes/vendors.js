@@ -19,6 +19,7 @@ const { validateServiceProvider, isValidated } = require('../middleware/validato
 router.post('/', validateServiceProvider, isValidated, vendors.create);
 // Read
 router.get('/', vendors.getAll); // Get all serviceProvider at once
+router.get('/userVendor/:userId', vendors.getuserVendor); // Get all serviceProvider at once
 router.get('/getByCountryId/:associated_countryId', vendors.getByCountryId); // Get  serviceProvider  by countryId
 router.get('/:serviceProviderId', vendors.getById); // Get one serviceProvider by it's id
 

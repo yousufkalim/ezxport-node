@@ -20,6 +20,8 @@ const { upload } = require('../middleware/multer');
 router.post('/', validateBoms, isValidated, bom.create);
 // Create - bom Signup
 router.post('/filterCodes', upload.single('file'), validateCountryID, isValidated, bom.filterCode);
+// Create - bom Signup
+router.post('/uploadCodes', upload.single('file'), validateCountryID, isValidated, bom.uploadCodes);
 // Read
 router.get('/', bom.getAll); // Get all bomat once
 router.get('/getByCountryId/:countryId', bom.getByCountryId); // Get all bomat once
