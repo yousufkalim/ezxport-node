@@ -67,7 +67,7 @@ exports.validateQuestion = [
 //create country validation
 exports.validateCountry = [
   check('name', 'Country Name is required.').notEmpty().trim(),
-  // check('currency', 'currency is required').notEmpty().trim(),
+  check('currency', 'currency is required').notEmpty().trim(),
 ];
 //create Document
 exports.validateDocument = [
