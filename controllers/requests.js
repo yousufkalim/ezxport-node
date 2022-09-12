@@ -4,6 +4,7 @@
  */
 const fs = require('fs');
 const Documents = require('../models/Documents');
+const Product = require('../models/Products');
 const Country = require('../models/Countries');
 const Users = require('../models/Users');
 const Vendors = require('../models/Vendors');
@@ -15,6 +16,9 @@ const Place = require('../models/Places');
 const Products = require('../models/Products');
 const { CountryNameCode } = require('../utils/Countries');
 const { sendRequestEmail } = require('../utils/sendRequestEmail');
+// const admz = require('adm-zip');
+const request = require('request');
+const ZipStream = require('zip-stream');
 const stripe = require('stripe')(process.env.SECRET_KEY);
 const ObjectId = require('mongodb').ObjectID;
 /**
@@ -516,7 +520,7 @@ exports.documentsUpload = async (req, res) => {
       file = req.file.path;
     }
     //If missing_docs has doc_id then pull it
-    await Request.findByIdAndUpdate({ _id: requestId }, { $pull: { missing_docs: doc_id } });
+    await Request.findOneAndUpdate({ _id: requestId }, { $pull: { missing_docs: doc_id } });
     //Check if request has create document with one file atleast...?
     let exisitingDoc = await Request.findOne({ _id: requestId, 'documents.doc_id': doc_id });
     // if document with provided id is not created
@@ -524,6 +528,7 @@ exports.documentsUpload = async (req, res) => {
       const documentObj = {
         doc_id: doc_id,
         url: [file],
+        status: 'sent',
       };
       const newDoc = await Request.findOneAndUpdate({ _id: requestId }, { $push: { documents: documentObj } }, { new: true });
       return res.json({ success: true, message: 'new document has been created', doc: newDoc });
@@ -894,11 +899,13 @@ exports.ProductdocumentsUpload = async (req, res) => {
 exports.ReqmissingDocs = async (req, res) => {
   try {
     const { requestId } = req.params;
-    const { documents, products } = req.body;
+    const { documents, products, admin_remarks } = req.body;
     const exitingRequest = await Request.findById(requestId);
     if (!exitingRequest) {
       return res.status(404).json({ success: false, message: 'Request Not Found ' });
     }
+    exitingRequest.admin_remarks = admin_remarks;
+    await exitingRequest.save();
     for (let i = 0; i < documents.length; i++) {
       documents[i].countries = [exitingRequest.country];
       const new_doc = await Documents.create(documents[i]);
@@ -923,7 +930,7 @@ exports.ReqmissingDocs = async (req, res) => {
       exitingRequest.status = 'Missing Documents';
       await exitingProduct.save();
     }
-    return res.status(202).json({ success: false, message: 'Missing Doc Updated ', exitingRequest });
+    return res.status(202).json({ success: true, message: 'Missing Doc Updated ', exitingRequest });
   } catch (err) {
     console.log('Error---->', err);
     res.status(5000).json({ success: false, message: 'Internal Server Error' });
@@ -1153,4 +1160,360 @@ exports.Webhook = async (req, res) => {
       console.trace(`Unhandled event type ${event.type}`);
   }
   res.send();
+};
+
+/**
+ *
+ * Create Zip
+ * @param {object} req
+ * @param {object} res
+ */
+
+exports.zipFile = async (req, res) => {
+  try {
+    const { requestId } = req.params;
+    const existingRequest = await await Request.findById(requestId).populate('codes.products');
+    if (!existingRequest) {
+      return res.status(404).json({ success: false, message: 'Request not Found' });
+    }
+    var queue = []; //it will contain url of all docs with their names
+    for (let i = 0; i < existingRequest.documents.length; i++) {
+      //Finding all documents of request and push their urls in queue
+      let doc = existingRequest.documents[i];
+      for (let j = 0; j < doc.url.length; j++) {
+        queue.push({ url: `${process.env.BASE_URL}/${doc.url[j]}`, name: doc.url[j] });
+      }
+    }
+    for (let i = 0; i < existingRequest.codes.length; i++) {
+      let code = existingRequest.codes[i];
+      //Finding all products of request and push their urls in queue
+      for (let j = 0; j < code.products.length; j++) {
+        let product = code.products[j];
+        //push url of each sheet
+        product.technical_sheet.url.map((e) => {
+          queue.push({ url: `${process.env.BASE_URL}/${e}`, name: e });
+        });
+        product.test_report.url.map((e) => {
+          queue.push({ url: `${process.env.BASE_URL}/${e}`, name: e });
+        });
+        product.analysis_certificate.url.map((e) => {
+          queue.push({ url: `${process.env.BASE_URL}/${e}`, name: e });
+        });
+        product.plan.url.map((e) => {
+          queue.push({ url: `${process.env.BASE_URL}/${e}`, name: e });
+        });
+        product.other_docs.url.map((e) => {
+          queue.push({ url: `${process.env.BASE_URL}/${e}`, name: e });
+        });
+        //other_docs
+      }
+    }
+    var zip = new ZipStream();
+    zip.pipe(res);
+
+    function addNextFile() {
+      var elem = queue.shift();
+      var stream = request(elem.url);
+      zip.entry(stream, { name: elem.name }, (err) => {
+        if (err) throw err;
+        if (queue.length > 0) addNextFile();
+        else zip.finalize();
+      });
+    }
+    addNextFile();
+  } catch (err) {
+    console.log('Error---->', err);
+    res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+};
+
+/**
+ *
+ * Create Zip of a specific document
+ * @param {object} req
+ * @param {object} res
+ */
+
+exports.zipFileDocument = async (req, res) => {
+  try {
+    const { requestId, doc_id } = req.params;
+    const existingRequest = await await Request.findById(requestId);
+    if (!existingRequest) {
+      return res.status(404).json({ success: false, message: 'Request not Found' });
+    }
+    var queue = []; //it will contain url of all docs with their names
+    const filteredDocs = existingRequest.documents.filter((e) => e.doc_id.toString() === doc_id.toString());
+    for (let i = 0; i < filteredDocs[0].url.length; i++) {
+      //Finding all documents of request and push their urls in queue
+      queue.push({ url: `${process.env.BASE_URL}/${filteredDocs[0].url[i]}`, name: filteredDocs[0].url[i] });
+    }
+    var zip = new ZipStream();
+    zip.pipe(res);
+    function addNextFile() {
+      var elem = queue.shift();
+      var stream = request(elem.url);
+      zip.entry(stream, { name: elem.name }, (err) => {
+        if (err) throw err;
+        if (queue.length > 0) addNextFile();
+        else zip.finalize();
+      });
+    }
+    addNextFile();
+  } catch (err) {
+    console.log('Error---->', err);
+    res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+};
+
+/**
+ *
+ * Create Zip of a specific Code(zip of all products)
+ * @param {object} req
+ * @param {object} res
+ */
+
+exports.zipFileCode = async (req, res) => {
+  try {
+    const { requestId, code_id } = req.params;
+    const existingRequest = await await Request.findById(requestId).populate('codes.products');
+
+    if (!existingRequest) {
+      return res.status(404).json({ success: false, message: 'Request not Found' });
+    }
+
+    var queue = []; //it will contain url of all docs with their names
+    const filteredDocs = existingRequest.codes.filter((e) => e.code.toString() === code_id.toString());
+    for (let i = 0; i < filteredDocs[0].products.length; i++) {
+      //Finding all documents of request and push their urls in queue
+      let product = filteredDocs[0].products[i];
+      product.technical_sheet.url.map((e) => {
+        queue.push({ url: `${process.env.BASE_URL}/${e}`, name: e });
+      });
+      product.test_report.url.map((e) => {
+        queue.push({ url: `${process.env.BASE_URL}/${e}`, name: e });
+      });
+      product.analysis_certificate.url.map((e) => {
+        queue.push({ url: `${process.env.BASE_URL}/${e}`, name: e });
+      });
+      product.plan.url.map((e) => {
+        queue.push({ url: `${process.env.BASE_URL}/${e}`, name: e });
+      });
+      product.other_docs.url.map((e) => {
+        queue.push({ url: `${process.env.BASE_URL}/${e}`, name: e });
+      });
+    }
+    var zip = new ZipStream();
+    zip.pipe(res);
+    function addNextFile() {
+      var elem = queue.shift();
+      var stream = request(elem.url);
+      zip.entry(stream, { name: elem.name }, (err) => {
+        if (err) throw err;
+        if (queue.length > 0) addNextFile();
+        else zip.finalize();
+      });
+    }
+    addNextFile();
+  } catch (err) {
+    console.log('Error---->', err);
+    res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+};
+
+/**
+ *
+ * Create Zip of a specific Product
+ * @param {object} req
+ * @param {object} res
+ */
+
+exports.zipFileProduct = async (req, res) => {
+  try {
+    const { productId } = req.params;
+    const existingProduct = await await Product.findById(productId);
+
+    if (!existingProduct) {
+      return res.status(404).json({ success: false, message: 'Product not Found' });
+    }
+
+    var queue = []; //it will contain url of all docs with their names
+    //Finding all documents of request and push their urls in queue
+    existingProduct.technical_sheet.url.map((e) => {
+      queue.push({ url: `${process.env.BASE_URL}/${e}`, name: e });
+    });
+    existingProduct.test_report.url.map((e) => {
+      queue.push({ url: `${process.env.BASE_URL}/${e}`, name: e });
+    });
+    existingProduct.analysis_certificate.url.map((e) => {
+      queue.push({ url: `${process.env.BASE_URL}/${e}`, name: e });
+    });
+    existingProduct.plan.url.map((e) => {
+      queue.push({ url: `${process.env.BASE_URL}/${e}`, name: e });
+    });
+    existingProduct.other_docs.url.map((e) => {
+      queue.push({ url: `${process.env.BASE_URL}/${e}`, name: e });
+    });
+
+    var zip = new ZipStream();
+    zip.pipe(res);
+    function addNextFile() {
+      var elem = queue.shift();
+      var stream = request(elem.url);
+      zip.entry(stream, { name: elem.name }, (err) => {
+        if (err) throw err;
+        if (queue.length > 0) addNextFile();
+        else zip.finalize();
+      });
+    }
+    addNextFile();
+  } catch (err) {
+    console.log('Error---->', err);
+    res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+};
+
+/**
+ *
+ * Return Single Request Format
+ * @param {object} req
+ * @param {object} res
+ */
+
+exports.returnFormatedRequest = async (req, res) => {
+  try {
+    const { requestId } = req.params;
+    const existingRequest = await Request.findById(requestId)
+      .populate('documents.doc_id')
+      .populate('codes.code')
+      .populate('codes.products');
+    if (!existingRequest) {
+      return res.status(404).json({ success: false, message: 'Request not Found' });
+    }
+    const requiredDocuments = existingRequest.documents.filter((e) => e.url.length > 0);
+    const requiredCodes = existingRequest.codes.filter((e) => e.products.length > 0);
+    const requiredFormat = {
+      requestId: existingRequest._id,
+      title: existingRequest.title,
+      documents: requiredDocuments,
+      codes: requiredCodes,
+    };
+    return res.json({ success: true, Request: requiredFormat });
+  } catch (err) {
+    console.log('Error---->', err);
+    res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+};
+
+/**
+ *
+ * Return Multiple  Request Format
+ * @param {object} req
+ * @param {object} res
+ */
+
+exports.returnMultipleFormatedRequest = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    let data = [];
+    const existingRequests = await Request.find({ user: userId })
+      .populate('documents.doc_id')
+      .populate('codes.code')
+      .populate('codes.products');
+    if (existingRequests.length < 1) {
+      return res.status(404).json({ success: false, message: 'Request not Found' });
+    }
+    for (i = 0; i < existingRequests.length; i++) {
+      let existingRequest = existingRequests[i];
+      const requiredDocuments = existingRequest.documents.filter((e) => e.url.length > 0);
+      const requiredCodes = existingRequest.codes.filter((e) => e.products.length > 0);
+      const requiredFormat = {
+        requestId: existingRequest._id,
+        title: existingRequest.title,
+        documents: requiredDocuments,
+        codes: requiredCodes,
+      };
+      data.push(requiredFormat);
+    }
+
+    return res.json({ success: true, Request: data });
+  } catch (err) {
+    console.log('Error---->', err);
+    res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+};
+
+/**
+ *  Upload-Missing-Docs
+ * @param {object} req
+ * @param {object} res
+ */
+
+exports.UploadmissingDocs = async (req, res) => {
+  try {
+    const { requestId } = req.params;
+    const { documents, products } = req.body;
+    const exitingRequest = await Request.findById(requestId);
+    if (!exitingRequest) {
+      return res.status(404).json({ success: false, message: 'Request Not Found ' });
+    }
+
+    for (let i = 0; i < documents.length; i++) {
+      //If missing_docs has doc_id then pull it
+      const doc_id = documents[i].doc_id;
+      const files = documents[i].files;
+      await Request.findOneAndUpdate({ _id: requestId }, { $pull: { missing_docs: doc_id } });
+      // if document with provided id is not created
+      const urls = await SaveFile(files);
+      const documentObj = {
+        doc_id: doc_id,
+        url: urls,
+        status: 'sent',
+      };
+      await Request.findOneAndUpdate({ _id: requestId }, { $push: { documents: documentObj } }, { new: true });
+    }
+
+    for (let i = 0; i < products.length; i++) {
+      const productId = products[i].productId;
+      const objId = products[i].obj_id;
+      const files = products[i].files;
+      const urls = await SaveFile(files);
+      //If missing_docs has doc_id then pull it
+      let product = await Products.findByIdAndUpdate(productId, { $pull: { missing_docs: { _id: ObjectId(objId) } } });
+      if (product) {
+        product.other_docs.url.push(...urls);
+        product.other_docs.status = 'sent';
+        await product.save();
+      }
+    }
+    return res.status(202).json({ success: true, message: 'Missing Doc Updated ' });
+  } catch (err) {
+    console.log('Error---->', err);
+    res.status(5000).json({ success: false, message: 'Internal Server Error' });
+  }
+};
+
+/**
+ *
+ * Create Product from iteration
+ * @param {object} req
+ * @param {object} res
+ */
+
+const SaveFile = async (urls) => {
+  try {
+    let filePaths = [];
+    for (let i = 0; i < urls.length; i++) {
+      const url = urls[i];
+      const file = url;
+      const fileExt = fileExtension(file);
+      const bitmap = new Buffer(file, 'base64');
+      const filePath = `./uploads/${Date.now()}-missingDocs${i}-file-.${fileExt}`;
+      fs.writeFileSync(filePath, bitmap);
+      filePaths.push(filePath.substring(2));
+    }
+    return filePaths;
+  } catch (err) {
+    console.log('Error---->', err);
+    res.status(5000).json({ success: false, message: 'Internal Server Error' });
+  }
 };
