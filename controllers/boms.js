@@ -13,6 +13,7 @@ const Country = require('../models/Countries');
 exports.create = async (req, res) => {
   try {
     const { code, countries } = req.body;
+    req.body.admin_code = true;
     const existingCode = await Boms.findOne({ code: code, admin_code: true }); // Finding all the bom from db
     if (existingCode) {
       return res.status(409).json({ success: false, message: 'Code already exist' });
@@ -241,6 +242,25 @@ exports.uploadCodes = async (req, res) => {
             });
             existingCountry.boms.push(newBom._id);
             await existingCountry.save();
+          } else {
+            let bom = await Boms.find({ code: codes }); // Finding bom by id
+            if (bom) {
+              if (bom.admin_code) {
+                bom.countires.push(country);
+                existingCountry.boms.push(bom._id);
+                await bom.save();
+                await existingCountry.save();
+              } else {
+                newBom = await Boms.create({
+                  code: codes,
+                  countries: country,
+                  certification_required: certification_required,
+                  admin_code: true,
+                });
+                existingCountry.boms.push(newBom._id);
+                await existingCountry.save();
+              }
+            }
           }
         }
       }
