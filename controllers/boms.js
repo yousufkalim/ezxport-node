@@ -13,7 +13,7 @@ const Country = require('../models/Countries');
 exports.create = async (req, res) => {
   try {
     const { code, countries } = req.body;
-    const existingCode = await Boms.findOne({ code: code }); // Finding all the bom from db
+    const existingCode = await Boms.findOne({ code: code, admin_code: true }); // Finding all the bom from db
     if (existingCode) {
       return res.status(409).json({ success: false, message: 'Code already exist' });
     }
@@ -144,15 +144,28 @@ exports.filterCode = async (req, res) => {
         if (boms.length > 0) {
           for (let i = 0; i < boms.length; i++) {
             boms[i].monetary_value = values;
-            if (boms[i].code.substring(0, 4) === codes.substring(0, 4) || boms[i].code === codes) {
+            if (boms[i].code === codes) {
               data.push({
                 bom: boms[i],
                 monetary_value: values,
               });
+            } else if (boms[i].code.length < codes.length) {
+              const difference = codes.length - boms[i].code.length;
+              if (boms[i].code === codes.slice(0, -difference)) {
+                data.push({
+                  bom: boms[i],
+                  monetary_value: values,
+                });
+              }
             } else {
-              const findBom = await Boms.findOne({ code: codes });
+              const findBom = await Boms.findOne({ code: codes, countires: country });
               if (findBom === null) {
-                let newBom = await Boms.create({ code: codes, countries: country, certification_required: false });
+                let newBom = await Boms.create({
+                  code: codes,
+                  countries: country,
+                  certification_required: false,
+                  admin_code: false,
+                });
                 existingCountry.boms.push(newBom);
                 await existingCountry.save();
                 newBom.monetary_value = values;
@@ -161,7 +174,7 @@ exports.filterCode = async (req, res) => {
             }
           }
         } else {
-          let newBom = await Boms.create({ code: codes, countries: country, certification_required: false });
+          let newBom = await Boms.create({ code: codes, countries: country, certification_required: false, admin_code: false });
           existingCountry.boms.push(newBom._id);
           await existingCountry.save();
           newBom.monetary_value = values;
@@ -220,7 +233,12 @@ exports.uploadCodes = async (req, res) => {
         certification_required = JSON.parse(certification_required.replace(/^"(.*)"$/, '$1'));
         if (isBoolean(certification_required)) {
           if (Bcodes.indexOf(codes.toString()) === -1) {
-            newBom = await Boms.create({ code: codes, countries: country, certification_required: certification_required });
+            newBom = await Boms.create({
+              code: codes,
+              countries: country,
+              certification_required: certification_required,
+              admin_code: true,
+            });
             existingCountry.boms.push(newBom._id);
             await existingCountry.save();
           }

@@ -211,6 +211,10 @@ exports.validateCalculation = [
   check('type', 'type is not correct coefficient/range').notEmpty().isIn(['range', 'coefficient']).trim(),
   check('country', 'countryId required').notEmpty().trim(),
 ];
+//set-Calculation Type
+exports.validateCalculationType = [
+  check('type', 'type is not correct coefficient/range').notEmpty().isIn(['range', 'coefficient']).trim(),
+];
 // Login validation
 exports.validateLogin = [
   check('email', 'Email is required').notEmpty().isEmail().trim().toLowerCase(),
