@@ -35,7 +35,7 @@ exports.create = async (req, res) => {
  */
 exports.getAll = async (req, res) => {
   try {
-    const boms = await Boms.find().populate('countries'); // Finding all the bom from db
+    const boms = await Boms.find({ admin_code: true }).populate('countries'); // Finding all the bom from db
     res.json({ success: true, boms }); // Success
   } catch (err) {
     // Error handling
