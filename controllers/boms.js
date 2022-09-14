@@ -69,7 +69,7 @@ exports.getById = async (req, res) => {
 exports.getByCountryId = async (req, res) => {
   try {
     const countryId = req.params.countryId; // Getting bom id from URL parameter
-    const bom = await Boms.find({ countries: countryId }).populate('countries'); // Finding bom by id
+    const bom = await Boms.find({ countries: countryId, admin_code: true }).populate('countries'); // Finding bom by id
     res.json({ success: true, bom }); // Success
   } catch (err) {
     // Error handling
