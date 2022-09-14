@@ -37,18 +37,12 @@ exports.getAll = async (req, res) => {
   try {
     let result = [];
     const countries = await Country.find().populate('boms').populate('documents').populate('vendors').populate('calculation'); // Success; // Finding all the Country from db
-    // let tempCountries = { ...countries._doc };
-    // let tempCountry = [...countries._doc];
+
     for (i = 0; i < countries.length; i++) {
       let tempCountry = { ...countries[i]._doc };
       tempCountry.boms = tempCountry.boms.filter((e) => e.admin_code === true);
       result.push(tempCountry);
     }
-    // countries.map((e) => {
-    //   let tempCountry = { ...e._doc };
-    //   tempCountry.boms = tempCountry.boms.filter((x) => x.admin_code === true);
-    //   result.push(tempCountry)
-    // });
     res.json({ success: true, countries: result });
   } catch (err) {
     // Error handling
