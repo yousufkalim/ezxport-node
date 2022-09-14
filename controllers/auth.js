@@ -21,7 +21,7 @@ exports.login = async (req, res) => {
     const { email, password } = req.body;
 
     // Getting user from db
-    const user = await Users.findOne({ email, active: true });
+    const user = await Users.findOne({ email });
     const admin = await Admins.findOne({ email });
     if (!user && !admin) {
       return res.status(404).json({ success: false, message: 'User not found' });
@@ -103,7 +103,7 @@ exports.changePassword = async (req, res) => {
 
     await user.save();
 
-    res.json({ success: true, message: "Password updated successfully" });
+    res.json({ success: true, message: 'Password updated successfully' });
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
@@ -160,14 +160,14 @@ exports.verifyToken = async (req, res) => {
     const decoded = jwt.verify(token, tokenSecret);
     let user = await Users.findOne({ email: decoded });
     if (!user) {
-      return res.status(404).json({ success: false, message: "Token is Invalid" });
+      return res.status(404).json({ success: false, message: 'Token is Invalid' });
     }
 
-    res.json({ success: true, message: "Token Verified" });
+    res.json({ success: true, message: 'Token Verified' });
   } catch (err) {
     // Error handling
-    console.log("Error ----> ", err);
-    return res.status(404).json({ success: false, message: "Token is Invalid" });
+    console.log('Error ----> ', err);
+    return res.status(404).json({ success: false, message: 'Token is Invalid' });
   }
 };
 
