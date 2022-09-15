@@ -57,7 +57,7 @@ exports.getAll = async (req, res) => {
 exports.getById = async (req, res) => {
   try {
     const userId = req.params.serviceProviderId; // Getting serviceProvider id from URL parameter
-    const vendor = await Vendor.findById(serviceProviderId).populate('countries'); // Finding serviceProvider by id
+    const vendor = await Vendor.findById(userId).populate('countries'); // Finding serviceProvider by id
     res.json({ success: true, vendor }); // Success
   } catch (err) {
     // Error handling
