@@ -141,6 +141,7 @@ exports.filterCode = async (req, res) => {
       for (let k = 1; k < rows.length; k++) {
         let item = rows[k];
         codes = item[0].toString();
+
         values = item[1];
         if (boms.length > 0) {
           for (let i = 0; i < boms.length; i++) {
@@ -159,7 +160,7 @@ exports.filterCode = async (req, res) => {
                 });
               }
             } else {
-              const findBom = await Boms.findOne({ code: codes, countires: country });
+              const findBom = await Boms.findOne({ code: codes, countries: country });
               if (findBom === null) {
                 let newBom = await Boms.create({
                   code: codes,
@@ -175,11 +176,14 @@ exports.filterCode = async (req, res) => {
             }
           }
         } else {
-          let newBom = await Boms.create({ code: codes, countries: country, certification_required: false, admin_code: false });
-          existingCountry.boms.push(newBom._id);
-          await existingCountry.save();
-          newBom.monetary_value = values;
-          data.push({ bom: newBom, monetary_value: values });
+          const findBom = await Boms.findOne({ code: codes, countries: country, admin_code: false });
+          if (findBom === null) {
+            let newBom = await Boms.create({ code: codes, countries: country, certification_required: false, admin_code: false });
+            existingCountry.boms.push(newBom._id);
+            await existingCountry.save();
+            newBom.monetary_value = values;
+            data.push({ bom: newBom, monetary_value: values });
+          }
         }
       }
     });
