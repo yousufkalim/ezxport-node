@@ -11,6 +11,10 @@ const bomSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    admin_code: {
+      type: Boolean,
+      required: true,
+    },
     certification_required: {
       type: Boolean,
       required: true,

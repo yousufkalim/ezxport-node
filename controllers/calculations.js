@@ -186,3 +186,20 @@ exports.updateRange = async (req, res) => {
     res.status(500).json({ success: false, message: 'Internal server error' });
   }
 };
+
+/**
+ * updateType calculation
+ * @param {object} req
+ * @param {object} res
+ */
+exports.updateType = async (req, res) => {
+  try {
+    const calculationId = req.params.calculationId; // Getting calculation id from URL parameter
+    const calculation = await Calculation.findByIdAndUpdate(calculationId, { type: req.body.type }, { new: true }); // Updating the country
+    res.json({ success: true, calculation }); // Success
+  } catch (err) {
+    // Error handling
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};

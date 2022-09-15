@@ -35,8 +35,15 @@ exports.create = async (req, res) => {
  */
 exports.getAll = async (req, res) => {
   try {
+    let result = [];
     const countries = await Country.find().populate('boms').populate('documents').populate('vendors').populate('calculation'); // Success; // Finding all the Country from db
-    res.json({ success: true, countries });
+
+    for (i = 0; i < countries.length; i++) {
+      let tempCountry = { ...countries[i]._doc };
+      tempCountry.boms = tempCountry.boms.filter((e) => e.admin_code === true);
+      result.push(tempCountry);
+    }
+    res.json({ success: true, countries: result });
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
@@ -57,7 +64,9 @@ exports.getById = async (req, res) => {
       .populate('documents')
       .populate('vendors')
       .populate('calculation'); // Finding country by id
-    res.json({ success: true, country }); // Success
+    let tempCountry = { ...country._doc };
+    tempCountry.boms = tempCountry.boms.filter((e) => e.admin_code === true);
+    res.json({ success: true, country: tempCountry }); // Success
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
