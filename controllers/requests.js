@@ -520,7 +520,7 @@ exports.documentsUpload = async (req, res) => {
       file = req.file.path;
     }
     //If missing_docs has doc_id then pull it
-    await Request.findByIdAndUpdate({ _id: requestId }, { $pull: { missing_docs: doc_id } });
+    await Request.findOneAndUpdate({ _id: requestId }, { $pull: { missing_docs: doc_id } });
     //Check if request has create document with one file atleast...?
     let exisitingDoc = await Request.findOne({ _id: requestId, 'documents.doc_id': doc_id });
     // if document with provided id is not created
@@ -1404,7 +1404,6 @@ exports.returnFormatedRequest = async (req, res) => {
   }
 };
 
-//returnMultipleFormatedRequest
 /**
  *
  * Return Multiple  Request Format
@@ -1440,5 +1439,81 @@ exports.returnMultipleFormatedRequest = async (req, res) => {
   } catch (err) {
     console.log('Error---->', err);
     res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+};
+
+/**
+ *  Upload-Missing-Docs
+ * @param {object} req
+ * @param {object} res
+ */
+
+exports.UploadmissingDocs = async (req, res) => {
+  try {
+    const { requestId } = req.params;
+    const { documents, products } = req.body;
+    const exitingRequest = await Request.findById(requestId);
+    if (!exitingRequest) {
+      return res.status(404).json({ success: false, message: 'Request Not Found ' });
+    }
+
+    for (let i = 0; i < documents.length; i++) {
+      //If missing_docs has doc_id then pull it
+      const doc_id = documents[i].doc_id;
+      const files = documents[i].files;
+      await Request.findOneAndUpdate({ _id: requestId }, { $pull: { missing_docs: doc_id } });
+      // if document with provided id is not created
+      const urls = await SaveFile(files);
+      const documentObj = {
+        doc_id: doc_id,
+        url: urls,
+        status: 'sent',
+      };
+      await Request.findOneAndUpdate({ _id: requestId }, { $push: { documents: documentObj } }, { new: true });
+    }
+
+    for (let i = 0; i < products.length; i++) {
+      const productId = products[i].productId;
+      const objId = products[i].obj_id;
+      const files = products[i].files;
+      const urls = await SaveFile(files);
+      //If missing_docs has doc_id then pull it
+      let product = await Products.findByIdAndUpdate(productId, { $pull: { missing_docs: { _id: ObjectId(objId) } } });
+      if (product) {
+        product.other_docs.url.push(...urls);
+        product.other_docs.status = 'sent';
+        await product.save();
+      }
+    }
+    return res.status(202).json({ success: true, message: 'Missing Doc Updated ' });
+  } catch (err) {
+    console.log('Error---->', err);
+    res.status(5000).json({ success: false, message: 'Internal Server Error' });
+  }
+};
+
+/**
+ *
+ * Create Product from iteration
+ * @param {object} req
+ * @param {object} res
+ */
+
+const SaveFile = async (urls) => {
+  try {
+    let filePaths = [];
+    for (let i = 0; i < urls.length; i++) {
+      const url = urls[i];
+      const file = url;
+      const fileExt = fileExtension(file);
+      const bitmap = new Buffer(file, 'base64');
+      const filePath = `./uploads/${Date.now()}-missingDocs${i}-file-.${fileExt}`;
+      fs.writeFileSync(filePath, bitmap);
+      filePaths.push(filePath.substring(2));
+    }
+    return filePaths;
+  } catch (err) {
+    console.log('Error---->', err);
+    res.status(5000).json({ success: false, message: 'Internal Server Error' });
   }
 };
