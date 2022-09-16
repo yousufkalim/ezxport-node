@@ -39,6 +39,9 @@ exports.createName = async (req, res) => {
       return res.status(409).json({ success: false, message: 'UserId is invalid' });
     }
     const country = await Country.findById(countryId);
+    if (!countryId.calculation) {
+      return res.status(404).json({ success: false, message: 'Calculation of this country is null' });
+    }
     const Requests = await Request.find().sort({ createdAt: -1 });
     //Find Country Code from file
     const code = CountryNameCode.filter((e) => e.name.toLowerCase() === country.name.toLowerCase());
