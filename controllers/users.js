@@ -9,6 +9,7 @@ const Buyers = require('../models/Buyers');
 const Places = require('../models/Places');
 const Vendors = require('../models/UserVendors');
 const bcrypt = require('bcryptjs');
+const excelJS = require('exceljs');
 const { sendQuestion } = require('../utils/sendEmail');
 const bcryptSalt = process.env.BCRYPT_SALT || 10;
 
@@ -137,6 +138,12 @@ exports.delete = async (req, res) => {
   }
 };
 
+/**
+ * Send Question
+ * @param {object} req
+ * @param {object} res
+ */
+
 exports.sendQuestion = async (req, res) => {
   try {
     const userId = req.params.userId; // Getting user id from URL parameter
@@ -148,6 +155,65 @@ exports.sendQuestion = async (req, res) => {
     const param = { email: user.email, title: requestTitle, question: question, message: message };
     sendQuestion(param).then((resp) => {
       res.json({ success: true, message: 'Question sent Successfully' }); // Success
+    });
+  } catch (err) {
+    // Error handling
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+/**
+ * Create Excel Sheet
+ * @param {object} req
+ * @param {object} res
+ */
+
+exports.excelSheet = async (req, res) => {
+  try {
+    const users = await Users.find(); // Finding all the users from db
+    const workbook = new excelJS.Workbook(); // Create a new workbook
+    const worksheet = workbook.addWorksheet(Date.now() + 'My Users'); // New Worksheet
+    const filePath = `./uploads/${Date.now()}-My-User.xlsx`; // Path to download excel
+    //Creating columns for Excel file
+    worksheet.columns = [
+      { header: 'No.', key: 's_no', width: 7 },
+      { header: ' User Name', key: 'name', width: 25 },
+      { header: 'Email ', key: 'email', width: 25 },
+      { header: 'Phone Number', key: 'phone_number', width: 25 },
+      { header: 'Address', key: 'address', width: 20 },
+      { header: 'Zip Code', key: 'zipcode', width: 10 },
+      { header: 'City', key: 'city', width: 20 },
+      { header: 'Company', key: 'company_name', width: 20 },
+    ];
+    //counter for Index number of each row
+    let counter = 1;
+    for (let i = 0; i < users.length; i++) {
+      let userObj = {
+        s_no: counter,
+        name: `${users[i].first_name}  ${users[i].last_name}`,
+        email: users[i].email,
+        phone_number: users[i].phone_number,
+        address: users[i].address,
+        zipcode: users[i].zipcode,
+        city: users[i].city,
+        company_name: users[i].company.name,
+      };
+      worksheet.addRow(userObj); // Add data in worksheet
+      counter++;
+    }
+
+    // Making first line in excel bold
+    worksheet.getRow(1).eachCell((cell) => {
+      cell.font = { bold: true };
+    });
+    //Writing file in uploads folder and sending url to user
+    await workbook.xlsx.writeFile(`${filePath}`).then(() => {
+      res.json({
+        status: 'success',
+        message: 'file saved',
+        path: `${process.env.BASE_URL}/${filePath.substring(2)}`,
+      });
     });
   } catch (err) {
     // Error handling

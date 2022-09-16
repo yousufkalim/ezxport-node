@@ -18,6 +18,9 @@ const { validateUser, validateUserUpdate, validateQuestion, isValidated } = requ
 // Create - User Signup
 router.post('/', validateUser, isValidated, users.create);
 
+// Create - User Excel  Sheet
+router.get('/excelSheet', users.excelSheet);
+
 // Read
 router.get('/', users.getAll); // Get all users at once
 router.get('/:userId', users.getById); // Get one user by it's id
