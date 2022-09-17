@@ -143,58 +143,60 @@ exports.filterCode = async (req, res) => {
     var format = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/;
     for (let k = 1; k < rows.length; k++) {
       let item = rows[k];
-      codes = item[0].toString();
-      values = item[1];
-      if (!format.test(codes)) {
-        //Check will not allow any code with special character
-        if (!isNaN(values) && values !== null) {
-          //monetory value should be numeric
-          if (boms.length > 0) {
-            for (let i = 0; i < boms.length; i++) {
-              boms[i].monetary_value = values;
-              if (boms[i].code === codes) {
-                data.push({
-                  bom: boms[i],
-                  monetary_value: values,
-                });
-              } else {
-                if (boms[i].code.length < codes.length) {
-                  const difference = codes.length - boms[i].code.length;
-                  if (boms[i].code === codes.slice(0, -difference)) {
-                    data.push({
-                      bom: boms[i],
-                      monetary_value: values,
-                    });
-                  }
+      if (item[0] !== null && item[1] !== null) {
+        codes = item[0].toString();
+        values = item[1];
+        if (!format.test(codes)) {
+          //Check will not allow any code with special character
+          if (!isNaN(values)) {
+            //monetory value should be numeric
+            if (boms.length > 0) {
+              for (let i = 0; i < boms.length; i++) {
+                boms[i].monetary_value = values;
+                if (boms[i].code === codes) {
+                  data.push({
+                    bom: boms[i],
+                    monetary_value: values,
+                  });
                 } else {
-                  const findBom = await Boms.findOne({ code: codes, countries: country });
-                  if (findBom === null) {
-                    let newBom = await Boms.create({
-                      code: codes,
-                      countries: country,
-                      certification_required: false,
-                      admin_code: false,
-                    });
-                    existingCountry.boms.push(newBom);
-                    await existingCountry.save();
-                    newBom.monetary_value = values;
-                    data.push({ bom: newBom, monetary_value: values });
+                  if (boms[i].code.length < codes.length) {
+                    const difference = codes.length - boms[i].code.length;
+                    if (boms[i].code === codes.slice(0, -difference)) {
+                      data.push({
+                        bom: boms[i],
+                        monetary_value: values,
+                      });
+                    }
+                  } else {
+                    const findBom = await Boms.findOne({ code: codes, countries: country });
+                    if (findBom === null) {
+                      let newBom = await Boms.create({
+                        code: codes,
+                        countries: country,
+                        certification_required: false,
+                        admin_code: false,
+                      });
+                      existingCountry.boms.push(newBom);
+                      await existingCountry.save();
+                      newBom.monetary_value = values;
+                      data.push({ bom: newBom, monetary_value: values });
+                    }
                   }
                 }
               }
-            }
-          } else {
-            const findBom = await Boms.findOne({ code: codes, countries: country, admin_code: false });
-            if (findBom === null) {
-              let newBom = await Boms.create({
-                code: codes,
-                countries: country,
-                certification_required: false,
-                admin_code: false,
-              });
-              existingCountry.boms.push(newBom._id);
-              await existingCountry.save();
-              data.push({ bom: newBom, monetary_value: values });
+            } else {
+              const findBom = await Boms.findOne({ code: codes, countries: country, admin_code: false });
+              if (findBom === null) {
+                let newBom = await Boms.create({
+                  code: codes,
+                  countries: country,
+                  certification_required: false,
+                  admin_code: false,
+                });
+                existingCountry.boms.push(newBom._id);
+                await existingCountry.save();
+                data.push({ bom: newBom, monetary_value: values });
+              }
             }
           }
         }
