@@ -113,7 +113,7 @@ exports.searchName = async (req, res) => {
  */
 exports.boms = async (req, res) => {
   try {
-    const { user, codes } = req.body;
+    const { user, codes, certification_cost } = req.body;
     let existingUser = await Users.findOne({
       _id: user,
     });
@@ -121,32 +121,32 @@ exports.boms = async (req, res) => {
       return res.status(409).json({ success: false, message: 'UserId is invalid' });
     }
     //If certification not required by all of documents
-    const certificationNotReq = codes.every(function (v) {
-      const boolVal = JSON.parse(v.certification_required);
-      return !boolVal;
-    });
+    // const certificationNotReq = codes.every(function (v) {
+    //   const boolVal = JSON.parse(v.certification_required);
+    //   return !boolVal;
+    // });
     //If certification not required by all of documents
     //then set its request status will be not required
     //and cost value will be 0
-    if (certificationNotReq) {
-      req.body.status = 'not required';
-      req.body.certification_cost = { value: 0 };
-      const request = await Request.create(req.body); // Adding seller in db
-      existingUser.requests.push(request._id);
-      await existingUser.save();
-      return res.json({ success: true, request, message: 'certification not required' }); //Success
-    }
+    // if (certificationNotReq) {
+    //   req.body.status = 'not required';
+    //   req.body.certification_cost = { value: 0 };
+    //   const request = await Request.create(req.body); // Adding seller in db
+    //   existingUser.requests.push(request._id);
+    //   await existingUser.save();
+    //   return res.json({ success: true, request, message: 'certification not required' }); //Success
+    // }
     //If certification  required by some of documents
     //then calculate monetory values for required codes
-    let value = 0;
-    for (let i = 0; i < codes.length; i++) {
-      const boolVal = JSON.parse(codes[i].certification_required);
-      if (boolVal) {
-        value = +value + +codes[i].monetary_value; //To deal with coercion subtracted 0 from string :)
-      }
-    }
+    // let value = 0;
+    // for (let i = 0; i < codes.length; i++) {
+    //   const boolVal = JSON.parse(codes[i].certification_required);
+    //   if (boolVal) {
+    //     value = +value + +codes[i].monetary_value; //To deal with coercion subtracted 0 from string :)
+    //   }
+    // }
 
-    req.body.certification_cost = { value: value };
+    req.body.certification_cost = { value: certification_cost };
 
     const request = await Request.create(req.body); // Adding seller in db
     existingUser.requests.push(request._id);
@@ -281,31 +281,31 @@ exports.calculateCost = async (req, res) => {
 exports.updateBoms = async (req, res) => {
   try {
     const { requestId } = req.params;
-    const { codes } = req.body;
+    const { codes, certification_cost } = req.body;
     //If certification not required by all of documents
-    const certificationNotReq = codes.every(function (v) {
-      const boolVal = JSON.parse(v.certification_required);
-      return !boolVal;
-    });
+    // const certificationNotReq = codes.every(function (v) {
+    //   const boolVal = JSON.parse(v.certification_required);
+    //   return !boolVal;
+    // });
     //If certification not required by all of documents
     //then set its request status will be not required
     //and cost value will be 0
-    if (certificationNotReq) {
-      req.body.status = 'not required';
-      req.body.certification_cost = { value: 0 };
-      const request = await Request.findByIdAndUpdate(requestId, req.body, { new: true }); // Adding seller in db
-      return res.json({ success: true, request }); //Success
-    }
+    // if (certificationNotReq) {
+    //   req.body.status = 'not required';
+    //   req.body.certification_cost = { value: 0 };
+    //   const request = await Request.findByIdAndUpdate(requestId, req.body, { new: true }); // Adding seller in db
+    //   return res.json({ success: true, request }); //Success
+    // }
     //If certification  required by some of documents
     //then calculate monetory values for required codes
-    let value = 0;
-    for (let i = 0; i < codes.length; i++) {
-      const boolVal = JSON.parse(codes[i].certification_required);
-      if (boolVal) {
-        value = +value + +codes[i].monetary_value; //To deal with coercion subtracted 0 from string :)
-      }
-    }
-    req.body.certification_cost = { value: value };
+    // let value = 0;
+    // for (let i = 0; i < codes.length; i++) {
+    //   const boolVal = JSON.parse(codes[i].certification_required);
+    //   if (boolVal) {
+    //     value = +value + +codes[i].monetary_value; //To deal with coercion subtracted 0 from string :)
+    //   }
+    // }
+    req.body.certification_cost = { value: certification_cost };
     const request = await Request.findByIdAndUpdate(requestId, req.body, { new: true }); // Adding seller in db
     res.json({ success: true, request }); //Success
   } catch (err) {
@@ -1158,6 +1158,7 @@ exports.Webhook = async (req, res) => {
         if (!findReq) return res.json({ success: false, message: 'RequestId is invalid' });
         findReq.status = 'Benig Checked By Expert';
         findReq.request_method = 'platform';
+        findReq.certification_cost.value = +findReq.certification_cost.value + 50;
         await findReq.save();
       }
       break;

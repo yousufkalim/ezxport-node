@@ -249,37 +249,39 @@ exports.uploadCodes = async (req, res) => {
       var format = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/;
       for (let k = 1; k < rows.length; k++) {
         let item = rows[k];
-        codes = item[0];
-        certification_required = item[1].toString().toLowerCase();
-        certification_required = JSON.parse(certification_required.replace(/^"(.*)"$/, '$1'));
-        if (!format.test(codes)) {
-          if (isBoolean(certification_required)) {
-            if (Bcodes.indexOf(codes.toString()) === -1) {
-              newBom = await Boms.create({
-                code: codes,
-                countries: country,
-                certification_required: certification_required,
-                admin_code: true,
-              });
-              existingCountry.boms.push(newBom._id);
-              await existingCountry.save();
-            } else {
-              let bom = await Boms.find({ code: codes }); // Finding bom by id
-              if (bom) {
-                if (bom.admin_code) {
-                  bom.countires.push(country);
-                  existingCountry.boms.push(bom._id);
-                  await bom.save();
-                  await existingCountry.save();
-                } else {
-                  newBom = await Boms.create({
-                    code: codes,
-                    countries: country,
-                    certification_required: certification_required,
-                    admin_code: true,
-                  });
-                  existingCountry.boms.push(newBom._id);
-                  await existingCountry.save();
+        if (item[0] !== null && item[1] !== null) {
+          codes = item[0];
+          certification_required = item[1].toString().toLowerCase();
+          certification_required = JSON.parse(certification_required.replace(/^"(.*)"$/, '$1'));
+          if (!format.test(codes)) {
+            if (isBoolean(certification_required)) {
+              if (Bcodes.indexOf(codes.toString()) === -1) {
+                newBom = await Boms.create({
+                  code: codes,
+                  countries: country,
+                  certification_required: certification_required,
+                  admin_code: true,
+                });
+                existingCountry.boms.push(newBom._id);
+                await existingCountry.save();
+              } else {
+                let bom = await Boms.find({ code: codes }); // Finding bom by id
+                if (bom) {
+                  if (bom.admin_code) {
+                    bom.countires.push(country);
+                    existingCountry.boms.push(bom._id);
+                    await bom.save();
+                    await existingCountry.save();
+                  } else {
+                    newBom = await Boms.create({
+                      code: codes,
+                      countries: country,
+                      certification_required: certification_required,
+                      admin_code: true,
+                    });
+                    existingCountry.boms.push(newBom._id);
+                    await existingCountry.save();
+                  }
                 }
               }
             }

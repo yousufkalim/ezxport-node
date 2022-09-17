@@ -87,6 +87,7 @@ exports.validateRequestBom = [
   check('user', 'userId is required').notEmpty().trim(),
   check('title', 'title is required').notEmpty().trim(),
   check('codes', 'codes required ').isArray({ min: 1 }),
+  check('certification_cost', 'certification_cost is required').notEmpty().trim(),
   check('codes.*.code', 'codeId is required').notEmpty().trim(),
   check('codes.*.monetary_value', 'monetory_value required').notEmpty().trim(),
   check('codes.*.certification_required', 'certification_required true/false').notEmpty().isBoolean().trim(),
