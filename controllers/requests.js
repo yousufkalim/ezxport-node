@@ -588,17 +588,9 @@ exports.getAll = async (req, res) => {
         },
       })
       .populate({
-        path: 'codes',
-        populate: {
-          path: 'code',
-        },
-        populate: {
-          path: 'products',
-          populate: {
-            path: 'country',
-          },
-        },
+        path: 'codes.products',
       })
+      .populate('codes.code')
       .populate({
         path: 'documents',
         populate: {
@@ -651,17 +643,9 @@ exports.getByuserId = async (req, res) => {
         },
       })
       .populate({
-        path: 'codes',
-        populate: {
-          path: 'code',
-        },
-        populate: {
-          path: 'products',
-          populate: {
-            path: 'country',
-          },
-        },
+        path: 'codes.products',
       })
+      .populate('codes.code')
       .populate({
         path: 'documents',
         populate: {
@@ -713,17 +697,9 @@ exports.getBycountryId = async (req, res) => {
         },
       })
       .populate({
-        path: 'codes',
-        populate: {
-          path: 'code',
-        },
-        populate: {
-          path: 'products',
-          populate: {
-            path: 'country',
-          },
-        },
+        path: 'codes.products',
       })
+      .populate('codes.code')
       .populate({
         path: 'documents',
         populate: {
@@ -775,17 +751,9 @@ exports.getById = async (req, res) => {
         },
       })
       .populate({
-        path: 'codes',
-        populate: {
-          path: 'code',
-        },
-        populate: {
-          path: 'products',
-          populate: {
-            path: 'country',
-          },
-        },
+        path: 'codes.products',
       })
+      .populate('codes.code')
       .populate({
         path: 'documents',
         populate: {
