@@ -3,6 +3,7 @@
  * @author Shuja Naqvi
  */
 const Vendor = require('../models/Vendors');
+const User = require('../models/Users');
 const userVendor = require('../models/UserVendors');
 const Country = require('../models/Countries');
 
@@ -123,6 +124,15 @@ exports.delete = async (req, res) => {
     const vendor = await Vendor.findByIdAndDelete(serviceProviderId); // Deleting the serviceProvider
     if (vendor) {
       await Country.updateMany({ vendors: vendor._id }, { $pull: { vendors: vendor._id } });
+      const uservendors = await userVendor.find({ vendor: vendor?._id });
+      if (uservendors.length > 0) {
+        await userVendor.deleteMany({
+          vendor: vendor?._id,
+        });
+        for (let i = 0; i < uservendors.length; i++) {
+          await User.findOneAndUpdate({ _id: uservendors[i].user }, { $pull: { vendors: uservendors[i]._id } });
+        }
+      }
       return res.status(200).json({ success: true, message: 'Successfully Deleted', vendor }); // Success
     }
     res.json({ success: false, message: 'Already Deleted' }); // Already Deleted

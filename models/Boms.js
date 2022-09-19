@@ -18,6 +18,7 @@ const bomSchema = new mongoose.Schema(
     certification_required: {
       type: Boolean,
       required: true,
+      default: true,
     },
     countries: [{ type: mongoose.Schema.Types.ObjectId, ref: 'countries' }],
   },

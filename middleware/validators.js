@@ -204,7 +204,7 @@ exports.validatePlace = [
 //create-Boms
 exports.validateBoms = [
   check('code', 'code is required').notEmpty().trim(),
-  check('certification_required', 'certification_required true/false').notEmpty().isBoolean().trim(),
+  check('certification_required', 'certification_required true only').notEmpty().isBoolean().trim(),
   check('countries', 'countries required').isArray({ min: 1 }),
 ];
 //create-Calculation

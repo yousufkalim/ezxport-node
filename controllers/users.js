@@ -3,7 +3,9 @@
  * @author Yousuf Kalim
  */
 const Users = require('../models/Users');
+const Products = require('../models/Products');
 const Sellers = require('../models/Sellers');
+const Requests = require('../models/Requests');
 const Admins = require('../models/Admins');
 const Buyers = require('../models/Buyers');
 const Places = require('../models/Places');
@@ -217,6 +219,58 @@ exports.excelSheet = async (req, res) => {
     });
   } catch (err) {
     // Error handling
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+/**
+ * Delete user
+ * @param {object} req
+ * @param {object} res
+ */
+exports.delete = async (req, res) => {
+  try {
+    //Vendors
+    const userId = req.params.userId;
+    const user = await Users.findByIdAndDelete(userId);
+    if (!user) {
+      return res.status(404).send({
+        success: false,
+        message: 'User does not Found, could not delete',
+      });
+    }
+    if (user.buyers.length > 0) {
+      await Buyers.deleteMany({
+        _id: { $in: user.buyers },
+      });
+    }
+    if (user.sellers.length > 0) {
+      await Sellers.deleteMany({
+        _id: { $in: user.sellers },
+      });
+    }
+    if (user.places.length > 0) {
+      await Places.deleteMany({
+        _id: { $in: user.places },
+      });
+    }
+    if (user.requests.length > 0) {
+      await Requests.deleteMany({
+        _id: { $in: user.requests },
+      });
+      await Products.deleteMany({
+        request: { $in: user.requests },
+      });
+    }
+    if (user.vendors.length > 0) {
+      await Vendors.deleteMany({
+        _id: { $in: user.vendors },
+      });
+    }
+
+    res.json({ success: true, user });
+  } catch (err) {
     console.log('Error ----> ', err);
     res.status(500).json({ success: false, message: 'Internal server error' });
   }

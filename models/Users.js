@@ -66,7 +66,7 @@ const userSchema = new mongoose.Schema(
     vendors: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'vendors',
+        ref: 'user_vendors',
       },
     ],
   },
