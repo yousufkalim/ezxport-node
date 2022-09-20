@@ -138,12 +138,8 @@ exports.filterCode = async (req, res) => {
     const boms = await Boms.find({ countries: country });
     const rows = await xlsxFile(req.file.path);
     if (rows.length > 300) {
-      return res.json({ success: false, message: 'File is too large' });
+      return res.status(400).json({ success: false, message: 'File is too large' });
     }
-    const Bcodes = boms.map((e) => {
-      return e.code;
-    });
-
     var format = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/;
     for (let k = 1; k < rows.length; k++) {
       let item = rows[k];
@@ -181,7 +177,6 @@ exports.filterCode = async (req, res) => {
                       });
                       existingCountry.boms.push(newBom);
                       await existingCountry.save();
-                      newBom.monetary_value = values;
                       data.push({ bom: newBom, monetary_value: values });
                     }
                   }

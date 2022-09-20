@@ -147,7 +147,7 @@ exports.boms = async (req, res) => {
     // }
 
     req.body.certification_cost = { value: certification_cost };
-
+    req.body.status = 'Draft';
     const request = await Request.create(req.body); // Adding seller in db
     existingUser.requests.push(request._id);
     await existingUser.save();
@@ -306,6 +306,7 @@ exports.updateBoms = async (req, res) => {
     //   }
     // }
     req.body.certification_cost = { value: certification_cost };
+    req.body.status = 'Draft';
     const request = await Request.findByIdAndUpdate(requestId, req.body, { new: true }); // Adding seller in db
     res.json({ success: true, request }); //Success
   } catch (err) {
@@ -559,7 +560,7 @@ exports.documentsUpload = async (req, res) => {
  */
 exports.getAll = async (req, res) => {
   try {
-    const requests = await Request.find()
+    const requests = await Request.find({ status: { $ne: 'Draft' } })
       .populate('user')
       .populate('country')
       .populate('missing_docs')
@@ -614,7 +615,7 @@ exports.getByuserId = async (req, res) => {
   try {
     const { userId } = req.params;
 
-    const request = await Request.find({ user: userId })
+    const request = await Request.find({ user: userId, status: { $ne: 'Draft' } })
       .populate('user')
       .populate('country')
       .populate('missing_docs')
@@ -668,7 +669,7 @@ exports.getByuserId = async (req, res) => {
 exports.getBycountryId = async (req, res) => {
   try {
     const { countryId } = req.params;
-    const request = await Request.find({ country: countryId })
+    const request = await Request.find({ country: countryId, status: { $ne: 'Draft' } })
       .populate('user')
       .populate('country')
       .populate('missing_docs')
