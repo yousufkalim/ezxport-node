@@ -29,6 +29,15 @@ exports.create = async (req, res) => {
     // Extra Validations
     if (existingUser || existingAdmin) {
       // If we found existing user in db
+      if (existingUser.delete) {
+        req.body.delete = false;
+        req.body.password = bcrypt.hashSync(password, parseInt(bcryptSalt)); // Hashing the password with salt 8
+        if (req.file) {
+          req.body.photo = req.file.path; // Creating a new property called photo in body object
+        }
+        const user = await Users.findOneAndUpdate({ email: email }, req.body, { new: true }); // Updating the user
+        return res.json({ success: true, user }); //Success
+      }
       return res.status(409).json({ success: false, message: 'User already exists.' });
     }
 
@@ -57,7 +66,7 @@ exports.create = async (req, res) => {
  */
 exports.getAll = async (req, res) => {
   try {
-    const users = await Users.find(); // Finding all the users from db
+    const users = await Users.find({ delete: false }); // Finding all the users from db
     res.json({ success: true, users }); // Success
   } catch (err) {
     // Error handling
@@ -233,13 +242,13 @@ exports.delete = async (req, res) => {
   try {
     //Vendors
     const userId = req.params.userId;
-    // const user = await Users.findByIdAndDelete(userId);
-    // if (!user) {
-    //   return res.status(404).send({
-    //     success: false,
-    //     message: 'User does not Found, could not delete',
-    //   });
-    // }
+    const user = await Users.findByIdAndUpdate(userId, { delete: true }, { new: true });
+    if (!user) {
+      return res.status(404).send({
+        success: false,
+        message: 'User does not Found, could not delete',
+      });
+    }
     // if (user.buyers.length > 0) {
     //   await Buyers.deleteMany({
     //     _id: { $in: user.buyers },

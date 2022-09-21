@@ -16,7 +16,7 @@ const Place = require('../models/Places');
 const Products = require('../models/Products');
 const { CountryNameCode } = require('../utils/Countries');
 const { sendRequestEmail } = require('../utils/sendRequestEmail');
-// const admz = require('adm-zip');
+const cron = require('node-cron');
 const request = require('request');
 const ZipStream = require('zip-stream');
 const stripe = require('stripe')(process.env.SECRET_KEY);
@@ -598,7 +598,8 @@ exports.getAll = async (req, res) => {
           path: 'doc_id',
         },
       });
-    res.status(200).json({ success: true, requets: requests });
+    const filteredRequest = requests.filter((e) => e.user.delete === false);
+    res.status(200).json({ success: true, requets: filteredRequest });
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
@@ -614,8 +615,7 @@ exports.getAll = async (req, res) => {
 exports.getByuserId = async (req, res) => {
   try {
     const { userId } = req.params;
-
-    const request = await Request.find({ user: userId, status: { $ne: 'Draft' } })
+    const request = await Request.find({ user: userId, status: { $ne: 'Draft' }, delete: false })
       .populate('user')
       .populate('country')
       .populate('missing_docs')
@@ -707,7 +707,8 @@ exports.getBycountryId = async (req, res) => {
           path: 'doc_id',
         },
       });
-    res.status(200).json({ success: true, request: request });
+    const filteredRequest = request.filter((e) => e.user.delete === false);
+    res.status(200).json({ success: true, request: filteredRequest });
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
@@ -1492,3 +1493,10 @@ const SaveFile = async (urls) => {
     res.status(5000).json({ success: false, message: 'Internal Server Error' });
   }
 };
+
+//cron-job that will run after every 10days to delete requests with draft sttaus
+cron.schedule('0 5 */10 * *', async () => {
+  await Request.deleteMany({
+    status: 'Draft',
+  });
+});

@@ -128,77 +128,6 @@ exports.filterCode = async (req, res) => {
     if (!req.file) {
       return res.status(404).json({ success: false, message: 'File is required' });
     }
-<<<<<<< HEAD
-    const { country } = req.body;
-    var format = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/;
-    let data = [];
-    let data2 = [];
-    var codes = [];
-    var values = [];
-    const existingCountry = await Country.findById(country);
-    const boms = await Boms.find({ countries: country });
-    const rows = await xlsxFile(req.file.path);
-    if (rows.length > 300) {
-      return res.status(400).json({ success: false, message: 'File is too large' });
-    }
-    var format = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/;
-    for (let k = 1; k < rows.length; k++) {
-      let item = rows[k];
-      if (item[0] !== null && item[1] !== null) {
-        codes = item[0].toString();
-        values = item[1];
-        if (!format.test(codes)) {
-          //Check will not allow any code with special character
-          if (!isNaN(values)) {
-            //monetory value should be numeric
-            if (boms.length > 0) {
-              for (let i = 0; i < boms.length; i++) {
-                boms[i].monetary_value = values;
-                if (boms[i].code === codes) {
-                  data.push({
-                    bom: boms[i],
-                    monetary_value: values,
-                  });
-                } else {
-                  const difference = codes.length - boms[i].code.length;
-                  const new_code = codes.slice(0, -difference);
-                  if (boms[i].code === new_code) {
-                    data.push({
-                      bom: boms[i],
-                      monetary_value: values,
-                    });
-                  } else {
-                    const findBom = await Boms.findOne({ code: codes, countries: country });
-                    if (findBom === null) {
-                      let newBom = await Boms.create({
-                        code: codes,
-                        countries: country,
-                        certification_required: false,
-                        admin_code: false,
-                      });
-                      existingCountry.boms.push(newBom);
-                      await existingCountry.save();
-                      data.push({ bom: newBom, monetary_value: values });
-                    }
-                  }
-                }
-              }
-            } else {
-              const findBom = await Boms.findOne({ code: codes, countries: country, admin_code: false });
-              if (findBom === null) {
-                let newBom = await Boms.create({
-                  code: codes,
-                  countries: country,
-                  certification_required: false,
-                  admin_code: false,
-                });
-                existingCountry.boms.push(newBom._id);
-                await existingCountry.save();
-                data.push({ bom: newBom, monetary_value: values });
-              }
-            }
-          }
-=======
 
     // Initilization
     let country = await Country.findById(req.body.country);
@@ -213,6 +142,8 @@ exports.filterCode = async (req, res) => {
       return res.status(400).json({ success: false, message: 'File is too large' });
     }
 
+    var format = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/; //Format to test if Code containing special character
+
     let matchedData = []; // Data that is matched with db and created by admin
     let unMatched = []; // Data that is not matched with db and not created by admin
     let unMatchedBomsToCreate = []; // Data that is not matched with db and not created by admin and need to be created
@@ -220,7 +151,7 @@ exports.filterCode = async (req, res) => {
     // Iterating through each row to find matched and unmatched data
     rows.map((item) => {
       // Validation, Skipping invalid rows
-      if (!item[0] || !item[1]) {
+      if (!item[0] || !item[1] || format.test(item[0]) || isNaN(item[1])) {
         return;
       }
       let code = item[0].toString(); // Converting code to string as we have string in db
@@ -245,7 +176,6 @@ exports.filterCode = async (req, res) => {
             },
             monetary_value,
           });
->>>>>>> f835bda41b1af7d8e991bc845f50f92c03511f10
         }
       }
     });

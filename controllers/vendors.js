@@ -41,7 +41,7 @@ exports.create = async (req, res) => {
  */
 exports.getAll = async (req, res) => {
   try {
-    const vendor = await Vendor.find().populate('countries'); // Finding all the serviceProvider from db
+    const vendor = await Vendor.find({ delete: false }).populate('countries'); // Finding all the serviceProvider from db
     res.json({ success: true, vendor }); // Success
   } catch (err) {
     // Error handling
@@ -74,7 +74,7 @@ exports.getById = async (req, res) => {
 exports.getByCountryId = async (req, res) => {
   try {
     const associated_countryId = req.params.associated_countryId; // Getting serviceProvider id from URL parameter
-    const vendor = await Vendor.find({ countries: associated_countryId }).populate('countries'); // Finding serviceProvider by id
+    const vendor = await Vendor.find({ countries: associated_countryId, delete: false }).populate('countries'); // Finding serviceProvider by id
     res.json({ success: true, vendor }); // Success
   } catch (err) {
     // Error handling
@@ -121,21 +121,27 @@ exports.update = async (req, res) => {
 exports.delete = async (req, res) => {
   try {
     const serviceProviderId = req.params.serviceProviderId; // Getting serviceProvider id from URL parameter
-    const vendor = await Vendor.findByIdAndDelete(serviceProviderId); // Deleting the serviceProvider
-    if (vendor) {
-      await Country.updateMany({ vendors: vendor._id }, { $pull: { vendors: vendor._id } });
-      const uservendors = await userVendor.find({ vendor: vendor?._id });
-      if (uservendors.length > 0) {
-        await userVendor.deleteMany({
-          vendor: vendor?._id,
-        });
-        for (let i = 0; i < uservendors.length; i++) {
-          await User.findOneAndUpdate({ _id: uservendors[i].user }, { $pull: { vendors: uservendors[i]._id } });
-        }
-      }
-      return res.status(200).json({ success: true, message: 'Successfully Deleted', vendor }); // Success
+    const vendor = await Vendor.findByIdAndUpdate(serviceProviderId, { delete: true }, { new: true }); // Deleting the serviceProvider
+    if (!vendor) {
+      return res.status(404).send({
+        success: false,
+        message: 'vendor does not Found, could not delete',
+      });
     }
-    res.json({ success: false, message: 'Already Deleted' }); // Already Deleted
+    // if (vendor) {
+    //   await Country.updateMany({ vendors: vendor._id }, { $pull: { vendors: vendor._id } });
+    //   const uservendors = await userVendor.find({ vendor: vendor?._id });
+    //   if (uservendors.length > 0) {
+    //     await userVendor.deleteMany({
+    //       vendor: vendor?._id,
+    //     });
+    //     for (let i = 0; i < uservendors.length; i++) {
+    //       await User.findOneAndUpdate({ _id: uservendors[i].user }, { $pull: { vendors: uservendors[i]._id } });
+    //     }
+    //   }
+    //   return res.status(200).json({ success: true, message: 'Successfully Deleted', vendor }); // Success
+    // }
+    res.json({ success: false, message: 'Vendor Deleted' }); // Already Deleted
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
