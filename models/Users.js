@@ -17,6 +17,10 @@ const userSchema = new mongoose.Schema(
     //   type: Boolean,
     //   default: true,
     // },
+    delete: {
+      type: Boolean,
+      default: false,
+    },
     email: {
       type: String,
     },

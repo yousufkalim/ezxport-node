@@ -128,6 +128,7 @@ exports.filterCode = async (req, res) => {
     if (!req.file) {
       return res.status(404).json({ success: false, message: 'File is required' });
     }
+<<<<<<< HEAD
     const { country } = req.body;
     var format = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/;
     let data = [];
@@ -197,20 +198,67 @@ exports.filterCode = async (req, res) => {
               }
             }
           }
+=======
+
+    // Initilization
+    let country = await Country.findById(req.body.country);
+    let boms = await Boms.find({ countries: country._id });
+    let adminBoms = boms.filter((bom) => bom.admin_code === true); // All the codes created by admin
+    let privateBoms = boms.filter((bom) => bom.admin_code === false); // All the codes created by user
+    let rows = await xlsxFile(req.file.path);
+    rows.shift(); // Removing first row that is containing headers
+
+    // Checking if file is too large
+    if (rows.length > 300) {
+      return res.status(400).json({ success: false, message: 'File is too large' });
+    }
+
+    let matchedData = []; // Data that is matched with db and created by admin
+    let unMatched = []; // Data that is not matched with db and not created by admin
+    let unMatchedBomsToCreate = []; // Data that is not matched with db and not created by admin and need to be created
+
+    // Iterating through each row to find matched and unmatched data
+    rows.map((item) => {
+      // Validation, Skipping invalid rows
+      if (!item[0] || !item[1]) {
+        return;
+      }
+      let code = item[0].toString(); // Converting code to string as we have string in db
+      let monetary_value = item[1];
+      let bom = adminBoms.find((bom) => code.includes(bom.code)); // This will check if code is included in any of the admin code
+      if (bom) {
+        // Found matched data
+        matchedData.push({ bom, monetary_value });
+      } else {
+        // Not found matched data
+        let bom = privateBoms.find((bom) => bom.code === code); // Checking if the code is already in db
+        if (bom) {
+          unMatched.push({ bom, monetary_value });
+        } else {
+          // Creating an array of unmatched data that need to be created
+          unMatchedBomsToCreate.push({
+            bom: {
+              code,
+              countries: country._id,
+              certification_required: false,
+              admin_code: false,
+            },
+            monetary_value,
+          });
+>>>>>>> f835bda41b1af7d8e991bc845f50f92c03511f10
         }
       }
-    }
-    //Because of iteration there are chances of duplicate data :}
-    var uniqueArr = [];
-    data.forEach((item) => {
-      if (uniqueArr.some((el) => el.bom.code === item.bom.code) === false) {
-        uniqueArr.push(item);
-      }
     });
-    //Find Boms exist in db but user did'nt add in file  :\
-    const filtered = boms.filter((obj1) => !uniqueArr.find((obj2) => obj1._id === obj2.bom._id));
 
-    res.status(200).json({ success: true, matchedData: uniqueArr, unMatched: filtered });
+    let newBoms = await Boms.insertMany(unMatchedBomsToCreate.map((item) => item.bom)); // Creating new boms without monetary value
+    // Now we have to add newBom in unMatchedBomsToCreate array
+    newBoms.map((bom, i) => {
+      unMatchedBomsToCreate[i].bom = bom;
+    });
+    unMatched = unMatched.concat(unMatchedBomsToCreate); // Merging unMatched and unMatchedBomsToCreate
+
+    // Finally
+    res.status(200).json({ success: true, matchedData, unMatched });
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);

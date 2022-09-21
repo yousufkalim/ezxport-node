@@ -24,6 +24,7 @@ router.post("/login", validateLogin, isValidated, auth.login); // Get all users 
 router.get("/", checkAuth, auth.confirmAuth);
 router.put("/new-password/:token", changePasswordValidate, isValidated, auth.changePassword); // Change password route
 router.put("/forgot/:email", auth.forgot);
+router.get("/verify-token/:token", auth.verifyToken);
 
 // Export
 module.exports = router;

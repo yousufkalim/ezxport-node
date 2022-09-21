@@ -103,7 +103,7 @@ exports.changePassword = async (req, res) => {
 
     await user.save();
 
-    res.json({ success: true, user });
+    res.json({ success: true, message: 'Password updated successfully' });
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
@@ -126,7 +126,7 @@ exports.forgot = async (req, res) => {
     }
 
     let link = jwt.sign(user.email, tokenSecret);
-    link = `${process.env.CLIENT_URL}/reset=true&token=${link}`;
+    link = `${process.env.CLIENT_URL}/?reset=true&token=${link}`;
 
     // Sending email to user
     sendEmail(email, link)
@@ -147,6 +147,27 @@ exports.forgot = async (req, res) => {
     // Error handling
     console.log('Error ----> ', err);
     res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+/**
+ * verify token
+ * @param {object} req
+ * @param {object} res
+ */
+exports.verifyToken = async (req, res) => {
+  try {
+    let { token } = req.params;
+    const decoded = jwt.verify(token, tokenSecret);
+    let user = await Users.findOne({ email: decoded });
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Token is Invalid' });
+    }
+
+    res.json({ success: true, message: 'Token Verified' });
+  } catch (err) {
+    // Error handling
+    console.log('Error ----> ', err);
+    return res.status(404).json({ success: false, message: 'Token is Invalid' });
   }
 };
 
