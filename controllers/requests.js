@@ -116,7 +116,7 @@ exports.searchName = async (req, res) => {
  */
 exports.boms = async (req, res) => {
   try {
-    const { user, codes, certification_cost, country } = req.body;
+    const { user, certification_cost, country } = req.body;
     let existingUser = await Users.findOne({
       _id: user,
     });
@@ -125,6 +125,9 @@ exports.boms = async (req, res) => {
     });
     if (!existingUser) {
       return res.status(409).json({ success: false, message: 'UserId is invalid' });
+    }
+    if (!existingCountry) {
+      return res.status(409).json({ success: false, message: 'countryId is invalid' });
     }
     //If certification not required by all of documents
     // const certificationNotReq = codes.every(function (v) {
@@ -287,7 +290,13 @@ exports.calculateCost = async (req, res) => {
 exports.updateBoms = async (req, res) => {
   try {
     const { requestId } = req.params;
-    const { codes, certification_cost } = req.body;
+    const { certification_cost, country } = req.body;
+    let existingCountry = await Country.findOne({
+      _id: country,
+    });
+    if (!existingCountry) {
+      return res.status(409).json({ success: false, message: 'countryId is invalid' });
+    }
     //If certification not required by all of documents
     // const certificationNotReq = codes.every(function (v) {
     //   const boolVal = JSON.parse(v.certification_required);
@@ -311,7 +320,7 @@ exports.updateBoms = async (req, res) => {
     //     value = +value + +codes[i].monetary_value; //To deal with coercion subtracted 0 from string :)
     //   }
     // }
-    req.body.certification_cost = { value: certification_cost };
+    req.body.certification_cost = { value: certification_cost, currency: existingCountry.currency };
     req.body.status = 'Draft';
     const request = await Request.findByIdAndUpdate(requestId, req.body, { new: true }); // Adding seller in db
     res.json({ success: true, request }); //Success
