@@ -42,6 +42,9 @@ exports.createName = async (req, res) => {
     if (!country.calculation) {
       return res.status(404).json({ success: false, message: 'Calculation of this country is null' });
     }
+    if (!country.currency) {
+      return res.status(404).json({ success: false, message: 'Currency of this country is null' });
+    }
     const Requests = await Request.find().sort({ createdAt: -1 });
     //Find Country Code from file
     const code = CountryNameCode.filter((e) => e.name.toLowerCase() === country.name.toLowerCase());
@@ -113,9 +116,12 @@ exports.searchName = async (req, res) => {
  */
 exports.boms = async (req, res) => {
   try {
-    const { user, codes, certification_cost } = req.body;
+    const { user, codes, certification_cost, country } = req.body;
     let existingUser = await Users.findOne({
       _id: user,
+    });
+    let existingCountry = await Country.findOne({
+      _id: country,
     });
     if (!existingUser) {
       return res.status(409).json({ success: false, message: 'UserId is invalid' });
@@ -146,7 +152,7 @@ exports.boms = async (req, res) => {
     //   }
     // }
 
-    req.body.certification_cost = { value: certification_cost };
+    req.body.certification_cost = { value: certification_cost, currency: existingCountry.currency };
     req.body.status = 'Draft';
     const request = await Request.create(req.body); // Adding seller in db
     existingUser.requests.push(request._id);
@@ -448,9 +454,10 @@ exports.Dispatch = async (req, res) => {
 exports.Documents = async (req, res) => {
   try {
     const { request, codes } = req.body;
+    const existingReq = await Request.findOne({ _id: request }).populate('country');
     let updateRequest;
     for (let i = 0; i < codes.length; i++) {
-      const price = { value: codes[i].price, currency: codes[i].currency };
+      const price = { value: codes[i].price, currency: existingReq.country.currency };
       codes[i].price = price;
       codes[i].request = request;
       const product = await CreateProduct(codes[i]);
@@ -615,7 +622,7 @@ exports.getAll = async (req, res) => {
 exports.getByuserId = async (req, res) => {
   try {
     const { userId } = req.params;
-    const request = await Request.find({ user: userId, status: { $ne: 'Draft' }, delete: false })
+    const request = await Request.find({ user: userId, status: { $ne: 'Draft' } })
       .populate('user')
       .populate('country')
       .populate('missing_docs')
