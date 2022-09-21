@@ -5,6 +5,7 @@
 const xlsxFile = require('read-excel-file/node');
 const Boms = require('../models/Boms');
 const Country = require('../models/Countries');
+
 /**
  * Create bom
  * @param {object} req
@@ -141,6 +142,8 @@ exports.filterCode = async (req, res) => {
       return res.status(400).json({ success: false, message: 'File is too large' });
     }
 
+    var format = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/; //Format to test if Code containing special character
+
     let matchedData = []; // Data that is matched with db and created by admin
     let unMatched = []; // Data that is not matched with db and not created by admin
     let unMatchedBomsToCreate = []; // Data that is not matched with db and not created by admin and need to be created
@@ -148,7 +151,7 @@ exports.filterCode = async (req, res) => {
     // Iterating through each row to find matched and unmatched data
     rows.map((item) => {
       // Validation, Skipping invalid rows
-      if (!item[0] || !item[1]) {
+      if (!item[0] || !item[1] || format.test(item[0]) || isNaN(item[1])) {
         return;
       }
       let code = item[0].toString(); // Converting code to string as we have string in db
@@ -206,7 +209,6 @@ exports.uploadCodes = async (req, res) => {
     const { country } = req.body;
     let newBom;
     var codes = [];
-    var certification_required = [];
     const existingCountry = await Country.findById(country);
     if (!existingCountry) {
       return res.status(404).json({ success: false, message: 'Country not found' });
@@ -219,38 +221,41 @@ exports.uploadCodes = async (req, res) => {
       if (rows.length > 300) {
         return res.json({ success: false, message: 'File is too large' });
       }
+      var format = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/;
       for (let k = 1; k < rows.length; k++) {
         let item = rows[k];
-        codes = item[0];
-        certification_required = item[1].toString().toLowerCase();
-        certification_required = JSON.parse(certification_required.replace(/^"(.*)"$/, '$1'));
-        if (isBoolean(certification_required)) {
-          if (Bcodes.indexOf(codes.toString()) === -1) {
-            newBom = await Boms.create({
-              code: codes,
-              countries: country,
-              certification_required: certification_required,
-              admin_code: true,
-            });
-            existingCountry.boms.push(newBom._id);
-            await existingCountry.save();
-          } else {
-            let bom = await Boms.find({ code: codes }); // Finding bom by id
-            if (bom) {
-              if (bom.admin_code) {
-                bom.countires.push(country);
-                existingCountry.boms.push(bom._id);
-                await bom.save();
-                await existingCountry.save();
-              } else {
-                newBom = await Boms.create({
-                  code: codes,
-                  countries: country,
-                  certification_required: certification_required,
-                  admin_code: true,
-                });
-                existingCountry.boms.push(newBom._id);
-                await existingCountry.save();
+        if (item[0] !== null) {
+          codes = item[0];
+          if (!format.test(codes)) {
+            if (Bcodes.indexOf(codes.toString()) === -1) {
+              newBom = await Boms.create({
+                code: codes,
+                countries: country,
+                certification_required: true,
+                admin_code: true,
+              });
+              existingCountry.boms.push(newBom._id);
+              await existingCountry.save();
+            } else {
+              let bom = await Boms.findOne({ code: codes }); // Finding bom by id
+              if (bom) {
+                if (bom.admin_code) {
+                  if (!bom.countries.includes(country)) {
+                    bom.countries.push(country);
+                    existingCountry.boms.push(bom._id);
+                    await bom.save();
+                    await existingCountry.save();
+                  }
+                } else {
+                  newBom = await Boms.create({
+                    code: codes,
+                    countries: country,
+                    certification_required: true,
+                    admin_code: true,
+                  });
+                  existingCountry.boms.push(newBom._id);
+                  await existingCountry.save();
+                }
               }
             }
           }
@@ -263,9 +268,4 @@ exports.uploadCodes = async (req, res) => {
     console.log('Error ----> ', err);
     res.status(500).json({ success: false, message: 'Internal server error' });
   }
-};
-
-//This will check whether passed value is Boolean or not
-const isBoolean = (val) => {
-  return val === false || val === true;
 };

@@ -16,7 +16,7 @@ const Place = require('../models/Places');
 const Products = require('../models/Products');
 const { CountryNameCode } = require('../utils/Countries');
 const { sendRequestEmail } = require('../utils/sendRequestEmail');
-// const admz = require('adm-zip');
+const cron = require('node-cron');
 const request = require('request');
 const ZipStream = require('zip-stream');
 const stripe = require('stripe')(process.env.SECRET_KEY);
@@ -39,6 +39,12 @@ exports.createName = async (req, res) => {
       return res.status(409).json({ success: false, message: 'UserId is invalid' });
     }
     const country = await Country.findById(countryId);
+    if (!country.calculation) {
+      return res.status(404).json({ success: false, message: 'Calculation of this country is null' });
+    }
+    if (!country.currency) {
+      return res.status(404).json({ success: false, message: 'Currency of this country is null' });
+    }
     const Requests = await Request.find().sort({ createdAt: -1 });
     //Find Country Code from file
     const code = CountryNameCode.filter((e) => e.name.toLowerCase() === country.name.toLowerCase());
@@ -110,41 +116,47 @@ exports.searchName = async (req, res) => {
  */
 exports.boms = async (req, res) => {
   try {
-    const { user, codes } = req.body;
+    const { user, certification_cost, country } = req.body;
     let existingUser = await Users.findOne({
       _id: user,
+    });
+    let existingCountry = await Country.findOne({
+      _id: country,
     });
     if (!existingUser) {
       return res.status(409).json({ success: false, message: 'UserId is invalid' });
     }
+    if (!existingCountry) {
+      return res.status(409).json({ success: false, message: 'countryId is invalid' });
+    }
     //If certification not required by all of documents
-    const certificationNotReq = codes.every(function (v) {
-      const boolVal = JSON.parse(v.certification_required);
-      return !boolVal;
-    });
+    // const certificationNotReq = codes.every(function (v) {
+    //   const boolVal = JSON.parse(v.certification_required);
+    //   return !boolVal;
+    // });
     //If certification not required by all of documents
     //then set its request status will be not required
     //and cost value will be 0
-    if (certificationNotReq) {
-      req.body.status = 'not required';
-      req.body.certification_cost = { value: 0 };
-      const request = await Request.create(req.body); // Adding seller in db
-      existingUser.requests.push(request._id);
-      await existingUser.save();
-      return res.json({ success: true, request, message: 'certification not required' }); //Success
-    }
+    // if (certificationNotReq) {
+    //   req.body.status = 'not required';
+    //   req.body.certification_cost = { value: 0 };
+    //   const request = await Request.create(req.body); // Adding seller in db
+    //   existingUser.requests.push(request._id);
+    //   await existingUser.save();
+    //   return res.json({ success: true, request, message: 'certification not required' }); //Success
+    // }
     //If certification  required by some of documents
     //then calculate monetory values for required codes
-    let value = 0;
-    for (let i = 0; i < codes.length; i++) {
-      const boolVal = JSON.parse(codes[i].certification_required);
-      if (boolVal) {
-        value = +value + +codes[i].monetary_value; //To deal with coercion subtracted 0 from string :)
-      }
-    }
+    // let value = 0;
+    // for (let i = 0; i < codes.length; i++) {
+    //   const boolVal = JSON.parse(codes[i].certification_required);
+    //   if (boolVal) {
+    //     value = +value + +codes[i].monetary_value; //To deal with coercion subtracted 0 from string :)
+    //   }
+    // }
 
-    req.body.certification_cost = { value: value };
-
+    req.body.certification_cost = { value: certification_cost, currency: existingCountry.currency };
+    req.body.status = 'Draft';
     const request = await Request.create(req.body); // Adding seller in db
     existingUser.requests.push(request._id);
     await existingUser.save();
@@ -278,31 +290,38 @@ exports.calculateCost = async (req, res) => {
 exports.updateBoms = async (req, res) => {
   try {
     const { requestId } = req.params;
-    const { codes } = req.body;
-    //If certification not required by all of documents
-    const certificationNotReq = codes.every(function (v) {
-      const boolVal = JSON.parse(v.certification_required);
-      return !boolVal;
+    const { certification_cost, country } = req.body;
+    let existingCountry = await Country.findOne({
+      _id: country,
     });
+    if (!existingCountry) {
+      return res.status(409).json({ success: false, message: 'countryId is invalid' });
+    }
+    //If certification not required by all of documents
+    // const certificationNotReq = codes.every(function (v) {
+    //   const boolVal = JSON.parse(v.certification_required);
+    //   return !boolVal;
+    // });
     //If certification not required by all of documents
     //then set its request status will be not required
     //and cost value will be 0
-    if (certificationNotReq) {
-      req.body.status = 'not required';
-      req.body.certification_cost = { value: 0 };
-      const request = await Request.findByIdAndUpdate(requestId, req.body, { new: true }); // Adding seller in db
-      return res.json({ success: true, request }); //Success
-    }
+    // if (certificationNotReq) {
+    //   req.body.status = 'not required';
+    //   req.body.certification_cost = { value: 0 };
+    //   const request = await Request.findByIdAndUpdate(requestId, req.body, { new: true }); // Adding seller in db
+    //   return res.json({ success: true, request }); //Success
+    // }
     //If certification  required by some of documents
     //then calculate monetory values for required codes
-    let value = 0;
-    for (let i = 0; i < codes.length; i++) {
-      const boolVal = JSON.parse(codes[i].certification_required);
-      if (boolVal) {
-        value = +value + +codes[i].monetary_value; //To deal with coercion subtracted 0 from string :)
-      }
-    }
-    req.body.certification_cost = { value: value };
+    // let value = 0;
+    // for (let i = 0; i < codes.length; i++) {
+    //   const boolVal = JSON.parse(codes[i].certification_required);
+    //   if (boolVal) {
+    //     value = +value + +codes[i].monetary_value; //To deal with coercion subtracted 0 from string :)
+    //   }
+    // }
+    req.body.certification_cost = { value: certification_cost, currency: existingCountry.currency };
+    req.body.status = 'Draft';
     const request = await Request.findByIdAndUpdate(requestId, req.body, { new: true }); // Adding seller in db
     res.json({ success: true, request }); //Success
   } catch (err) {
@@ -444,9 +463,10 @@ exports.Dispatch = async (req, res) => {
 exports.Documents = async (req, res) => {
   try {
     const { request, codes } = req.body;
+    const existingReq = await Request.findOne({ _id: request }).populate('country');
     let updateRequest;
     for (let i = 0; i < codes.length; i++) {
-      const price = { value: codes[i].price, currency: codes[i].currency };
+      const price = { value: codes[i].price, currency: existingReq.country.currency };
       codes[i].price = price;
       codes[i].request = request;
       const product = await CreateProduct(codes[i]);
@@ -556,7 +576,7 @@ exports.documentsUpload = async (req, res) => {
  */
 exports.getAll = async (req, res) => {
   try {
-    const requests = await Request.find()
+    const requests = await Request.find({ status: { $ne: 'Draft' } })
       .populate('user')
       .populate('country')
       .populate('missing_docs')
@@ -585,24 +605,17 @@ exports.getAll = async (req, res) => {
         },
       })
       .populate({
-        path: 'codes',
-        populate: {
-          path: 'code',
-        },
-        populate: {
-          path: 'products',
-          populate: {
-            path: 'country',
-          },
-        },
+        path: 'codes.products',
       })
+      .populate('codes.code')
       .populate({
         path: 'documents',
         populate: {
           path: 'doc_id',
         },
       });
-    res.status(200).json({ success: true, requets: requests });
+    const filteredRequest = requests.filter((e) => e.user.delete === false);
+    res.status(200).json({ success: true, requets: filteredRequest });
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
@@ -618,8 +631,7 @@ exports.getAll = async (req, res) => {
 exports.getByuserId = async (req, res) => {
   try {
     const { userId } = req.params;
-
-    const request = await Request.find({ user: userId })
+    const request = await Request.find({ user: userId, status: { $ne: 'Draft' } })
       .populate('user')
       .populate('country')
       .populate('missing_docs')
@@ -648,17 +660,9 @@ exports.getByuserId = async (req, res) => {
         },
       })
       .populate({
-        path: 'codes',
-        populate: {
-          path: 'code',
-        },
-        populate: {
-          path: 'products',
-          populate: {
-            path: 'country',
-          },
-        },
+        path: 'codes.products',
       })
+      .populate('codes.code')
       .populate({
         path: 'documents',
         populate: {
@@ -681,7 +685,7 @@ exports.getByuserId = async (req, res) => {
 exports.getBycountryId = async (req, res) => {
   try {
     const { countryId } = req.params;
-    const request = await Request.find({ country: countryId })
+    const request = await Request.find({ country: countryId, status: { $ne: 'Draft' } })
       .populate('user')
       .populate('country')
       .populate('missing_docs')
@@ -710,24 +714,17 @@ exports.getBycountryId = async (req, res) => {
         },
       })
       .populate({
-        path: 'codes',
-        populate: {
-          path: 'code',
-        },
-        populate: {
-          path: 'products',
-          populate: {
-            path: 'country',
-          },
-        },
+        path: 'codes.products',
       })
+      .populate('codes.code')
       .populate({
         path: 'documents',
         populate: {
           path: 'doc_id',
         },
       });
-    res.status(200).json({ success: true, request: request });
+    const filteredRequest = request.filter((e) => e.user.delete === false);
+    res.status(200).json({ success: true, request: filteredRequest });
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
@@ -772,17 +769,9 @@ exports.getById = async (req, res) => {
         },
       })
       .populate({
-        path: 'codes',
-        populate: {
-          path: 'code',
-        },
-        populate: {
-          path: 'products',
-          populate: {
-            path: 'country',
-          },
-        },
+        path: 'codes.products',
       })
+      .populate('codes.code')
       .populate({
         path: 'documents',
         populate: {
@@ -1155,6 +1144,7 @@ exports.Webhook = async (req, res) => {
         if (!findReq) return res.json({ success: false, message: 'RequestId is invalid' });
         findReq.status = 'Benig Checked By Expert';
         findReq.request_method = 'platform';
+        findReq.certification_cost.value = +findReq.certification_cost.value + 50;
         await findReq.save();
       }
       break;
@@ -1519,3 +1509,10 @@ const SaveFile = async (urls) => {
     res.status(5000).json({ success: false, message: 'Internal Server Error' });
   }
 };
+
+//cron-job that will run after every 10days to delete requests with draft sttaus
+cron.schedule('0 5 */10 * *', async () => {
+  await Request.deleteMany({
+    status: 'Draft',
+  });
+});

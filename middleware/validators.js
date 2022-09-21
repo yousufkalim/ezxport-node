@@ -87,6 +87,7 @@ exports.validateRequestBom = [
   check('user', 'userId is required').notEmpty().trim(),
   check('title', 'title is required').notEmpty().trim(),
   check('codes', 'codes required ').isArray({ min: 1 }),
+  check('certification_cost', 'certification_cost is required').notEmpty().trim(),
   check('codes.*.code', 'codeId is required').notEmpty().trim(),
   check('codes.*.monetary_value', 'monetory_value required').notEmpty().trim(),
   check('codes.*.certification_required', 'certification_required true/false').notEmpty().isBoolean().trim(),
@@ -158,7 +159,7 @@ exports.ValidateDocuments = [
   check('codes.*.mark', 'mark required ').notEmpty().trim(),
   check('codes.*.builder', 'builder required ').notEmpty().trim(),
   check('codes.*.country', 'country required ').notEmpty().trim(),
-  check('codes.*.currency', 'currency required ').notEmpty().trim(),
+  // check('codes.*.currency', 'currency required ').notEmpty().trim(),
   check('codes.*.price', 'value required ').notEmpty().trim(),
 ];
 exports.validateUploadDocuments = [check('doc_id', 'doc_id required').notEmpty().trim()];
@@ -203,7 +204,7 @@ exports.validatePlace = [
 //create-Boms
 exports.validateBoms = [
   check('code', 'code is required').notEmpty().trim(),
-  check('certification_required', 'certification_required true/false').notEmpty().isBoolean().trim(),
+  check('certification_required', 'certification_required true only').notEmpty().isBoolean().trim(),
   check('countries', 'countries required').isArray({ min: 1 }),
 ];
 //create-Calculation
