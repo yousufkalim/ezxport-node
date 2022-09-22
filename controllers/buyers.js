@@ -40,7 +40,7 @@ exports.create = async (req, res) => {
  */
 exports.getAll = async (req, res) => {
   try {
-    const buyers = await Buyer.find().populate('country').populate('user'); // Finding all the buyer from db
+    const buyers = await Buyer.find().populate('user'); // Finding all the buyer from db
     res.json({ success: true, buyers }); // Success
   } catch (err) {
     // Error handling
@@ -57,7 +57,7 @@ exports.getAll = async (req, res) => {
 exports.getById = async (req, res) => {
   try {
     const buyerId = req.params.buyerId; // Getting buyer id from URL parameter
-    const buyer = await Buyer.findById(buyerId).populate('country').populate('user'); // Finding buyer by id
+    const buyer = await Buyer.findById(buyerId).populate('user'); // Finding buyer by id
     res.json({ success: true, buyer }); // Success
   } catch (err) {
     // Error handling
@@ -74,7 +74,7 @@ exports.getById = async (req, res) => {
 exports.getByUserandCountry = async (req, res) => {
   try {
     const { country, user } = req.body;
-    const buyer = await Buyer.find({ country: country, user: user }).populate('country').populate('user'); // Finding seller by id
+    const buyer = await Buyer.find({ country: country, user: user }).populate('user'); // Finding seller by id
     res.json({ success: true, buyer }); // Success
   } catch (err) {
     // Error handling
@@ -90,7 +90,7 @@ exports.getByUserandCountry = async (req, res) => {
 exports.getByUser = async (req, res) => {
   try {
     const { userId } = req.params;
-    const buyer = await Buyer.find({ user: userId }).populate('country').populate('user'); // Finding buyer by userId
+    const buyer = await Buyer.find({ user: userId }).populate('user'); // Finding buyer by userId
     res.json({ success: true, buyer }); // Success
   } catch (err) {
     // Error handling
