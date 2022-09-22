@@ -27,7 +27,6 @@ const ObjectId = require('mongodb').ObjectID;
  * @param {object} req
  * @param {object} res
  */
-
 exports.createName = async (req, res) => {
   try {
     const { userId, countryId } = req.body;
@@ -587,24 +586,6 @@ exports.getAll = async (req, res) => {
         },
       })
       .populate({
-        path: 'place',
-        populate: {
-          path: 'country',
-        },
-      })
-      .populate({
-        path: 'buyer',
-        populate: {
-          path: 'country',
-        },
-      })
-      .populate({
-        path: 'seller',
-        populate: {
-          path: 'country',
-        },
-      })
-      .populate({
         path: 'codes.products',
       })
       .populate('codes.code')
@@ -639,24 +620,6 @@ exports.getByuserId = async (req, res) => {
         path: 'vendor',
         populate: {
           path: 'vendor',
-        },
-      })
-      .populate({
-        path: 'place',
-        populate: {
-          path: 'country',
-        },
-      })
-      .populate({
-        path: 'buyer',
-        populate: {
-          path: 'country',
-        },
-      })
-      .populate({
-        path: 'seller',
-        populate: {
-          path: 'country',
         },
       })
       .populate({
