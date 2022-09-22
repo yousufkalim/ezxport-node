@@ -4,6 +4,7 @@
  */
 const Buyer = require('../models/Buyers');
 const Users = require('../models/Users');
+const Country = require('../models/Countries');
 /**
  * Create buyer
  * @param {object} req
@@ -11,12 +12,19 @@ const Users = require('../models/Users');
  */
 exports.create = async (req, res) => {
   try {
-    const { user } = req.body;
+    const { user, country } = req.body;
     let existingUser = await Users.findOne({
       _id: user,
     });
     if (!existingUser) {
       return res.status(409).json({ success: false, message: 'UserId is invalid' });
+    }
+    const existingCountry = await Country.findOne({ name: country });
+    if (existingCountry) {
+      req.body.country = existingCountry._id;
+    } else {
+      const newCountry = await Country.create({ name: country, currency: 'USD' });
+      req.body.country = newCountry._id;
     }
     const existingBuyer = await Buyer.findOne(req.body);
     if (existingBuyer) {
