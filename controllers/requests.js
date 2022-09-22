@@ -393,10 +393,32 @@ exports.userVendor = async (req, res) => {
 exports.Dispatch = async (req, res) => {
   try {
     const { place, seller, buyer, request, inspection_date } = req.body;
-    let existingRequest = await Request.findById(request);
+    let existingRequest = await Request.findById(request).populate('country');
     let existingUser = await Users.findById(existingRequest.user);
     if (!existingRequest) {
       return res.status(409).json({ success: false, message: 'Invalid RequestId' });
+    }
+    const SellerCountry = await Country.findOne({ name: seller.country });
+    if (SellerCountry) {
+      seller.country = SellerCountry._id;
+    } else {
+      const newCountry = await Country.create({ name: seller.country, currency: existingRequest.country.currency });
+      seller.country = newCountry._id;
+    }
+    const BuyerCountry = await Country.findOne({ name: buyer.country });
+    if (BuyerCountry) {
+      buyer.country = BuyerCountry._id;
+    } else {
+      const newCountry = await Country.create({ name: buyer.country, currency: existingRequest.country.currency });
+      buyer.country = newCountry._id;
+    }
+
+    const PlaceCountry = await Country.findOne({ name: place.country });
+    if (PlaceCountry) {
+      place.country = PlaceCountry._id;
+    } else {
+      const newCountry = await Country.create({ name: place.country, currency: existingRequest.country.currency });
+      place.country = newCountry._id;
     }
 
     const existingSeller = await Seller.findOne(seller);
