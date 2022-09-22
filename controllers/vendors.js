@@ -21,9 +21,20 @@ exports.create = async (req, res) => {
     if (existingVendor) {
       return res.json({ success: false, message: 'vendor already exist' }); //Success
     }
+    req.body.countries = await Promise.all(
+      countries.map(async (e) => {
+        const exisitingCountry = await Country.findOne({ name: e });
+        if (exisitingCountry) {
+          return exisitingCountry._id;
+        } else {
+          const newCountry = await Country.create({ name: e, currency: 'USD' });
+          return newCountry._id;
+        }
+      })
+    );
 
     const vendor = await Vendor.create(req.body); // Adding serviceProvider in db
-    await Country.updateMany({ _id: { $in: countries } }, { $push: { vendors: vendor._id } });
+    await Country.updateMany({ _id: { $in: req.body.countries } }, { $push: { vendors: vendor._id } });
 
     // Done
     res.json({ success: true, vendor }); //Success
@@ -92,6 +103,17 @@ exports.update = async (req, res) => {
   try {
     const serviceProviderId = req.params.serviceProviderId; // Getting serviceProvider id from URL parameter
     const existingVendor = await Vendor.findById(serviceProviderId); // Updating the country
+    req.body.countries = await Promise.all(
+      req.body.countries.map(async (e) => {
+        const exisitingCountry = await Country.findOne({ name: e });
+        if (exisitingCountry) {
+          return exisitingCountry._id;
+        } else {
+          const newCountry = await Country.create({ name: e, currency: 'USD' });
+          return newCountry._id;
+        }
+      })
+    );
     if (existingVendor) {
       if (existingVendor.sending_email !== req.body.sending_email) {
         const existingVendorS = await Vendor.findOne({
