@@ -4,6 +4,7 @@
  */
 const Seller = require('../models/Sellers');
 const Users = require('../models/Users');
+const Country = require('../models/Countries');
 /**
  * Create seller
  * @param {object} req
@@ -18,10 +19,18 @@ exports.create = async (req, res) => {
     if (!existingUser) {
       return res.status(409).json({ success: false, message: 'UserId is invalid' });
     }
+    const existingCountry = await Country.findOne({ name: req.body.country });
+    if (existingCountry) {
+      req.body.country = existingCountry._id;
+    } else {
+      const newCountry = await Country.create({ name: req.body.country, currency: 'USD' });
+      req.body.country = newCountry._id;
+    }
     const existingSeller = await Seller.findOne(req.body);
     if (existingSeller) {
       return res.status(409).json({ success: false, message: 'Seller already exist' });
     }
+
     const seller = await Seller.create(req.body); // Adding seller in db
     existingUser.sellers.push(seller._id);
     await existingUser.save();
@@ -109,6 +118,13 @@ exports.getByUser = async (req, res) => {
 exports.update = async (req, res) => {
   try {
     const sellerId = req.params.sellerId; // Getting seller id from URL parameter
+    const existingCountry = await Country.findOne({ name: req.body.country });
+    if (existingCountry) {
+      req.body.country = existingCountry._id;
+    } else {
+      const newCountry = await Country.create({ name: req.body.country, currency: 'USD' });
+      req.body.country = newCountry._id;
+    }
     const seller = await Seller.findByIdAndUpdate(sellerId, req.body, { new: true }); // Updating the country
     res.json({ success: true, seller }); // Success
   } catch (err) {

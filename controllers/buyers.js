@@ -114,6 +114,13 @@ exports.getByUser = async (req, res) => {
 exports.update = async (req, res) => {
   try {
     const buyerId = req.params.buyerId; // Getting buyer id from URL parameter
+    const existingCountry = await Country.findOne({ name: req.body.country });
+    if (existingCountry) {
+      req.body.country = existingCountry._id;
+    } else {
+      const newCountry = await Country.create({ name: req.body.country, currency: 'USD' });
+      req.body.country = newCountry._id;
+    }
     const buyer = await Buyer.findByIdAndUpdate(buyerId, req.body, { new: true }); // Updating the country
     res.json({ success: true, buyer }); // Success
   } catch (err) {

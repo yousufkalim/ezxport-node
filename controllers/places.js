@@ -4,6 +4,7 @@
  */
 const Place = require('../models/Places');
 const Users = require('../models/Users');
+const Country = require('../models/Countries');
 
 /**
  * Create place
@@ -12,12 +13,19 @@ const Users = require('../models/Users');
  */
 exports.create = async (req, res) => {
   try {
-    const { user } = req.body;
+    const { user, country } = req.body;
     let existingUser = await Users.findOne({
       _id: user,
     });
     if (!existingUser) {
       return res.status(409).json({ success: false, message: 'UserId is invalid' });
+    }
+    const existingCountry = await Country.findOne({ name: country });
+    if (existingCountry) {
+      req.body.country = existingCountry._id;
+    } else {
+      const newCountry = await Country.create({ name: country, currency: 'USD' });
+      req.body.country = newCountry._id;
     }
     const existingPlace = await Place.findOne(req.body);
     if (existingPlace) {
@@ -91,6 +99,13 @@ exports.getByUser = async (req, res) => {
 exports.update = async (req, res) => {
   try {
     const placeId = req.params.placeId; // Getting place id from URL parameter
+    const existingCountry = await Country.findOne({ name: req.body.country });
+    if (existingCountry) {
+      req.body.country = existingCountry._id;
+    } else {
+      const newCountry = await Country.create({ name: req.body.country, currency: 'USD' });
+      req.body.country = newCountry._id;
+    }
     const place = await Place.findByIdAndUpdate(placeId, req.body, { new: true }); // Updating the country
     res.json({ success: true, place }); // Success
   } catch (err) {
