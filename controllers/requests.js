@@ -585,6 +585,9 @@ exports.getAll = async (req, res) => {
           path: 'vendor',
         },
       })
+      .populate('place')
+      .populate('buyer')
+      .populate('seller')
       .populate({
         path: 'codes.products',
       })
@@ -622,6 +625,9 @@ exports.getByuserId = async (req, res) => {
           path: 'vendor',
         },
       })
+      .populate('place')
+      .populate('buyer')
+      .populate('seller')
       .populate({
         path: 'codes.products',
       })
@@ -658,6 +664,9 @@ exports.getBycountryId = async (req, res) => {
           path: 'vendor',
         },
       })
+      .populate('place')
+      .populate('buyer')
+      .populate('seller')
       .populate({
         path: 'codes.products',
       })
@@ -695,6 +704,9 @@ exports.getById = async (req, res) => {
           path: 'vendor',
         },
       })
+      .populate('place')
+      .populate('buyer')
+      .populate('seller')
       .populate({
         path: 'codes.products',
       })
