@@ -11,7 +11,7 @@ const followRequestSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'users',
     },
-    country: String,
+    country: { type: mongoose.Schema.Types.ObjectId, ref: 'countries' },
     title: { type: String, required: true, unique: true },
     codes: [
       {

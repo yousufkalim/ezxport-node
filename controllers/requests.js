@@ -1080,7 +1080,7 @@ exports.Webhook = async (req, res) => {
         const request = metaData.id;
         const findReq = await Request.findById(request);
         if (!findReq) return res.json({ success: false, message: 'RequestId is invalid' });
-        findReq.status = 'Benig Checked By Expert';
+        findReq.status = 'Being Checked By Expert';
         findReq.request_method = 'platform';
         findReq.certification_cost.value = +findReq.certification_cost.value + 50;
         await findReq.save();
