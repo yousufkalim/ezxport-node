@@ -10,7 +10,7 @@ const productSchema = new mongoose.Schema(
     request: { type: mongoose.Schema.Types.ObjectId, ref: 'requests' },
     code: { type: mongoose.Schema.Types.ObjectId, ref: 'boms' },
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
-    country: { type: mongoose.Schema.Types.ObjectId, ref: 'countries' },
+    country: String,
     name: String,
     status: String,
     description: String,

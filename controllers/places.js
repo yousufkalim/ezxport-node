@@ -41,7 +41,7 @@ exports.create = async (req, res) => {
  */
 exports.getAll = async (req, res) => {
   try {
-    const places = await Place.find().populate('country').populate('user'); // Finding all the place from db
+    const places = await Place.find().populate('user'); // Finding all the place from db
     res.json({ success: true, places }); // Success
   } catch (err) {
     // Error handling
@@ -58,7 +58,7 @@ exports.getAll = async (req, res) => {
 exports.getById = async (req, res) => {
   try {
     const placeId = req.params.placeId; // Getting place id from URL parameter
-    const place = await Place.findById(placeId).populate('country').populate('user'); // Finding place by id
+    const place = await Place.findById(placeId).populate('user'); // Finding place by id
     res.json({ success: true, place }); // Success
   } catch (err) {
     // Error handling
@@ -74,7 +74,7 @@ exports.getById = async (req, res) => {
 exports.getByUser = async (req, res) => {
   try {
     const { userId } = req.params;
-    const place = await Place.find({ user: userId }).populate('country').populate('user'); // Finding seller by userId
+    const place = await Place.find({ user: userId }).populate('user'); // Finding seller by userId
     res.json({ success: true, place }); // Success
   } catch (err) {
     // Error handling

@@ -16,7 +16,7 @@ module.exports = (app) => {
     express.json({
       verify: function (req, res, buf) {
         var url = req.originalUrl;
-        if (url.startsWith('/api/payments/stripe/webhook')) {
+        if (url.startsWith('/api/requests/stripe/webhook')) {
           req.rawBody = buf.toString();
         }
       },

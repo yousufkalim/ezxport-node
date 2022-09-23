@@ -27,7 +27,6 @@ const ObjectId = require('mongodb').ObjectID;
  * @param {object} req
  * @param {object} res
  */
-
 exports.createName = async (req, res) => {
   try {
     const { userId, countryId } = req.body;
@@ -247,7 +246,7 @@ exports.calculateCost = async (req, res) => {
         let minObj = range[0];
         let tempMax = range[0].max;
         let tempMin = range[0].min;
-        for (i = 0; i < range.length; i++) {
+        for (let i = 0; i < range.length; i++) {
           if (range[i].max > tempMax) {
             maxObj = range[i];
             tempMax = range[i].max;
@@ -586,24 +585,9 @@ exports.getAll = async (req, res) => {
           path: 'vendor',
         },
       })
-      .populate({
-        path: 'place',
-        populate: {
-          path: 'country',
-        },
-      })
-      .populate({
-        path: 'buyer',
-        populate: {
-          path: 'country',
-        },
-      })
-      .populate({
-        path: 'seller',
-        populate: {
-          path: 'country',
-        },
-      })
+      .populate('place')
+      .populate('buyer')
+      .populate('seller')
       .populate({
         path: 'codes.products',
       })
@@ -641,24 +625,9 @@ exports.getByuserId = async (req, res) => {
           path: 'vendor',
         },
       })
-      .populate({
-        path: 'place',
-        populate: {
-          path: 'country',
-        },
-      })
-      .populate({
-        path: 'buyer',
-        populate: {
-          path: 'country',
-        },
-      })
-      .populate({
-        path: 'seller',
-        populate: {
-          path: 'country',
-        },
-      })
+      .populate('place')
+      .populate('buyer')
+      .populate('seller')
       .populate({
         path: 'codes.products',
       })
@@ -695,24 +664,9 @@ exports.getBycountryId = async (req, res) => {
           path: 'vendor',
         },
       })
-      .populate({
-        path: 'place',
-        populate: {
-          path: 'country',
-        },
-      })
-      .populate({
-        path: 'buyer',
-        populate: {
-          path: 'country',
-        },
-      })
-      .populate({
-        path: 'seller',
-        populate: {
-          path: 'country',
-        },
-      })
+      .populate('place')
+      .populate('buyer')
+      .populate('seller')
       .populate({
         path: 'codes.products',
       })
@@ -750,24 +704,9 @@ exports.getById = async (req, res) => {
           path: 'vendor',
         },
       })
-      .populate({
-        path: 'place',
-        populate: {
-          path: 'country',
-        },
-      })
-      .populate({
-        path: 'buyer',
-        populate: {
-          path: 'country',
-        },
-      })
-      .populate({
-        path: 'seller',
-        populate: {
-          path: 'country',
-        },
-      })
+      .populate('place')
+      .populate('buyer')
+      .populate('seller')
       .populate({
         path: 'codes.products',
       })
@@ -946,7 +885,7 @@ exports.ProductmissingDocs = async (req, res) => {
     if (!exitingRequest) {
       return res.status(404).json({ success: false, message: 'Request Not Found ' });
     }
-    req.body.countries = [exitingProduct.country];
+    req.body.countries = [exitingRequest.country];
     const new_doc = await Documents.create(req.body);
     exitingProduct.missing_docs.push(new_doc._id);
     exitingRequest.status = 'Product Documents Missing';
@@ -1054,7 +993,6 @@ const CreateProduct = async (Product) => {
     return product;
   } catch (err) {
     console.log('Error---->', err);
-    res.status(5000).json({ success: false, message: 'Internal Server Error' });
   }
 };
 /**
@@ -1142,7 +1080,7 @@ exports.Webhook = async (req, res) => {
         const request = metaData.id;
         const findReq = await Request.findById(request);
         if (!findReq) return res.json({ success: false, message: 'RequestId is invalid' });
-        findReq.status = 'Benig Checked By Expert';
+        findReq.status = 'Being Checked By Expert';
         findReq.request_method = 'platform';
         findReq.certification_cost.value = +findReq.certification_cost.value + 50;
         await findReq.save();
@@ -1506,7 +1444,6 @@ const SaveFile = async (urls) => {
     return filePaths;
   } catch (err) {
     console.log('Error---->', err);
-    res.status(5000).json({ success: false, message: 'Internal Server Error' });
   }
 };
 
