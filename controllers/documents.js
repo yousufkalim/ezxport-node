@@ -47,8 +47,9 @@ exports.getAll = async (req, res) => {
 exports.getByCountry = async (req, res) => {
   try {
     const countryId = req.params.countryId; // Getting country id from URL parameter
-    const document = await Document.find({ countries: countryId }).populate('countries'); // Finding document by id
-    res.json({ success: true, document }); // Success
+    const country = await Country.findById(countryId).populate('documents'); // Finding country by id
+    const { documents } = country;
+    res.json({ success: true, documents }); // Success
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);

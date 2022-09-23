@@ -24,7 +24,7 @@ const followRequestSchema = new mongoose.Schema(
       {
         doc_id: { type: mongoose.Schema.Types.ObjectId, ref: 'documents' },
         url: [{ type: String }],
-        status: { type: String, default: 'Sent' },
+        status: { type: String, default: 'Sent', enum: ['Sent', 'Valid', 'Invalid'] },
       },
     ],
     missing_docs: [
@@ -54,6 +54,7 @@ const followRequestSchema = new mongoose.Schema(
     },
     status: {
       type: String,
+      enum: ['Draft', 'Sent', 'Being checked by an expert', 'Missing documents', 'Validated'],
     },
     certification_cost: { currency: { type: String, default: 'USD' }, value: { type: String } },
     request_method: {

@@ -84,6 +84,30 @@ exports.getByCountryId = async (req, res) => {
 };
 
 /**
+ * Update userVendors
+ * @param {object} req
+ * @param {object} res
+ */
+exports.updateUserVendor = async (req, res) => {
+  try {
+    const { userVendorId } = req.params;
+
+    const existingUserVendor = await userVendor.findById(userVendorId);
+
+    if (existingUserVendor) {
+      const vendor = await userVendor.findByIdAndUpdate(userVendorId, req.body, { new: true }); // Updating the country
+      res.json({ success: true, vendor }); // Success
+    } else {
+      res.json({ success: false, message: 'userVendor not found' }); //Success
+    }
+  } catch (err) {
+    // Error handling
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+/**
  * Update serviceProvider
  * @param {object} req
  * @param {object} res
