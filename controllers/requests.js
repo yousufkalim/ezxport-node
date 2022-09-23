@@ -839,13 +839,7 @@ exports.ReqmissingDocs = async (req, res) => {
     for (let i = 0; i < documents.length; i++) {
       documents[i].countries = [exitingRequest.country];
       const new_doc = await Documents.create(documents[i]);
-      const docObj = {
-        status: 'Missing documents',
-        url: [],
-        doc_id: new_doc._id,
-      };
       exitingRequest.missing_docs.push(new_doc._id);
-      exitingRequest.documents.push(docObj);
       exitingRequest.status = 'Missing documents';
       await exitingRequest.save();
     }
@@ -1403,7 +1397,7 @@ exports.UploadmissingDocs = async (req, res) => {
       const documentObj = {
         doc_id: doc_id,
         url: urls,
-        status: 'sent',
+        status: 'Sent',
       };
       await Request.findOneAndUpdate({ _id: requestId }, { $push: { documents: documentObj } }, { new: true });
     }
@@ -1417,7 +1411,7 @@ exports.UploadmissingDocs = async (req, res) => {
       let product = await Products.findByIdAndUpdate(productId, { $pull: { missing_docs: { _id: ObjectId(objId) } } });
       if (product) {
         product.other_docs.url.push(...urls);
-        product.other_docs.status = 'sent';
+        product.other_docs.status = 'Sent';
         await product.save();
       }
     }
