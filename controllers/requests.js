@@ -549,7 +549,7 @@ exports.documentsUpload = async (req, res) => {
       const documentObj = {
         doc_id: doc_id,
         url: [file],
-        status: 'sent',
+        status: 'Sent',
       };
       const newDoc = await Request.findOneAndUpdate({ _id: requestId }, { $push: { documents: documentObj } }, { new: true });
       return res.json({ success: true, message: 'new document has been created', doc: newDoc });
@@ -941,6 +941,7 @@ const CreateProduct = async (Product) => {
         filePaths.push(filePath.substring(2));
       }
       Product.technical_sheet.url = filePaths;
+      Product.technical_sheet.status = 'Sent';
     }
     if (Product.test_report) {
       let filePaths = [];
@@ -953,6 +954,7 @@ const CreateProduct = async (Product) => {
         filePaths.push(filePath.substring(2));
       }
       Product.test_report.url = filePaths;
+      Product.test_report.status = 'Sent';
     }
     if (Product.plan) {
       let filePaths = [];
@@ -965,6 +967,7 @@ const CreateProduct = async (Product) => {
         filePaths.push(filePath.substring(2));
       }
       Product.plan.url = filePaths;
+      Product.plan.status = 'Sent';
     }
     if (Product.other_docs) {
       let filePaths = [];
@@ -977,6 +980,7 @@ const CreateProduct = async (Product) => {
         filePaths.push(filePath.substring(2));
       }
       Product.other_docs.url = filePaths;
+      Product.other_docs.status = 'Sent';
     }
     if (Product.analysis_certificate) {
       let filePaths = [];
@@ -989,6 +993,7 @@ const CreateProduct = async (Product) => {
         filePaths.push(filePath.substring(2));
       }
       Product.analysis_certificate.url = filePaths;
+      Product.analysis_certificate.status = 'Sent';
     }
     const product = await Products.create(Product);
     return product;

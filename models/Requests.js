@@ -24,7 +24,7 @@ const followRequestSchema = new mongoose.Schema(
       {
         doc_id: { type: mongoose.Schema.Types.ObjectId, ref: 'documents' },
         url: [{ type: String }],
-        status: { type: String, default: 'Sent' },
+        status: { type: String, default: 'Sent', enum: ['Sent', 'Valid', 'Invalid'] },
       },
     ],
     missing_docs: [
