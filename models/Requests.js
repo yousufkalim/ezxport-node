@@ -54,6 +54,7 @@ const followRequestSchema = new mongoose.Schema(
     },
     status: {
       type: String,
+      enum: ['Draft', 'Sent', 'Being checked by an expert', 'Missing documents', 'Validated'],
     },
     certification_cost: { currency: { type: String, default: 'USD' }, value: { type: String } },
     request_method: {
