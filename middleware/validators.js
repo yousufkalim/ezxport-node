@@ -172,7 +172,7 @@ exports.validateServiceProvider = [
   check('phone_number', 'phone number is required.').notEmpty().trim(),
   check('name', 'name is required').notEmpty().trim(),
   check('sending_email', 'sending_email is required').notEmpty().isEmail().trim(),
-  check('contact_email', 'contact_email is required').notEmpty().isEmail().trim(),
+  check('contact_email', 'contact_email is required').notEmpty().trim(),
   check('countries', 'countries required').isArray({ min: 1 }),
 ];
 //name
