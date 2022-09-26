@@ -13,14 +13,6 @@ const userSchema = new mongoose.Schema(
     last_name: {
       type: String,
     },
-    // active: {
-    //   type: Boolean,
-    //   default: true,
-    // },
-    delete: {
-      type: Boolean,
-      default: false,
-    },
     email: {
       type: String,
     },

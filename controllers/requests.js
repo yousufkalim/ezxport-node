@@ -598,8 +598,7 @@ exports.getAll = async (req, res) => {
           path: 'doc_id',
         },
       });
-    const filteredRequest = requests.filter((e) => e.user.delete === false);
-    res.status(200).json({ success: true, requets: filteredRequest });
+    res.status(200).json({ success: true, requets: requests });
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
@@ -615,10 +614,6 @@ exports.getAll = async (req, res) => {
 exports.getByuserId = async (req, res) => {
   try {
     const { userId } = req.params;
-    const exisitingUser = await Users.findOne({ _id: userId, delete: false });
-    if (!exisitingUser) {
-      return res.status(404).json({ success: false, message: 'User Not Found' });
-    }
     const request = await Request.find({ user: userId, status: { $ne: 'Draft' } })
       .populate('user')
       .populate('country')
@@ -681,8 +676,7 @@ exports.getBycountryId = async (req, res) => {
           path: 'doc_id',
         },
       });
-    const filteredRequest = request.filter((e) => e.user.delete === false);
-    res.status(200).json({ success: true, request: filteredRequest });
+    res.status(200).json({ success: true, request: request });
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
