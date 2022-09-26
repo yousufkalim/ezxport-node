@@ -137,17 +137,35 @@ exports.update = async (req, res) => {
     const serviceProviderId = req.params.serviceProviderId; // Getting serviceProvider id from URL parameter
     const existingVendor = await Vendor.findById(serviceProviderId); // Updating the country
     if (existingVendor) {
-      if (existingVendor.sending_email !== req.body.sending_email) {
+      if (existingVendor.contact_email !== req.body.contact_email) {
         const existingVendorS = await Vendor.findOne({
-          $or: [{ sending_email: req.body.sending_email }, { contact_email: req.body.sending_email }],
+          $or: [{ sending_email: req.body.contact_email }, { contact_email: req.body.contact_email }],
         });
         if (existingVendorS) {
-          return res.json({ success: false, message: 'sending_email is already associated with another vendor' }); //Success
+          return res.json({ success: false, message: 'contact_email is already associated with another vendor' }); //Success
         }
       }
     }
     //This filter will return new selected countries
     let newCountries = req.body.countries.filter((o1) => !existingVendor.countries.some((o2) => o1 == o2));
+    if (newCountries.length > 0) {
+      const existingVendors = await Vendor.find({
+        $or: [{ sending_email: req.body.contact_email }, { contact_email: req.body.contact_email }],
+      });
+      const existingCountryVendor = await Vendor.find({
+        countries: { $in: newCountries },
+        $or: [{ sending_email: req.body.contact_email }, { contact_email: req.body.contact_email }],
+      });
+      const Vendorscountries = existingCountryVendor.reduce(
+        (acc, c) => [...new Set([...acc, c.countries.toString()].flat())],
+        []
+      );
+      const tempArray = req.body.countries.filter((el) => !Vendorscountries.includes(el));
+      req.body.countries = tempArray;
+      const Allcountries = existingVendors.reduce((acc, c) => [...new Set([...acc, c.countries.toString()].flat())], []);
+      newCountries = newCountries.filter((o1) => !Allcountries.some((o2) => o1 == o2));
+    }
+
     //This filter will return unchecked countries,using DB data
     let uncheckedCountries = existingVendor.countries.filter((o1) => !req.body.countries.some((o2) => o1 == o2));
     //Push vendor in new country
