@@ -21,7 +21,7 @@ exports.login = async (req, res) => {
     const { email, password } = req.body;
 
     // Getting user from db
-    const user = await Users.findOne({ email: email, delete: false });
+    const user = await Users.findOne({ email: email });
     const admin = await Admins.findOne({ email });
     if (!user && !admin) {
       return res.status(404).json({ success: false, message: 'User not found' });

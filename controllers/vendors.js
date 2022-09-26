@@ -126,9 +126,15 @@ exports.update = async (req, res) => {
         }
       }
     }
+    //This filter will return new selected countries
     let newCountries = req.body.countries.filter((o1) => !existingVendor.countries.some((o2) => o1 == o2));
+    //This filter will return unchecked countries,using DB data
+    let uncheckedCountries = existingVendor.countries.filter((o1) => !req.body.countries.some((o2) => o1 == o2));
+    //Push vendor in new country
     await Country.updateMany({ _id: { $in: newCountries } }, { $push: { vendors: serviceProviderId } });
-    const vendor = await Vendor.findByIdAndUpdate(serviceProviderId, req.body, { new: true }); // Updating the country
+    //Pull vendor from unselected Countries
+    await Country.updateMany({ _id: { $in: uncheckedCountries } }, { $pull: { vendors: serviceProviderId } });
+    const vendor = await Vendor.findByIdAndUpdate(serviceProviderId, req.body, { new: true }); // Updating the Vendor :)
     res.json({ success: true, vendor }); // Success
   } catch (err) {
     // Error handling

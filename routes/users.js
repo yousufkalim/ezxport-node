@@ -27,7 +27,6 @@ router.get('/:userId', users.getById); // Get one user by it's id
 
 // Update
 router.put('/:userId', validateUserUpdate, isValidated, users.update); // Update a specific user by it's id
-
 // Delete
 router.delete('/:userId', users.delete); // delete a specific user by it's id
 

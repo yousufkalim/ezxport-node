@@ -29,15 +29,6 @@ exports.create = async (req, res) => {
     // Extra Validations
     if (existingUser || existingAdmin) {
       // If we found existing user in db
-      if (existingUser.delete) {
-        req.body.delete = false;
-        req.body.password = bcrypt.hashSync(password, parseInt(bcryptSalt)); // Hashing the password with salt 8
-        if (req.file) {
-          req.body.photo = req.file.path; // Creating a new property called photo in body object
-        }
-        const user = await Users.findOneAndUpdate({ email: email }, req.body, { new: true }); // Updating the user
-        return res.json({ success: true, user }); //Success
-      }
       return res.status(409).json({ success: false, message: 'User already exists.' });
     }
 
@@ -132,18 +123,42 @@ exports.update = async (req, res) => {
  */
 exports.delete = async (req, res) => {
   try {
-    const userId = req.params.userId; // Getting user id from URL parameter
-    const user = await Users.findByIdAndDelete(userId); // Deleting the user
-    if (user) {
-      await Sellers.deleteMany({ _id: { $in: user.sellers } });
-      await Buyers.deleteMany({ _id: { $in: user.buyers } });
-      await Places.deleteMany({ _id: { $in: user.places } });
-      await Vendors.deleteMany({ _id: { $in: user.vendors } });
-      return res.json({ success: false, message: 'Successfully Deleted' }); // Success
+    const userId = req.params.userId;
+    const user = await Users.findByIdAndDelete(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User Not Found' });
     }
-    res.json({ success: true, user }); // Success
+    if (user.buyers.length > 0) {
+      await Buyers.deleteMany({
+        _id: { $in: user.buyers },
+      });
+    }
+    if (user.sellers.length > 0) {
+      await Sellers.deleteMany({
+        _id: { $in: user.sellers },
+      });
+    }
+    if (user.places.length > 0) {
+      await Places.deleteMany({
+        _id: { $in: user.places },
+      });
+    }
+    if (user.requests.length > 0) {
+      await Requests.deleteMany({
+        _id: { $in: user.requests },
+      });
+      await Products.deleteMany({
+        request: { $in: user.requests },
+      });
+    }
+    if (user.vendors.length > 0) {
+      await Vendors.deleteMany({
+        _id: { $in: user.vendors },
+      });
+    }
+
+    res.json({ success: true, user });
   } catch (err) {
-    // Error handling
     console.log('Error ----> ', err);
     res.status(500).json({ success: false, message: 'Internal server error' });
   }
@@ -228,58 +243,6 @@ exports.excelSheet = async (req, res) => {
     });
   } catch (err) {
     // Error handling
-    console.log('Error ----> ', err);
-    res.status(500).json({ success: false, message: 'Internal server error' });
-  }
-};
-
-/**
- * Delete user
- * @param {object} req
- * @param {object} res
- */
-exports.delete = async (req, res) => {
-  try {
-    //Vendors
-    const userId = req.params.userId;
-    const user = await Users.findByIdAndUpdate(userId, { delete: true }, { new: true });
-    if (!user) {
-      return res.status(404).send({
-        success: false,
-        message: 'User does not Found, could not delete',
-      });
-    }
-    // if (user.buyers.length > 0) {
-    //   await Buyers.deleteMany({
-    //     _id: { $in: user.buyers },
-    //   });
-    // }
-    // if (user.sellers.length > 0) {
-    //   await Sellers.deleteMany({
-    //     _id: { $in: user.sellers },
-    //   });
-    // }
-    // if (user.places.length > 0) {
-    //   await Places.deleteMany({
-    //     _id: { $in: user.places },
-    //   });
-    // }
-    // if (user.requests.length > 0) {
-    //   await Requests.deleteMany({
-    //     _id: { $in: user.requests },
-    //   });
-    //   await Products.deleteMany({
-    //     request: { $in: user.requests },
-    //   });
-    // }
-    // if (user.vendors.length > 0) {
-    //   await Vendors.deleteMany({
-    //     _id: { $in: user.vendors },
-    //   });
-    // }
-
-    res.json({ success: true, user });
-  } catch (err) {
     console.log('Error ----> ', err);
     res.status(500).json({ success: false, message: 'Internal server error' });
   }

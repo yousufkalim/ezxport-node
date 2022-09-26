@@ -598,8 +598,7 @@ exports.getAll = async (req, res) => {
           path: 'doc_id',
         },
       });
-    const filteredRequest = requests.filter((e) => e.user.delete === false);
-    res.status(200).json({ success: true, requets: filteredRequest });
+    res.status(200).json({ success: true, requets: requests });
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
@@ -677,8 +676,7 @@ exports.getBycountryId = async (req, res) => {
           path: 'doc_id',
         },
       });
-    const filteredRequest = request.filter((e) => e.user.delete === false);
-    res.status(200).json({ success: true, request: filteredRequest });
+    res.status(200).json({ success: true, request: request });
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
