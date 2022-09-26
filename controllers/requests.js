@@ -27,7 +27,6 @@ const ObjectId = require('mongodb').ObjectID;
  * @param {object} req
  * @param {object} res
  */
-
 exports.createName = async (req, res) => {
   try {
     const { userId, countryId } = req.body;
@@ -247,7 +246,7 @@ exports.calculateCost = async (req, res) => {
         let minObj = range[0];
         let tempMax = range[0].max;
         let tempMin = range[0].min;
-        for (i = 0; i < range.length; i++) {
+        for (let i = 0; i < range.length; i++) {
           if (range[i].max > tempMax) {
             maxObj = range[i];
             tempMax = range[i].max;
@@ -537,7 +536,7 @@ exports.sendEmail = async (req, res) => {
         },
       });
     await sendRequestEmail(findReq);
-    findReq.status = 'sent';
+    findReq.status = 'Sent';
     findReq.request_method = 'direct';
     await findReq.save();
     return res.json({ success: true, message: 'Email has been sent to vendor' });
@@ -572,7 +571,7 @@ exports.documentsUpload = async (req, res) => {
       const documentObj = {
         doc_id: doc_id,
         url: [file],
-        status: 'sent',
+        status: 'Sent',
       };
       const newDoc = await Request.findOneAndUpdate({ _id: requestId }, { $push: { documents: documentObj } }, { new: true });
       return res.json({ success: true, message: 'new document has been created', doc: newDoc });
@@ -608,24 +607,9 @@ exports.getAll = async (req, res) => {
           path: 'vendor',
         },
       })
-      .populate({
-        path: 'place',
-        populate: {
-          path: 'country',
-        },
-      })
-      .populate({
-        path: 'buyer',
-        populate: {
-          path: 'country',
-        },
-      })
-      .populate({
-        path: 'seller',
-        populate: {
-          path: 'country',
-        },
-      })
+      .populate('place')
+      .populate('buyer')
+      .populate('seller')
       .populate({
         path: 'codes.products',
       })
@@ -663,24 +647,9 @@ exports.getByuserId = async (req, res) => {
           path: 'vendor',
         },
       })
-      .populate({
-        path: 'place',
-        populate: {
-          path: 'country',
-        },
-      })
-      .populate({
-        path: 'buyer',
-        populate: {
-          path: 'country',
-        },
-      })
-      .populate({
-        path: 'seller',
-        populate: {
-          path: 'country',
-        },
-      })
+      .populate('place')
+      .populate('buyer')
+      .populate('seller')
       .populate({
         path: 'codes.products',
       })
@@ -717,24 +686,9 @@ exports.getBycountryId = async (req, res) => {
           path: 'vendor',
         },
       })
-      .populate({
-        path: 'place',
-        populate: {
-          path: 'country',
-        },
-      })
-      .populate({
-        path: 'buyer',
-        populate: {
-          path: 'country',
-        },
-      })
-      .populate({
-        path: 'seller',
-        populate: {
-          path: 'country',
-        },
-      })
+      .populate('place')
+      .populate('buyer')
+      .populate('seller')
       .populate({
         path: 'codes.products',
       })
@@ -772,24 +726,9 @@ exports.getById = async (req, res) => {
           path: 'vendor',
         },
       })
-      .populate({
-        path: 'place',
-        populate: {
-          path: 'country',
-        },
-      })
-      .populate({
-        path: 'buyer',
-        populate: {
-          path: 'country',
-        },
-      })
-      .populate({
-        path: 'seller',
-        populate: {
-          path: 'country',
-        },
-      })
+      .populate('place')
+      .populate('buyer')
+      .populate('seller')
       .populate({
         path: 'codes.products',
       })
@@ -922,14 +861,8 @@ exports.ReqmissingDocs = async (req, res) => {
     for (let i = 0; i < documents.length; i++) {
       documents[i].countries = [exitingRequest.country];
       const new_doc = await Documents.create(documents[i]);
-      const docObj = {
-        status: 'Missing Documents',
-        url: [],
-        doc_id: new_doc._id,
-      };
       exitingRequest.missing_docs.push(new_doc._id);
-      exitingRequest.documents.push(docObj);
-      exitingRequest.status = 'Missing Documents';
+      exitingRequest.status = 'Missing documents';
       await exitingRequest.save();
     }
 
@@ -940,8 +873,9 @@ exports.ReqmissingDocs = async (req, res) => {
       };
       const exitingProduct = await Products.findById(products[i].product);
       exitingProduct.missing_docs.push(missingDocObj);
-      exitingRequest.status = 'Missing Documents';
+      exitingRequest.status = 'Missing documents';
       await exitingProduct.save();
+      await exitingRequest.save();
     }
     return res.status(202).json({ success: true, message: 'Missing Doc Updated ', exitingRequest });
   } catch (err) {
@@ -968,7 +902,7 @@ exports.ProductmissingDocs = async (req, res) => {
     if (!exitingRequest) {
       return res.status(404).json({ success: false, message: 'Request Not Found ' });
     }
-    req.body.countries = [exitingProduct.country];
+    req.body.countries = [exitingRequest.country];
     const new_doc = await Documents.create(req.body);
     exitingProduct.missing_docs.push(new_doc._id);
     exitingRequest.status = 'Product Documents Missing';
@@ -994,7 +928,7 @@ exports.validateRequest = async (req, res) => {
     if (!exitingRequest) {
       return res.status(404).json({ success: false, message: 'Request Not Found' });
     }
-    exitingRequest.status = 'Validate By Admin';
+    exitingRequest.status = 'Validated';
     await exitingRequest.save();
     return res.status(202).json({ success: true, exitingRequest });
   } catch (err) {
@@ -1023,6 +957,7 @@ const CreateProduct = async (Product) => {
         filePaths.push(filePath.substring(2));
       }
       Product.technical_sheet.url = filePaths;
+      Product.technical_sheet.status = 'Sent';
     }
     if (Product.test_report) {
       let filePaths = [];
@@ -1035,6 +970,7 @@ const CreateProduct = async (Product) => {
         filePaths.push(filePath.substring(2));
       }
       Product.test_report.url = filePaths;
+      Product.test_report.status = 'Sent';
     }
     if (Product.plan) {
       let filePaths = [];
@@ -1047,6 +983,7 @@ const CreateProduct = async (Product) => {
         filePaths.push(filePath.substring(2));
       }
       Product.plan.url = filePaths;
+      Product.plan.status = 'Sent';
     }
     if (Product.other_docs) {
       let filePaths = [];
@@ -1059,6 +996,7 @@ const CreateProduct = async (Product) => {
         filePaths.push(filePath.substring(2));
       }
       Product.other_docs.url = filePaths;
+      Product.other_docs.status = 'Sent';
     }
     if (Product.analysis_certificate) {
       let filePaths = [];
@@ -1071,12 +1009,12 @@ const CreateProduct = async (Product) => {
         filePaths.push(filePath.substring(2));
       }
       Product.analysis_certificate.url = filePaths;
+      Product.analysis_certificate.status = 'Sent';
     }
     const product = await Products.create(Product);
     return product;
   } catch (err) {
     console.log('Error---->', err);
-    res.status(5000).json({ success: false, message: 'Internal Server Error' });
   }
 };
 /**
@@ -1164,7 +1102,7 @@ exports.Webhook = async (req, res) => {
         const request = metaData.id;
         const findReq = await Request.findById(request);
         if (!findReq) return res.json({ success: false, message: 'RequestId is invalid' });
-        findReq.status = 'Benig Checked By Expert';
+        findReq.status = 'Being checked by an expert';
         findReq.request_method = 'platform';
         findReq.certification_cost.value = +findReq.certification_cost.value + 50;
         await findReq.save();
@@ -1481,7 +1419,7 @@ exports.UploadmissingDocs = async (req, res) => {
       const documentObj = {
         doc_id: doc_id,
         url: urls,
-        status: 'sent',
+        status: 'Sent',
       };
       await Request.findOneAndUpdate({ _id: requestId }, { $push: { documents: documentObj } }, { new: true });
     }
@@ -1495,10 +1433,12 @@ exports.UploadmissingDocs = async (req, res) => {
       let product = await Products.findByIdAndUpdate(productId, { $pull: { missing_docs: { _id: ObjectId(objId) } } });
       if (product) {
         product.other_docs.url.push(...urls);
-        product.other_docs.status = 'sent';
+        product.other_docs.status = 'Sent';
         await product.save();
       }
     }
+    exitingRequest.status = 'Sent';
+    await exitingRequest.save();
     return res.status(202).json({ success: true, message: 'Missing Doc Updated ' });
   } catch (err) {
     console.log('Error---->', err);
@@ -1528,7 +1468,6 @@ const SaveFile = async (urls) => {
     return filePaths;
   } catch (err) {
     console.log('Error---->', err);
-    res.status(5000).json({ success: false, message: 'Internal Server Error' });
   }
 };
 

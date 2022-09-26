@@ -10,7 +10,7 @@ const productSchema = new mongoose.Schema(
     request: { type: mongoose.Schema.Types.ObjectId, ref: 'requests' },
     code: { type: mongoose.Schema.Types.ObjectId, ref: 'boms' },
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
-    country: { type: mongoose.Schema.Types.ObjectId, ref: 'countries' },
+    country: String,
     name: String,
     status: String,
     description: String,
@@ -22,23 +22,23 @@ const productSchema = new mongoose.Schema(
     builder: String,
     technical_sheet: {
       url: [{ type: String }],
-      status: { type: String, default: 'Sent' },
+      status: { type: String, default: 'Sent', enum: ['Sent', 'Valid', 'Invalid'] },
     },
     test_report: {
       url: [{ type: String }],
-      status: { type: String, default: 'Sent' },
+      status: { type: String, default: 'Sent', enum: ['Sent', 'Valid', 'Invalid'] },
     },
     analysis_certificate: {
       url: [{ type: String }],
-      status: { type: String, default: 'Sent' },
+      status: { type: String, default: 'Sent', enum: ['Sent', 'Valid', 'Invalid'] },
     },
     plan: {
       url: [{ type: String }],
-      status: { type: String, default: 'Sent' },
+      status: { type: String, default: 'Sent', enum: ['Sent', 'Valid', 'Invalid'] },
     },
     other_docs: {
       url: [{ type: String }],
-      status: { type: String, default: 'Sent' },
+      status: { type: String, default: 'Sent', enum: ['Sent', 'Valid', 'Invalid'] },
     },
     missing_docs: [],
   },

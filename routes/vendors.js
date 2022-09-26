@@ -24,6 +24,7 @@ router.get('/getByCountryId/:associated_countryId', vendors.getByCountryId); // 
 router.get('/:serviceProviderId', vendors.getById); // Get one serviceProvider by it's id
 
 // Update
+router.put('/userVendors/:userVendorId', vendors.updateUserVendor); // Update a specific serviceProvider by it's id
 router.put('/:serviceProviderId', validateServiceProvider, isValidated, vendors.update); // Update a specific serviceProvider by it's id
 
 // Delete
