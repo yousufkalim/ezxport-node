@@ -3,7 +3,6 @@
  * @author Shuja Naqvi
  */
 const Vendor = require('../models/Vendors');
-const Requests = require('../models/Requests');
 const User = require('../models/Users');
 const userVendor = require('../models/UserVendors');
 const Country = require('../models/Countries');
@@ -16,23 +15,29 @@ const Country = require('../models/Countries');
 exports.create = async (req, res) => {
   try {
     const { countries, contact_email } = req.body;
-    const existingVendor = await Vendor.findOne({
-      $or: [{ sending_email: req.body.contact_email }, { contact_email: req.body.contact_email }],
+    const existingVendor = await Vendor.find({
+      $or: [{ sending_email: contact_email }, { contact_email: contact_email }],
     });
-    if (existingVendor) {
+    if (existingVendor.length > 0) {
       /**
        * This filter will return new selected countries
        * let's say user has selected two countires.
        *  one of them is already associated with this email
        * then this filter will return the country which is not associated with this email :}
        */
-      let newCountries = countries.filter((o1) => !existingVendor.countries.some((o2) => o1 == o2));
+      const Allcountries = existingVendor.reduce((acc, c) => [...new Set([...acc, c.countries].flat())], []);
+      const newCountries = countries.filter((o1) => !Allcountries.some((o2) => o1 == o2));
       if (newCountries.length > 0) {
         req.body.countries = newCountries;
         const vendor = await Vendor.create(req.body); // Adding serviceProvider in db
-        await Country.updateMany({ _id: { $in: countries } }, { $push: { vendors: vendor._id } });
+        await Country.updateMany({ _id: { $in: req.body.countries } }, { $push: { vendors: vendor._id } });
         // Done
         return res.json({ success: true, vendor }); //Success
+      }
+      if (existingVendor.deleted) {
+        req.body.deleted = false;
+        const activeVendor = await Vendor.findByIdAndUpdate(existingVendor._id, req.body, { new: true });
+        return res.json({ success: true, vendor: activeVendor }); //Success
       }
       return res.status(404).json({ success: false, message: 'vendor already exist' }); //Success
     }
@@ -56,7 +61,7 @@ exports.create = async (req, res) => {
  */
 exports.getAll = async (req, res) => {
   try {
-    const vendor = await Vendor.find().populate('countries'); // Finding all the serviceProvider from db
+    const vendor = await Vendor.find({ deleted: false }).populate('countries'); // Finding all the serviceProvider from db
     res.json({ success: true, vendor }); // Success
   } catch (err) {
     // Error handling
@@ -89,7 +94,7 @@ exports.getById = async (req, res) => {
 exports.getByCountryId = async (req, res) => {
   try {
     const associated_countryId = req.params.associated_countryId; // Getting serviceProvider id from URL parameter
-    const vendor = await Vendor.find({ countries: associated_countryId }).populate('countries'); // Finding serviceProvider by id
+    const vendor = await Vendor.find({ countries: associated_countryId, deleted: false }).populate('countries'); // Finding serviceProvider by id
     res.json({ success: true, vendor }); // Success
   } catch (err) {
     // Error handling
@@ -166,24 +171,14 @@ exports.update = async (req, res) => {
 exports.delete = async (req, res) => {
   try {
     const serviceProviderId = req.params.serviceProviderId; // Getting serviceProvider id from URL parameter
-    const vendor = await Vendor.findByIdAndDelete(serviceProviderId); // Deleting the serviceProvider
+    const vendor = await Vendor.findByIdAndUpdate(serviceProviderId, { deleted: true }, { new: true }); // Deleting the serviceProvider
     if (!vendor) {
       return res.status(404).send({
         success: false,
-        message: 'vendor  not Found, could not delete',
+        message: 'vendor does not Found, could not delete',
       });
     }
-    await Country.updateMany({ vendors: vendor._id }, { $pull: { vendors: vendor._id } });
-    const uservendors = await userVendor.find({ vendor: vendor._id });
-    const vendorIds = uservendors.map((e) => {
-      return e._id;
-    });
-    await userVendor.deleteMany({
-      _id: { $in: vendorIds },
-    });
-    await Requests.deleteMany({ vendor: { $in: vendorIds } });
-    await User.update({}, { $pull: { vendors: { $in: vendorIds } } }, { multi: true });
-    return res.status(200).json({ success: true, message: 'Successfully Deleted', vendor }); // Success
+    res.json({ success: false, message: 'Vendor Deleted' }); // Already Deleted
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
