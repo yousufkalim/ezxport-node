@@ -15,7 +15,7 @@ exports.create = async (req, res) => {
   try {
     const { code, countries } = req.body;
     req.body.admin_code = true;
-    const existingCode = await Boms.findOne({ code: code, admin_code: true }); // Finding all the bom from db
+    const existingCode = await Boms.findOne({ code: code, countries: { $in: countries }, admin_code: true }); // Finding all the bom from db
     if (existingCode) {
       return res.status(409).json({ success: false, message: 'Code already exist' });
     }
