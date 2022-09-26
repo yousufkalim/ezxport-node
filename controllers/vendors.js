@@ -16,6 +16,7 @@ exports.create = async (req, res) => {
   try {
     const { countries, contact_email } = req.body;
     const existingVendor = await Vendor.find({
+      deleted: false,
       $or: [{ sending_email: contact_email }, { contact_email: contact_email }],
     });
     if (existingVendor.length > 0) {
@@ -33,11 +34,6 @@ exports.create = async (req, res) => {
         await Country.updateMany({ _id: { $in: req.body.countries } }, { $push: { vendors: vendor._id } });
         // Done
         return res.json({ success: true, vendor }); //Success
-      }
-      if (existingVendor.deleted) {
-        req.body.deleted = false;
-        const activeVendor = await Vendor.findByIdAndUpdate(existingVendor._id, req.body, { new: true });
-        return res.json({ success: true, vendor: activeVendor }); //Success
       }
       return res.status(404).json({ success: false, message: 'vendor already exist' }); //Success
     }
@@ -196,6 +192,7 @@ exports.delete = async (req, res) => {
         message: 'vendor does not Found, could not delete',
       });
     }
+    await Country.updateMany({ vendors: vendor._id }, { $pull: { vendors: vendor._id } });
     res.json({ success: false, message: 'Vendor Deleted' }); // Already Deleted
   } catch (err) {
     // Error handling
