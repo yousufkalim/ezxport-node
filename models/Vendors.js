@@ -15,7 +15,7 @@ const vendorSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    delete: {
+    deleted: {
       type: Boolean,
       default: false,
     },
