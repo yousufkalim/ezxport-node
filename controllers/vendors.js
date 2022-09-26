@@ -14,10 +14,10 @@ const Country = require('../models/Countries');
  */
 exports.create = async (req, res) => {
   try {
-    const { countries, contact_email } = req.body;
+    const { countries, contact_email, sending_email } = req.body;
     const existingVendor = await Vendor.find({
       deleted: false,
-      $or: [{ sending_email: contact_email }, { contact_email: contact_email }],
+      $or: [{ sending_email: sending_email }, { contact_email: sending_email }],
     });
     if (existingVendor.length > 0) {
       /**
@@ -133,12 +133,14 @@ exports.update = async (req, res) => {
     const serviceProviderId = req.params.serviceProviderId; // Getting serviceProvider id from URL parameter
     const existingVendor = await Vendor.findById(serviceProviderId); // Updating the country
     if (existingVendor) {
-      if (existingVendor.contact_email !== req.body.contact_email) {
+      if (existingVendor.sending_email !== req.body.sending_email) {
         const existingVendorS = await Vendor.findOne({
-          $or: [{ sending_email: req.body.contact_email }, { contact_email: req.body.contact_email }],
+          deleted: false,
+          $or: [{ sending_email: req.body.sending_email }, { contact_email: req.body.sending_email }],
+          countries: req.body.countries,
         });
         if (existingVendorS) {
-          return res.json({ success: false, message: 'contact_email is already associated with another vendor' }); //Success
+          return res.json({ success: false, message: 'sending_email is already associated with another vendor' }); //Success
         }
       }
     }
@@ -146,11 +148,11 @@ exports.update = async (req, res) => {
     let newCountries = req.body.countries.filter((o1) => !existingVendor.countries.some((o2) => o1 == o2));
     if (newCountries.length > 0) {
       const existingVendors = await Vendor.find({
-        $or: [{ sending_email: req.body.contact_email }, { contact_email: req.body.contact_email }],
+        $or: [{ sending_email: req.body.sending_email }, { contact_email: req.body.sending_email }],
       });
       const existingCountryVendor = await Vendor.find({
         countries: { $in: newCountries },
-        $or: [{ sending_email: req.body.contact_email }, { contact_email: req.body.contact_email }],
+        $or: [{ sending_email: req.body.sending_email }, { contact_email: req.body.sending_email }],
       });
       const Vendorscountries = existingCountryVendor.reduce(
         (acc, c) => [...new Set([...acc, c.countries.toString()].flat())],
