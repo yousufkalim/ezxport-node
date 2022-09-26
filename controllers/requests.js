@@ -615,6 +615,10 @@ exports.getAll = async (req, res) => {
 exports.getByuserId = async (req, res) => {
   try {
     const { userId } = req.params;
+    const exisitingUser = await Users.findOne({ _id: userId, delete: false });
+    if (!exisitingUser) {
+      return res.status(404).json({ success: false, message: 'User Not Found' });
+    }
     const request = await Request.find({ user: userId, status: { $ne: 'Draft' } })
       .populate('user')
       .populate('country')
