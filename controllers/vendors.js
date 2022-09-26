@@ -19,7 +19,21 @@ exports.create = async (req, res) => {
       $or: [{ sending_email: req.body.contact_email }, { contact_email: req.body.contact_email }],
     });
     if (existingVendor) {
-      return res.json({ success: false, message: 'vendor already exist' }); //Success
+      /**
+       * This filter will return new selected countries
+       * let's say user has selected two countires.
+       *  one of them is already associated with this email
+       * then this filter will return the country which is not associated with this email :}
+       */
+      let newCountries = countries.filter((o1) => !existingVendor.countries.some((o2) => o1 == o2));
+      if (newCountries.length > 0) {
+        req.body.countries = newCountries;
+        const vendor = await Vendor.create(req.body); // Adding serviceProvider in db
+        await Country.updateMany({ _id: { $in: countries } }, { $push: { vendors: vendor._id } });
+        // Done
+        return res.json({ success: true, vendor }); //Success
+      }
+      return res.status(404).json({ success: false, message: 'vendor already exist' }); //Success
     }
 
     const vendor = await Vendor.create(req.body); // Adding serviceProvider in db
