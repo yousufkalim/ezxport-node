@@ -1018,9 +1018,9 @@ const fileExtension = (fileBase64) => {
   });
 
   //if file is not supported
-  if (res == '') {
-    res = 'pdf';
-  }
+  // if (res == '') {
+  //   res = 'pdf';
+  // }
 
   //return map value
   return res;
