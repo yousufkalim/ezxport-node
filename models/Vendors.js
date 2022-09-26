@@ -15,10 +15,6 @@ const vendorSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    delete: {
-      type: Boolean,
-      default: false,
-    },
     contact_email: {
       type: String,
       required: true,
