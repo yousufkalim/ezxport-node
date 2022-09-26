@@ -218,9 +218,6 @@ exports.uploadCodes = async (req, res) => {
       return e.code;
     });
     await xlsxFile(req.file.path).then(async (rows) => {
-      if (rows.length > 300) {
-        return res.json({ success: false, message: 'File is too large' });
-      }
       var format = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/;
       for (let k = 1; k < rows.length; k++) {
         let item = rows[k];
