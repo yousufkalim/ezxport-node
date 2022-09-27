@@ -934,7 +934,7 @@ const CreateProduct = async (Product) => {
           const file = Product.technical_sheet.url[i];
           const fileExt = fileExtension(file);
           const bitmap = new Buffer(file, 'base64');
-          const filePath = `./uploads/${Date.now()}-${Product.technical_sheet.filename}${i}-file-.${fileExt}`;
+          const filePath = `./uploads/${Date.now()}-${Product.technical_sheet.filename.split(' ').join('')}${i}-file-.${fileExt}`;
           fs.writeFileSync(filePath, bitmap);
           filePaths.push(filePath.substring(2));
         }
@@ -951,7 +951,7 @@ const CreateProduct = async (Product) => {
           const file = Product.test_report.url[i];
           const fileExt = fileExtension(file);
           const bitmap = new Buffer(file, 'base64');
-          const filePath = `./uploads/${Date.now()}-${Product.test_report.filename}${i}-file-.${fileExt}`;
+          const filePath = `./uploads/${Date.now()}-${Product.test_report.filename.split(' ').join('')}${i}-file-.${fileExt}`;
           fs.writeFileSync(filePath, bitmap);
           filePaths.push(filePath.substring(2));
         }
@@ -968,7 +968,7 @@ const CreateProduct = async (Product) => {
           const file = Product.plan.url[i];
           const fileExt = fileExtension(file);
           const bitmap = new Buffer(file, 'base64');
-          const filePath = `./uploads/${Date.now()}-${Product.plan.filename}${i}-file-.${fileExt}`;
+          const filePath = `./uploads/${Date.now()}-${Product.plan.filename.split(' ').join('')}${i}-file-.${fileExt}`;
           fs.writeFileSync(filePath, bitmap);
           filePaths.push(filePath.substring(2));
         }
@@ -985,7 +985,7 @@ const CreateProduct = async (Product) => {
           const file = Product.other_docs.url[i];
           const fileExt = fileExtension(file);
           const bitmap = new Buffer(file, 'base64');
-          const filePath = `./uploads/${Date.now()}-${Product.other_docs.filename}${i}-file-.${fileExt}`;
+          const filePath = `./uploads/${Date.now()}-${Product.other_docs.filename.split(' ').join('')}${i}-file-.${fileExt}`;
           fs.writeFileSync(filePath, bitmap);
           filePaths.push(filePath.substring(2));
         }
@@ -1002,7 +1002,9 @@ const CreateProduct = async (Product) => {
           const file = Product.analysis_certificate.url[i];
           const fileExt = fileExtension(file);
           const bitmap = new Buffer(file, 'base64');
-          const filePath = `./uploads/${Date.now()}-${Product.analysis_certificate.filename}${i}-file-.${fileExt}`;
+          const filePath = `./uploads/${Date.now()}-${Product.analysis_certificate.filename
+            .split(' ')
+            .join('')}${i}-file-.${fileExt}`;
           fs.writeFileSync(filePath, bitmap);
           filePaths.push(filePath.substring(2));
         }
