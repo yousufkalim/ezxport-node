@@ -28,7 +28,7 @@ exports.register = async (req, res) => {
       // Passwords not same
       return res.status(400).json({
         success: false,
-        message: 'Password and Confirm Password are not same.',
+        message: 'Password and Confirm Password are not same.'
       });
     }
 
