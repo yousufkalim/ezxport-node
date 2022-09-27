@@ -116,7 +116,7 @@ exports.validaterRequestVendor = [
 //3rd Step of Request
 exports.validateDispatch = [
   check('request', 'requestId required').notEmpty().trim(),
-  check('buyer.phone_number', 'phone number is required.').notEmpty().trim(),
+  check('buyer.phone_number', 'phone number is required').notEmpty().trim(),
   check('buyer.company_name', 'company_name is required').notEmpty().trim(),
   check('buyer.email', 'email is required').notEmpty().isEmail().trim(),
   check('buyer.user', 'buyer user is required').notEmpty().trim(),
@@ -124,7 +124,7 @@ exports.validateDispatch = [
   check('buyer.city', 'city is required.').notEmpty().trim(),
   check('buyer.zipcode', 'zipcode is required.').notEmpty().trim(),
   check('buyer.address', 'address is required.').notEmpty().trim(),
-  check('seller.phone_number', 'phone number is required.').notEmpty().trim(),
+  check('seller.phone_number', 'phone number is required').notEmpty().trim(),
   check('seller.company_name', 'company_name is required').notEmpty().trim(),
   check('seller.email', 'email is required').notEmpty().isEmail().trim(),
   check('seller.country', 'country required').notEmpty().trim(),
@@ -132,7 +132,7 @@ exports.validateDispatch = [
   check('seller.zipcode', 'zipcode is required.').notEmpty().trim(),
   check('seller.address', 'address is required.').notEmpty().trim(),
   check('seller.user', 'Seller user is required').notEmpty().trim(),
-  check('place.phone_number', 'phone number is required.').notEmpty().trim(),
+  check('place.phone_number', 'phone number is required').notEmpty().trim(),
   check('place.company_name', 'company_name is required').notEmpty().trim(),
   check('place.email', 'email is required').notEmpty().isEmail().trim(),
   check('place.country', 'country required').notEmpty().trim(),
@@ -169,7 +169,7 @@ exports.validateStatusDocument = [
 ];
 //create serviceProvider
 exports.validateServiceProvider = [
-  check('phone_number', 'phone number is required.').notEmpty().trim(),
+  check('phone_number', 'phone number is required').notEmpty().trim(),
   check('name', 'name is required').notEmpty().trim(),
   check('sending_email', 'sending_email is required').notEmpty().isEmail().trim(),
   check('contact_email', 'contact_email is required').notEmpty().trim(),
@@ -179,7 +179,7 @@ exports.validateServiceProvider = [
 exports.validateMissingDoc = [check('name', 'Doc name is required').notEmpty().trim()];
 //create AddressBook
 exports.validateBuyer = [
-  check('phone_number', 'phone number is required.').notEmpty().trim(),
+  check('phone_number', 'phone number is required').notEmpty().trim(),
   check('company_name', 'company_name is required').notEmpty().trim(),
   check('email', 'email is required').notEmpty().isEmail().trim(),
   check('country', 'country required').notEmpty().trim(),
@@ -190,7 +190,7 @@ exports.validateBuyer = [
 ];
 //create AddressBook
 exports.validatePlace = [
-  check('phone_number', 'phone number is required.').notEmpty().trim(),
+  check('phone_number', 'phone number is required').notEmpty().trim(),
   check('company_name', 'company_name is required').notEmpty().trim(),
   check('email', 'email is required').notEmpty().isEmail().trim(),
   check('country', 'country required').notEmpty().trim(),
