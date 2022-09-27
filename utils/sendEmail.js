@@ -28,7 +28,7 @@ exports.sendEmail = (email, password) => {
     var mailOptions = {
       from: `${sender_name} <${sender_email}>`,
       to: email,
-      subject: 'Your password has been changed',
+      subject: 'To Change your Password,Please click the link below',
       text: password,
     };
 
