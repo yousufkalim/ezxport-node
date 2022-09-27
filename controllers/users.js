@@ -57,7 +57,7 @@ exports.create = async (req, res) => {
  */
 exports.getAll = async (req, res) => {
   try {
-    const users = await Users.find({ delete: false }); // Finding all the users from db
+    const users = await Users.find(); // Finding all the users from db
     res.json({ success: true, users }); // Success
   } catch (err) {
     // Error handling
