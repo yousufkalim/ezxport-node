@@ -92,12 +92,6 @@ exports.changePassword = async (req, res) => {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
 
-    // const isMatched = bcrypt.compareSync(oldPassword, user.password);
-
-    // if (!isMatched) {
-    //   return res.status(400).json({ success: false, message: "Invalid old Password" });
-    // }
-
     // Generate token
     user.password = bcrypt.hashSync(newPassword, parseInt(bcryptSalt));
 
@@ -131,10 +125,6 @@ exports.forgot = async (req, res) => {
     // Sending email to user
     sendEmail(email, link)
       .then(async () => {
-        // If email is sent then we have to update the password in db
-        // user.password = await bcrypt.hash(randomPassword, parseInt(bcryptSalt));
-        // await user.save();
-
         // Done
         res.json({ success: true, message: 'Email sent successfully' });
       })

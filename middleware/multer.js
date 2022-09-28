@@ -19,7 +19,7 @@ exports.upload = multer({
       cb(null, Date.now() + '-' + fileName); // Callback
     },
   }),
-  // File size limit upto 5 mb
+  // File size limit upto 8 mb
   limits: {
     fileSize: 1024 * 1024 * 8,
   },

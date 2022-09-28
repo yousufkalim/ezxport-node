@@ -3,8 +3,6 @@
  * @author Yousuf Kalim
  */
 const { check, validationResult } = require('express-validator');
-const Request = require('../models/Requests');
-var Existingrequest = {};
 
 /*
 ====================
@@ -159,7 +157,6 @@ exports.ValidateDocuments = [
   check('codes.*.mark', 'mark required ').notEmpty().trim(),
   check('codes.*.builder', 'builder required ').notEmpty().trim(),
   check('codes.*.country', 'country required ').notEmpty().trim(),
-  // check('codes.*.currency', 'currency required ').notEmpty().trim(),
   check('codes.*.price', 'value required ').notEmpty().trim(),
 ];
 exports.validateUploadDocuments = [check('doc_id', 'doc_id required').notEmpty().trim()];
@@ -233,19 +230,8 @@ exports.validateRangeId = [check('rangeId', 'rangeId required ').notEmpty().trim
 
 // Change password validation
 exports.changePasswordValidate = [
-  // check("oldPassword", "Old Password is required.")
-  //   .notEmpty()
-  //   .trim()
-  //   .isLength({ min: 8 }),
   check('newPassword', 'New password is required.').notEmpty().trim().isLength({ min: 8 }),
   check('confirmPassword', 'Confirm password is required.').notEmpty().trim().isLength({ min: 8 }),
-  // .custom(async (confirmPassword, { req }) => {
-  //   const password = req.body.password;
-
-  //   if (password !== confirmPassword) {
-  //     throw new Error("Password and Confirm Password must be same");
-  //   }
-  // }),
 ];
 
 /*
