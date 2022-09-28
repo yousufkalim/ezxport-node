@@ -4,6 +4,9 @@
  */
 const router = require('express').Router();
 const users = require('../controllers/users');
+const { checkAdminAuth } = require('../middleware/adminAuth');
+const { commonAuth } = require('../middleware/commonAuth');
+const { userAuth } = require('../middleware/userAuth');
 const { validateUser, validateUserUpdate, validateQuestion, isValidated } = require('../middleware/validators');
 
 /**
@@ -19,19 +22,19 @@ const { validateUser, validateUserUpdate, validateQuestion, isValidated } = requ
 router.post('/', validateUser, isValidated, users.create);
 
 // Create - User Excel  Sheet
-router.get('/excelSheet', users.excelSheet);
+router.get('/excelSheet', checkAdminAuth, users.excelSheet);
 
 // Read
-router.get('/', users.getAll); // Get all users at once
-router.get('/:userId', users.getById); // Get one user by it's id
+router.get('/', checkAdminAuth, users.getAll); // Get all users at once
+router.get('/:userId', commonAuth, users.getById); // Get one user by it's id
 
 // Update
-router.put('/:userId', validateUserUpdate, isValidated, users.update); // Update a specific user by it's id
+router.put('/:userId', userAuth, validateUserUpdate, isValidated, users.update); // Update a specific user by it's id
 // Delete
-router.delete('/:userId', users.delete); // delete a specific user by it's id
+router.delete('/:userId', checkAdminAuth, users.delete); // delete a specific user by it's id
 
 // Ask me a Question
-router.post('/sendQuestion/:userId', validateQuestion, isValidated, users.sendQuestion);
+router.post('/sendQuestion/:userId', userAuth, validateQuestion, isValidated, users.sendQuestion);
 
 // Export
 module.exports = router;

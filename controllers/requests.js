@@ -131,32 +131,6 @@ exports.boms = async (req, res) => {
     if (!existingCountry) {
       return res.status(409).json({ success: false, message: 'countryId is invalid' });
     }
-    //If certification not required by all of documents
-    // const certificationNotReq = codes.every(function (v) {
-    //   const boolVal = JSON.parse(v.certification_required);
-    //   return !boolVal;
-    // });
-    //If certification not required by all of documents
-    //then set its request status will be not required
-    //and cost value will be 0
-    // if (certificationNotReq) {
-    //   req.body.status = 'not required';
-    //   req.body.certification_cost = { value: 0 };
-    //   const request = await Request.create(req.body); // Adding seller in db
-    //   existingUser.requests.push(request._id);
-    //   await existingUser.save();
-    //   return res.json({ success: true, request, message: 'certification not required' }); //Success
-    // }
-    //If certification  required by some of documents
-    //then calculate monetory values for required codes
-    // let value = 0;
-    // for (let i = 0; i < codes.length; i++) {
-    //   const boolVal = JSON.parse(codes[i].certification_required);
-    //   if (boolVal) {
-    //     value = +value + +codes[i].monetary_value; //To deal with coercion subtracted 0 from string :)
-    //   }
-    // }
-
     req.body.certification_cost = { value: certification_cost, currency: existingCountry.currency };
     req.body.status = 'Draft';
     const request = await Request.create(req.body); // Adding seller in db
@@ -205,7 +179,6 @@ exports.calculateCost = async (req, res) => {
     }
     if (existingCountry.calculation) {
       if (existingCountry.calculation.type === 'coefficient') {
-        console.log(existingCountry.calculation.min_threshold.value, 'existingCountry.calculation.min_threshold.value');
         if (existingCountry.calculation.min_threshold.value > value) {
           return res.json({ success: true, status: 'Not Required', certification_cost: value, country: existingCountry.name }); //Success
         }
@@ -299,29 +272,6 @@ exports.updateBoms = async (req, res) => {
     if (!existingCountry) {
       return res.status(409).json({ success: false, message: 'countryId is invalid' });
     }
-    //If certification not required by all of documents
-    // const certificationNotReq = codes.every(function (v) {
-    //   const boolVal = JSON.parse(v.certification_required);
-    //   return !boolVal;
-    // });
-    //If certification not required by all of documents
-    //then set its request status will be not required
-    //and cost value will be 0
-    // if (certificationNotReq) {
-    //   req.body.status = 'not required';
-    //   req.body.certification_cost = { value: 0 };
-    //   const request = await Request.findByIdAndUpdate(requestId, req.body, { new: true }); // Adding seller in db
-    //   return res.json({ success: true, request }); //Success
-    // }
-    //If certification  required by some of documents
-    //then calculate monetory values for required codes
-    // let value = 0;
-    // for (let i = 0; i < codes.length; i++) {
-    //   const boolVal = JSON.parse(codes[i].certification_required);
-    //   if (boolVal) {
-    //     value = +value + +codes[i].monetary_value; //To deal with coercion subtracted 0 from string :)
-    //   }
-    // }
     req.body.certification_cost = { value: certification_cost, currency: existingCountry.currency };
     req.body.status = 'Draft';
     const request = await Request.findByIdAndUpdate(requestId, req.body, { new: true }); // Adding seller in db
@@ -521,7 +471,6 @@ exports.sendEmail = async (req, res) => {
     findReq.request_method = 'direct';
     await findReq.save();
     return res.json({ success: true, message: 'Email has been sent to vendor' });
-    // let updateRequest;
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
@@ -936,7 +885,7 @@ const CreateProduct = async (Product) => {
           const fileExt = fileExtension(file);
           const filePath = `./uploads/${Date.now()}-${
             Product.technical_sheet.filename.split(' ').join('').split('.')[0]
-          }${i}-file-.${filePath}`;
+          }${i}-file-.${fileExt}`;
           fs.writeFileSync(filePath, bitmap);
           filePaths.push(filePath.substring(2));
         }
@@ -1041,7 +990,7 @@ const fileExtension = (fileBase64) => {
   fileHeader.set('SUk', 'tiff');
   fileHeader.set('JVB', 'pdf');
   fileHeader.set('UEs', 'docx');
-  fileHeader.set('PHN2ZyB3aWR0', 'xlsx');
+  fileHeader.set('PHN', 'xlsx');
   //PHN
 
   let res = '';
@@ -1051,11 +1000,6 @@ const fileExtension = (fileBase64) => {
       res = v;
     }
   });
-
-  //if file is not supported
-  // if (res == '') {
-  //   res = 'pdf';
-  // }
 
   //return map value
   return res;
