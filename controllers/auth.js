@@ -21,8 +21,8 @@ exports.login = async (req, res) => {
     const { email, password } = req.body;
 
     // Getting user from db
-    const user = await Users.findOne({ email: email });
-    const admin = await Admins.findOne({ email });
+    let user = await Users.findOne({ email: email });
+    let admin = await Admins.findOne({ email });
     if (!user && !admin) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
@@ -36,13 +36,18 @@ exports.login = async (req, res) => {
       }
       // Creating payload with user object
       const role = 'user';
-      const payload = { user };
+      let user1 = {
+        ...JSON.parse(JSON.stringify(user)),
+      };
+
+      delete user1.password;
+      const payload = { user1 };
 
       // Generating token
-      jwt.sign(payload, tokenSecret, { expiresIn: 360000 }, (err, token) => {
+      jwt.sign(payload, tokenSecret, { expiresIn: '2h' }, (err, token) => {
         if (err) throw err;
         // done
-        return res.json({ success: true, user, token, role: role });
+        return res.json({ success: true, user: user1, token, role: role });
       });
       return;
     }
@@ -53,13 +58,18 @@ exports.login = async (req, res) => {
       // If password not matched
       return res.status(400).json({ success: false, message: 'Invalid Password' });
     }
-    const payload = { admin };
+    let admin1 = {
+      ...JSON.parse(JSON.stringify(admin)),
+    };
+
+    delete admin1.password;
+    const payload = { admin1 };
 
     // Generating token
-    jwt.sign(payload, tokenSecret, { expiresIn: 360000 }, (err, token) => {
+    jwt.sign(payload, tokenSecret, { expiresIn: '2h' }, (err, token) => {
       if (err) throw err;
       // done
-      return res.json({ success: true, admin, token, role: role });
+      return res.json({ success: true, admin: admin1, token, role: role });
     });
   } catch (err) {
     // Error handling
