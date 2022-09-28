@@ -15,8 +15,8 @@ Validations
 // You can create multiple validations strategies (Read express-validator documentation for more details)
 // User Signup Validation
 exports.validateUser = [
-  check('first_name', 'First name name is required').notEmpty(),
-  check('last_name', 'Last name name is required').notEmpty(),
+  check('first_name', 'First name is required').notEmpty(),
+  check('last_name', 'Last name is required').notEmpty(),
   check('email', 'Email is required').notEmpty().isEmail().trim(),
   check('password', 'Password is required')
     .notEmpty()
@@ -45,8 +45,8 @@ exports.validateUser = [
 
 // User Signup Validation
 exports.validateUserUpdate = [
-  check('first_name', 'First name name is required.').notEmpty(),
-  check('last_name', 'Last name name is required').notEmpty(),
+  check('first_name', 'First name is required.').notEmpty(),
+  check('last_name', 'Last name is required').notEmpty(),
   check('email', 'Email is required').notEmpty().isEmail().trim(),
   check('phone_number', 'Phone number is required').notEmpty().trim(),
   check('address', 'Address is required').notEmpty().trim(),
@@ -85,8 +85,8 @@ exports.validateCountryID = [check('country', 'country_id is required').notEmpty
 exports.validateRequestBom = [
   check('country', 'countryId is required').notEmpty().trim(),
   check('user', 'userId is required').notEmpty().trim(),
-  check('title', 'Title is required').notEmpty().trim(),
-  check('codes', 'Codes required ').isArray({ min: 1 }),
+  check('title', 'title is required').notEmpty().trim(),
+  check('codes', 'Codes required').isArray({ min: 1 }),
   check('certification_cost', 'Certification cost is required').notEmpty().trim(),
   check('codes.*.code', 'codeId is required').notEmpty().trim(),
   check('codes.*.monetary_value', 'Monetory value required').notEmpty().trim(),
@@ -95,7 +95,7 @@ exports.validateRequestBom = [
 
 //Frist Step of Request
 exports.validateCalculationCost = [
-  check('codes', 'Codes required ').isArray({ min: 1 }),
+  check('codes', 'Codes required').isArray({ min: 1 }),
   check('codes.*.code', 'codeId is required').notEmpty().trim(),
   check('codes.*.monetary_value', 'Monetory value required').notEmpty().trim(),
   check('codes.*.certification_required', 'Certification required true/false').notEmpty().isBoolean().trim(),
@@ -105,7 +105,7 @@ exports.validateCreateTitle = [
   check('countryId', 'countryId is required').notEmpty().trim(),
   check('userId', 'userId is required').notEmpty().trim(),
 ];
-exports.validateSearchTitle = [check('title', 'Title is required').notEmpty().trim()];
+exports.validateSearchTitle = [check('title', 'title is required').notEmpty().trim()];
 //2nd Step of Request
 exports.validaterRequestVendor = [
   check('user', 'userId required').notEmpty().trim(),
@@ -141,26 +141,26 @@ exports.validateDispatch = [
   check('place.address', 'Address is required').notEmpty().trim(),
   check('place.contact_fname', 'Contact first name is required.').notEmpty().trim(),
   check('place.contact_lname', 'Contact last Name  is required').notEmpty().trim(),
-  check('place.user', 'place user  is required.').notEmpty().trim(),
+  check('place.user', 'place user  is required').notEmpty().trim(),
   check('inspection_date', 'Inspection date required').notEmpty().trim(),
 ];
 
 //4th-step Documents
 exports.ValidateDocuments = [
-  check('request', 'requestId required ').notEmpty().trim(),
-  check('codes', 'codes required ').isArray({ min: 1 }),
-  check('codes.*.code', 'codeId required ').notEmpty().trim(),
-  check('codes.*.user', 'userId required ').notEmpty().trim(),
-  check('codes.*.name', 'name required ').notEmpty().trim(),
-  check('codes.*.description', 'description required ').notEmpty().trim(),
-  check('codes.*.condition', 'condition required ').notEmpty().trim(),
-  check('codes.*.amount', 'amount required ').notEmpty().trim(),
-  check('codes.*.unit', 'unit required ').notEmpty().trim(),
-  check('codes.*.mark', 'mark required ').notEmpty().trim(),
-  check('codes.*.builder', 'builder required ').notEmpty().trim(),
-  check('codes.*.country', 'country required ').notEmpty().trim(),
-  // check('codes.*.currency', 'currency required ').notEmpty().trim(),
-  check('codes.*.price', 'value required ').notEmpty().trim(),
+  check('request', 'requestId required').notEmpty().trim(),
+  check('codes', 'codes required').isArray({ min: 1 }),
+  check('codes.*.code', 'codeId required').notEmpty().trim(),
+  check('codes.*.user', 'userId required').notEmpty().trim(),
+  check('codes.*.name', 'name required').notEmpty().trim(),
+  check('codes.*.description', 'description required').notEmpty().trim(),
+  check('codes.*.condition', 'condition required').notEmpty().trim(),
+  check('codes.*.amount', 'amount required').notEmpty().trim(),
+  check('codes.*.unit', 'unit required').notEmpty().trim(),
+  check('codes.*.mark', 'mark required').notEmpty().trim(),
+  check('codes.*.builder', 'builder required').notEmpty().trim(),
+  check('codes.*.country', 'country required').notEmpty().trim(),
+  // check('codes.*.currency', 'currency required').notEmpty().trim(),
+  check('codes.*.price', 'value required').notEmpty().trim(),
 ];
 exports.validateUploadDocuments = [check('doc_id', 'doc_id required').notEmpty().trim()];
 exports.validateStatusDocument = [
@@ -170,7 +170,7 @@ exports.validateStatusDocument = [
 //create serviceProvider
 exports.validateServiceProvider = [
   check('phone_number', 'Phone number is required').notEmpty().trim(),
-  check('name', 'name is required').notEmpty().trim(),
+  check('name', 'Name is required').notEmpty().trim(),
   check('sending_email', 'Sending email is required').notEmpty().isEmail().trim(),
   check('contact_email', 'Contact email is required').notEmpty().trim(),
   check('countries', 'Countries required').isArray({ min: 1 }),
@@ -198,8 +198,8 @@ exports.validatePlace = [
   check('zipcode', 'Zip code is required').notEmpty().trim(),
   check('address', 'Address is required').notEmpty().trim(),
   check('user', 'UserId is required.').notEmpty().trim(),
-  check('contact_fname', 'Contact first name is required.').notEmpty().trim(),
-  check('contact_lname', 'Contact name  is required.').notEmpty().trim(),
+  check('contact_fname', 'Contact first name is required').notEmpty().trim(),
+  check('contact_lname', 'Contact name  is required').notEmpty().trim(),
 ];
 //create-Boms
 exports.validateBoms = [
@@ -223,13 +223,13 @@ exports.validateLogin = [
 ];
 //
 exports.validateRange = [
-  check('range.min', 'Min required ').notEmpty().trim(),
-  check('range.max', 'Max required ').notEmpty().trim(),
-  check('range.certificate_cost', 'Certificate cost is required ').notEmpty().trim(),
+  check('range.min', 'Min required').notEmpty().trim(),
+  check('range.max', 'Max required').notEmpty().trim(),
+  check('range.certificate_cost', 'Certificate cost is required').notEmpty().trim(),
 ];
 
 //
-exports.validateRangeId = [check('rangeId', 'rangeId required ').notEmpty().trim()];
+exports.validateRangeId = [check('rangeId', 'rangeId required').notEmpty().trim()];
 
 // Change password validation
 exports.changePasswordValidate = [
@@ -237,8 +237,8 @@ exports.changePasswordValidate = [
   //   .notEmpty()
   //   .trim()
   //   .isLength({ min: 8 }),
-  check('newPassword', 'New password is required.').notEmpty().trim().isLength({ min: 8 }),
-  check('confirmPassword', 'Confirm password is required.').notEmpty().trim().isLength({ min: 8 }),
+  check('newPassword', 'New password is required').notEmpty().trim().isLength({ min: 8 }),
+  check('confirmPassword', 'Confirm password is required').notEmpty().trim().isLength({ min: 8 }),
   // .custom(async (confirmPassword, { req }) => {
   //   const password = req.body.password;
 
