@@ -68,10 +68,10 @@ router.get('/returnMultipleFormatedRequest/:userId', commonAuth, request.returnM
 router.get('/returnFormatedRequest/:requestId', commonAuth, request.returnFormatedRequest); // Get all requests at once
 router.get('/getByUser/:userId', commonAuth, request.getByuserId); // Get one requestby it's id
 router.get('/getByCountry/:countryId', commonAuth, request.getBycountryId); // Get one requestby it's id
-router.get('/zipFile/:requestId', commonAuth, request.zipFile); // Get all requests at once
-router.get('/zipFileProduct/:productId', commonAuth, request.zipFileProduct); // Get all requests at once
-router.get('/zipFileDocument/:requestId/:doc_id', commonAuth, request.zipFileDocument); // Get all requests at once
-router.get('/zipFileCode/:requestId/:code_id', commonAuth, request.zipFileCode); // Get all requests at once
+router.get('/zipFile/:requestId', request.zipFile); // Get all requests at once
+router.get('/zipFileProduct/:productId', request.zipFileProduct); // Get all requests at once
+router.get('/zipFileDocument/:requestId/:doc_id', request.zipFileDocument); // Get all requests at once
+router.get('/zipFileCode/:requestId/:code_id', request.zipFileCode); // Get all requests at once
 router.get('/:requestId', commonAuth, request.getById); // Get one requestby it's id
 //request by admin
 router.put('/validateDoc/:requestId', checkAdminAuth, validateStatusDocument, isValidated, request.validateDoc);
