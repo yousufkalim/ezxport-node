@@ -22,7 +22,6 @@ exports.commonAuth = (req, res, next) => {
     // Decrypting token
     const token = header.split(' ')[1];
     const decoded = jwt.verify(token, tokenSecret);
-    console.log(decoded.user);
     if (!decoded.admin && !decoded.user) {
       return res.status(403).json({
         success: false,

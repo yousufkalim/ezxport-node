@@ -36,18 +36,18 @@ exports.login = async (req, res) => {
       }
       // Creating payload with user object
       const role = 'user';
-      let user1 = {
+      user = {
         ...JSON.parse(JSON.stringify(user)),
       };
 
-      delete user1.password;
-      const payload = { user1 };
+      delete user.password;
+      const payload = { user };
 
       // Generating token
       jwt.sign(payload, tokenSecret, { expiresIn: '2h' }, (err, token) => {
         if (err) throw err;
         // done
-        return res.json({ success: true, user: user1, token, role: role });
+        return res.json({ success: true, user, token, role });
       });
       return;
     }
@@ -58,18 +58,18 @@ exports.login = async (req, res) => {
       // If password not matched
       return res.status(400).json({ success: false, message: 'Invalid Password' });
     }
-    let admin1 = {
+    admin = {
       ...JSON.parse(JSON.stringify(admin)),
     };
 
-    delete admin1.password;
-    const payload = { admin1 };
+    delete admin.password;
+    const payload = { admin };
 
     // Generating token
     jwt.sign(payload, tokenSecret, { expiresIn: '2h' }, (err, token) => {
       if (err) throw err;
       // done
-      return res.json({ success: true, admin: admin1, token, role: role });
+      return res.json({ success: true, admin, token, role });
     });
   } catch (err) {
     // Error handling
