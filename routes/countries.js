@@ -3,6 +3,8 @@
  * @author Shuja Naqvi
  */
 const router = require('express').Router();
+const { commonAuth } = require('../middleware/commonAuth');
+const { checkAdminAuth } = require('../middleware/adminAuth');
 const countries = require('../controllers/countries');
 const { validateCountry, isValidated } = require('../middleware/validators');
 
@@ -16,16 +18,16 @@ const { validateCountry, isValidated } = require('../middleware/validators');
  */
 
 // Create - country Signup
-router.post('/', validateCountry, isValidated, countries.create);
+router.post('/', checkAdminAuth, validateCountry, isValidated, countries.create);
 // Read
-router.get('/', countries.getAll); // Get all countries at once
-router.get('/:countryId', validateCountry, countries.getById); // Get one country by it's id
+router.get('/', commonAuth, countries.getAll); // Get all countries at once
+router.get('/:countryId', checkAdminAuth, commonAuth, validateCountry, countries.getById); // Get one country by it's id
 
 // Update
 router.put('/:countryId', validateCountry, isValidated, countries.update); // Update a specific country by it's id
 
 // Delete
-router.delete('/:countryId', countries.delete); // delete a specific country by it's id
+router.delete('/:countryId', checkAdminAuth, countries.delete); // delete a specific country by it's id
 
 // Export
 module.exports = router;

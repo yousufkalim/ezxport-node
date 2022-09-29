@@ -4,6 +4,8 @@
  */
 const router = require('express').Router();
 const sellers = require('../controllers/sellers');
+const { commonAuth } = require('../middleware/commonAuth');
+const { userAuth } = require('../middleware/userAuth');
 const { validateBuyer, validateCountryUser, isValidated } = require('../middleware/validators');
 
 /**
@@ -16,17 +18,17 @@ const { validateBuyer, validateCountryUser, isValidated } = require('../middlewa
  */
 
 // Create - sellersyo
-router.post('/', validateBuyer, isValidated, sellers.create);
+router.post('/', userAuth, validateBuyer, isValidated, sellers.create);
 //getByUserandCountry
-router.post('/getByUserandCountry', validateCountryUser, isValidated, sellers.getByUserandCountry);
+router.post('/getByUserandCountry', commonAuth, validateCountryUser, isValidated, sellers.getByUserandCountry);
 // Read
-router.get('/', sellers.getAll); // Get all sellersat once
-router.get('/getByUser/:userId', sellers.getByUser); // Get all sellers of a user
-router.get('/:sellerId', sellers.getById); // Get one sellersby it's id
+router.get('/', commonAuth, sellers.getAll); // Get all sellersat once
+router.get('/getByUser/:userId', commonAuth, sellers.getByUser); // Get all sellers of a user
+router.get('/:sellerId', commonAuth, sellers.getById); // Get one sellersby it's id
 // Update
-router.put('/:sellerId', validateBuyer, isValidated, sellers.update); // Update a specific sellersby it's id
+router.put('/:sellerId', userAuth, validateBuyer, isValidated, sellers.update); // Update a specific sellersby it's id
 // Delete
-router.delete('/:sellerId', sellers.delete); // delete a specific sellersby it's id
+router.delete('/:sellerId', userAuth, sellers.delete); // delete a specific sellersby it's id
 
 // Export
 module.exports = router;

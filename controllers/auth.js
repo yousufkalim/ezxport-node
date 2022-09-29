@@ -21,8 +21,8 @@ exports.login = async (req, res) => {
     const { email, password } = req.body;
 
     // Getting user from db
-    const user = await Users.findOne({ email: email });
-    const admin = await Admins.findOne({ email });
+    let user = await Users.findOne({ email: email });
+    let admin = await Admins.findOne({ email });
     if (!user && !admin) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
@@ -36,13 +36,18 @@ exports.login = async (req, res) => {
       }
       // Creating payload with user object
       const role = 'user';
+      user = {
+        ...JSON.parse(JSON.stringify(user)),
+      };
+
+      delete user.password;
       const payload = { user };
 
       // Generating token
-      jwt.sign(payload, tokenSecret, { expiresIn: 360000 }, (err, token) => {
+      jwt.sign(payload, tokenSecret, { expiresIn: '2h' }, (err, token) => {
         if (err) throw err;
         // done
-        return res.json({ success: true, user, token, role: role });
+        return res.json({ success: true, user, token, role });
       });
       return;
     }
@@ -53,13 +58,18 @@ exports.login = async (req, res) => {
       // If password not matched
       return res.status(400).json({ success: false, message: 'Invalid Password' });
     }
+    admin = {
+      ...JSON.parse(JSON.stringify(admin)),
+    };
+
+    delete admin.password;
     const payload = { admin };
 
     // Generating token
-    jwt.sign(payload, tokenSecret, { expiresIn: 360000 }, (err, token) => {
+    jwt.sign(payload, tokenSecret, { expiresIn: '2h' }, (err, token) => {
       if (err) throw err;
       // done
-      return res.json({ success: true, admin, token, role: role });
+      return res.json({ success: true, admin, token, role });
     });
   } catch (err) {
     // Error handling
@@ -91,12 +101,6 @@ exports.changePassword = async (req, res) => {
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
-
-    // const isMatched = bcrypt.compareSync(oldPassword, user.password);
-
-    // if (!isMatched) {
-    //   return res.status(400).json({ success: false, message: "Invalid old Password" });
-    // }
 
     // Generate token
     user.password = bcrypt.hashSync(newPassword, parseInt(bcryptSalt));
@@ -131,10 +135,6 @@ exports.forgot = async (req, res) => {
     // Sending email to user
     sendEmail(email, link)
       .then(async () => {
-        // If email is sent then we have to update the password in db
-        // user.password = await bcrypt.hash(randomPassword, parseInt(bcryptSalt));
-        // await user.save();
-
         // Done
         res.json({ success: true, message: 'Email sent successfully' });
       })

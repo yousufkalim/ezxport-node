@@ -3,6 +3,8 @@
  * @author Shuja Naqvi
  */
 const router = require('express').Router();
+const { userAuth } = require('../middleware/userAuth');
+const { commonAuth } = require('../middleware/commonAuth');
 const buyers = require('../controllers/buyers');
 const { validateBuyer, validateCountryUser, isValidated } = require('../middleware/validators');
 
@@ -16,13 +18,13 @@ const { validateBuyer, validateCountryUser, isValidated } = require('../middlewa
  */
 
 // Create - buyers
-router.post('/', validateBuyer, isValidated, buyers.create);
+router.post('/', userAuth, validateBuyer, isValidated, buyers.create);
 // Get-By-UserandCountry
-router.post('/getByUserandCountry', validateCountryUser, isValidated, buyers.getByUserandCountry);
+router.post('/getByUserandCountry', commonAuth, validateCountryUser, isValidated, buyers.getByUserandCountry);
 // Read
-router.get('/', buyers.getAll); // Get all buyers at once
-router.get('/getByUser/:userId', buyers.getByUser); // Get all buyers of a user
-router.get('/:buyerId', buyers.getById); // Get one buyersby it's id
+router.get('/', commonAuth, buyers.getAll); // Get all buyers at once
+router.get('/getByUser/:userId', commonAuth, buyers.getByUser); // Get all buyers of a user
+router.get('/:buyerId', commonAuth, buyers.getById); // Get one buyersby it's id
 // Update
 router.put('/:buyerId', validateBuyer, isValidated, buyers.update); // Update a specific buyersby it's id
 // Delete

@@ -211,6 +211,8 @@ exports.excelSheet = async (req, res) => {
       { header: 'Zip Code', key: 'zipcode', width: 10 },
       { header: 'City', key: 'city', width: 20 },
       { header: 'Company', key: 'company_name', width: 20 },
+      { header: 'Vat', key: 'vat', width: 20 },
+      { header: 'Company Type', key: 'company_type', width: 20 },
     ];
     //counter for Index number of each row
     let counter = 1;
@@ -220,10 +222,12 @@ exports.excelSheet = async (req, res) => {
         name: `${users[i].first_name}  ${users[i].last_name}`,
         email: users[i].email,
         phone_number: users[i].phone_number,
+        city: users[i].city,
         address: users[i].address,
         zipcode: users[i].zipcode,
-        city: users[i].city,
+        vat: users[i].company.vat,
         company_name: users[i].company.name,
+        company_type: users[i].company.type,
       };
       worksheet.addRow(userObj); // Add data in worksheet
       counter++;

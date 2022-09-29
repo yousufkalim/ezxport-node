@@ -3,7 +3,6 @@
  * @author Shuja Naqvi
  */
 const Vendor = require('../models/Vendors');
-const User = require('../models/Users');
 const userVendor = require('../models/UserVendors');
 const Country = require('../models/Countries');
 
@@ -14,7 +13,7 @@ const Country = require('../models/Countries');
  */
 exports.create = async (req, res) => {
   try {
-    const { countries, contact_email, sending_email } = req.body;
+    const { countries, sending_email } = req.body;
     const existingVendor = await Vendor.find({
       deleted: false,
       $or: [{ sending_email: sending_email }, { contact_email: sending_email }],

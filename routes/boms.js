@@ -3,6 +3,9 @@
  * @author Shuja Naqvi
  */
 const router = require('express').Router();
+const { checkAdminAuth } = require('../middleware/adminAuth');
+const { userAuth } = require('../middleware/userAuth');
+const { commonAuth } = require('../middleware/commonAuth');
 const bom = require('../controllers/boms');
 const { validateBoms, validateCountryID, isValidated } = require('../middleware/validators');
 const { upload } = require('../middleware/multer');
@@ -17,19 +20,19 @@ const { upload } = require('../middleware/multer');
  */
 
 // Create - bom Signup
-router.post('/', validateBoms, isValidated, bom.create);
+router.post('/', checkAdminAuth, validateBoms, isValidated, bom.create);
 // Create - bom Signup
-router.post('/filterCodes', upload.single('file'), validateCountryID, isValidated, bom.filterCode);
+router.post('/filterCodes', upload.single('file'), userAuth, validateCountryID, isValidated, bom.filterCode);
 // Create - bom Signup
-router.post('/uploadCodes', upload.single('file'), validateCountryID, isValidated, bom.uploadCodes);
+router.post('/uploadCodes', upload.single('file'), checkAdminAuth, validateCountryID, isValidated, bom.uploadCodes);
 // Read
-router.get('/', bom.getAll); // Get all bomat once
-router.get('/getByCountryId/:countryId', bom.getByCountryId); // Get all bomat once
-router.get('/:bomId', bom.getById); // Get one bomby it's id
+router.get('/', commonAuth, bom.getAll); // Get all bomat once
+router.get('/getByCountryId/:countryId', commonAuth, bom.getByCountryId); // Get all bomat once
+router.get('/:bomId', commonAuth, bom.getById); // Get one bomby it's id
 // Update
-router.put('/:bomId', validateBoms, isValidated, bom.update); // Update a specific bomby it's id
+router.put('/:bomId', checkAdminAuth, validateBoms, isValidated, bom.update); // Update a specific bomby it's id
 // Delete
-router.delete('/:bomId', bom.delete); // delete a specific bomby it's id
+router.delete('/:bomId', checkAdminAuth, bom.delete); // delete a specific bomby it's id
 
 // Export
 module.exports = router;
