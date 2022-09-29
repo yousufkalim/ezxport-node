@@ -63,7 +63,7 @@ router.put('/sendEmail/:requestId', userAuth, request.sendEmail);
 //UploadmissingDocs
 router.put('/UploadmissingDocs/:requestId', userAuth, request.UploadmissingDocs);
 // // Read
-router.get('/', checkAdminAuth, request.getAll); // Get all requests at once
+router.get('/', commonAuth, request.getAll); // Get all requests at once
 router.get('/returnMultipleFormatedRequest/:userId', commonAuth, request.returnMultipleFormatedRequest); // Get all requests at once
 router.get('/returnFormatedRequest/:requestId', commonAuth, request.returnFormatedRequest); // Get all requests at once
 router.get('/getByUser/:userId', commonAuth, request.getByuserId); // Get one requestby it's id
