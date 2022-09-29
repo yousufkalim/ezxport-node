@@ -550,7 +550,9 @@ exports.getAll = async (req, res) => {
           path: 'doc_id',
         },
       });
-    res.status(200).json({ success: true, requets: requests });
+    let request1 = { ...JSON.parse(JSON.stringify(requests)) };
+    findVal(request1, 'url');
+    res.status(200).json({ success: true, requets: request1 });
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
@@ -589,7 +591,9 @@ exports.getByuserId = async (req, res) => {
           path: 'doc_id',
         },
       });
-    res.status(200).json({ success: true, request: request });
+    let request1 = { ...JSON.parse(JSON.stringify(request)) };
+    findVal(request1, 'url');
+    res.status(200).json({ success: true, request: request1 });
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
@@ -628,7 +632,9 @@ exports.getBycountryId = async (req, res) => {
           path: 'doc_id',
         },
       });
-    res.status(200).json({ success: true, request: request });
+    let request1 = { ...JSON.parse(JSON.stringify(request)) };
+    findVal(request1, 'url');
+    res.status(200).json({ success: true, request: request1 });
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
@@ -644,7 +650,7 @@ exports.getBycountryId = async (req, res) => {
 exports.getById = async (req, res) => {
   try {
     const { requestId } = req.params;
-    const request = await Request.findById(requestId)
+    let request = await Request.findById(requestId)
       .populate('user')
       .populate('country')
       .populate('missing_docs')
@@ -667,7 +673,9 @@ exports.getById = async (req, res) => {
           path: 'doc_id',
         },
       });
-    res.status(200).json({ success: true, request: request });
+    let request1 = { ...JSON.parse(JSON.stringify(request)) };
+    findVal(request1, 'url');
+    res.json({ success: true, request: request1 });
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
@@ -1432,3 +1440,17 @@ cron.schedule('0 5 */10 * *', async () => {
     status: 'Draft',
   });
 });
+
+//Creating Naming Convention
+//Credit goes to Muhammad Ali Hashmi(React Native)
+function findVal(obj, keyToFind) {
+  for (let key in obj) {
+    if (typeof obj[key] === 'object') {
+      if (key === keyToFind) {
+        obj.file = obj[key].map((k) => ({ url: k, filename: k.split('-')[1] }));
+        delete obj[key];
+      }
+      findVal(obj[key], keyToFind);
+    }
+  }
+}
