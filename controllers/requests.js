@@ -989,8 +989,8 @@ const fileExtension = (fileBase64) => {
   fileHeader.set('Qk0', 'bmp');
   fileHeader.set('SUk', 'tiff');
   fileHeader.set('JVB', 'pdf');
-  fileHeader.set('UEs', 'docx');
-  fileHeader.set('PHN', 'xlsx');
+  fileHeader.set('UEs', 'xlsx');
+  // fileHeader.set('PHN', 'xlsx');
   //PHN
 
   let res = '';
