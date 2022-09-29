@@ -885,7 +885,7 @@ const CreateProduct = async (Product) => {
           const fileExt = Product.technical_sheet.files[i].filename.split('.').pop();
           const filePath = `./uploads/${Date.now()}-${
             Product.technical_sheet.files[i].filename.split(' ').join('').split('.')[0]
-          }${i}-file-.${fileExt}`;
+          }${i}.${fileExt}`;
           fs.writeFileSync(filePath, bitmap);
           filePaths.push(filePath.substring(2));
         }
@@ -904,7 +904,7 @@ const CreateProduct = async (Product) => {
           const bitmap = new Buffer(file, 'base64');
           const filePath = `./uploads/${Date.now()}-${
             Product.test_report.files[i].filename.split(' ').join('').split('.')[0]
-          }${i}-file-.${fileExt}`;
+          }${i}.${fileExt}`;
           fs.writeFileSync(filePath, bitmap);
           filePaths.push(filePath.substring(2));
         }
@@ -923,7 +923,7 @@ const CreateProduct = async (Product) => {
           const bitmap = new Buffer(file, 'base64');
           const filePath = `./uploads/${Date.now()}-${
             Product.plan.files[i].filename.split(' ').join('').split('.')[0]
-          }${i}-file-.${fileExt}`;
+          }${i}.${fileExt}`;
           fs.writeFileSync(filePath, bitmap);
           filePaths.push(filePath.substring(2));
         }
@@ -942,7 +942,7 @@ const CreateProduct = async (Product) => {
           const bitmap = new Buffer(file, 'base64');
           const filePath = `./uploads/${Date.now()}-${
             Product.other_docs.files[i].filename.split(' ').join('').split('.')[0]
-          }${i}-file-.${fileExt}`;
+          }${i}.${fileExt}`;
           fs.writeFileSync(filePath, bitmap);
           filePaths.push(filePath.substring(2));
         }
@@ -961,7 +961,7 @@ const CreateProduct = async (Product) => {
           const bitmap = new Buffer(file, 'base64');
           const filePath = `./uploads/${Date.now()}-${
             Product.analysis_certificate.files[i].filename.split(' ').join('').split('.')[0]
-          }${i}-file-.${fileExt}`;
+          }${i}.${fileExt}`;
           fs.writeFileSync(filePath, bitmap);
           filePaths.push(filePath.substring(2));
         }
