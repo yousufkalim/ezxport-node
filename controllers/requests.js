@@ -552,7 +552,7 @@ exports.getAll = async (req, res) => {
       });
     // let request1 = { ...JSON.parse(JSON.stringify(requests)) };
     // findVal(request1, 'url');
-    res.status(200).json({ success: true, requets: request });
+    res.status(200).json({ success: true, requets: requests });
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
@@ -634,7 +634,7 @@ exports.getBycountryId = async (req, res) => {
       });
     // let request1 = { ...JSON.parse(JSON.stringify(request)) };
     // findVal(request1, 'url');
-    res.status(200).json({ success: true, request: request });
+    res.status(200).json({ success: true, request });
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
