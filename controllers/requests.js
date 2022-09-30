@@ -550,6 +550,8 @@ exports.getAll = async (req, res) => {
           path: 'doc_id',
         },
       });
+    // let request1 = { ...JSON.parse(JSON.stringify(requests)) };
+    // findVal(request1, 'url');
     res.status(200).json({ success: true, requets: requests });
   } catch (err) {
     // Error handling
@@ -589,6 +591,8 @@ exports.getByuserId = async (req, res) => {
           path: 'doc_id',
         },
       });
+    // let request1 = { ...JSON.parse(JSON.stringify(request)) };
+    // findVal(request1, 'url');
     res.status(200).json({ success: true, request: request });
   } catch (err) {
     // Error handling
@@ -628,7 +632,9 @@ exports.getBycountryId = async (req, res) => {
           path: 'doc_id',
         },
       });
-    res.status(200).json({ success: true, request: request });
+    // let request1 = { ...JSON.parse(JSON.stringify(request)) };
+    // findVal(request1, 'url');
+    res.status(200).json({ success: true, request });
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
@@ -644,7 +650,7 @@ exports.getBycountryId = async (req, res) => {
 exports.getById = async (req, res) => {
   try {
     const { requestId } = req.params;
-    const request = await Request.findById(requestId)
+    let request = await Request.findById(requestId)
       .populate('user')
       .populate('country')
       .populate('missing_docs')
@@ -667,7 +673,9 @@ exports.getById = async (req, res) => {
           path: 'doc_id',
         },
       });
-    res.status(200).json({ success: true, request: request });
+    let request1 = { ...JSON.parse(JSON.stringify(request)) };
+    findVal(request1, 'url');
+    res.json({ success: true, request: request1 });
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
@@ -876,16 +884,16 @@ const CreateProduct = async (Product) => {
   try {
     if (Product.technical_sheet) {
       let filePaths = [];
-      for (let i = 0; i < Product.technical_sheet.url.length; i++) {
-        if (Product.technical_sheet.url[i].includes('uploads/')) {
-          filePaths.push(Product.technical_sheet.url[i]);
+      for (let i = 0; i < Product.technical_sheet.files.length; i++) {
+        if (Product.technical_sheet.files[i].url.includes('uploads/')) {
+          filePaths.push(Product.technical_sheet.files[i].url);
         } else {
-          const file = Product.technical_sheet.url[i];
+          const file = Product.technical_sheet.files[i].url;
           const bitmap = new Buffer(file, 'base64');
-          const fileExt = fileExtension(file);
+          const fileExt = Product.technical_sheet.files[i].filename.split('.').pop();
           const filePath = `./uploads/${Date.now()}-${
-            Product.technical_sheet.filename.split(' ').join('').split('.')[0]
-          }${i}-file-.${fileExt}`;
+            Product.technical_sheet.files[i].filename.split(' ').join('').split('.')[0]
+          }${i}.${fileExt}`;
           fs.writeFileSync(filePath, bitmap);
           filePaths.push(filePath.substring(2));
         }
@@ -895,16 +903,16 @@ const CreateProduct = async (Product) => {
     }
     if (Product.test_report) {
       let filePaths = [];
-      for (let i = 0; i < Product.test_report.url.length; i++) {
-        if (Product.test_report.url[i].includes('uploads/')) {
-          filePaths.push(Product.test_report.url[i]);
+      for (let i = 0; i < Product.test_report.files.length; i++) {
+        if (Product.test_report.files[i].url.includes('uploads/')) {
+          filePaths.push(Product.test_report.files[i].url);
         } else {
-          const file = Product.test_report.url[i];
-          const fileExt = fileExtension(file);
+          const file = Product.test_report.files[i].url;
+          const fileExt = Product.test_report.files[i].filename.split('.').pop();
           const bitmap = new Buffer(file, 'base64');
           const filePath = `./uploads/${Date.now()}-${
-            Product.test_report.filename.split(' ').join('').split('.')[0]
-          }${i}-file-.${fileExt}`;
+            Product.test_report.files[i].filename.split(' ').join('').split('.')[0]
+          }${i}.${fileExt}`;
           fs.writeFileSync(filePath, bitmap);
           filePaths.push(filePath.substring(2));
         }
@@ -914,16 +922,16 @@ const CreateProduct = async (Product) => {
     }
     if (Product.plan) {
       let filePaths = [];
-      for (let i = 0; i < Product.plan.url.length; i++) {
-        if (Product.plan.url[i].includes('uploads/')) {
-          filePaths.push(Product.plan.url[i]);
+      for (let i = 0; i < Product.plan.files.length; i++) {
+        if (Product.plan.files[i].url.includes('uploads/')) {
+          filePaths.push(Product.plan.files[i].url);
         } else {
-          const file = Product.plan.url[i];
-          const fileExt = fileExtension(file);
+          const file = Product.plan.files[i].url;
+          const fileExt = Product.plan.files[i].filename.split('.').pop();
           const bitmap = new Buffer(file, 'base64');
           const filePath = `./uploads/${Date.now()}-${
-            Product.plan.filename.split(' ').join('').split('.')[0]
-          }${i}-file-.${fileExt}`;
+            Product.plan.files[i].filename.split(' ').join('').split('.')[0]
+          }${i}.${fileExt}`;
           fs.writeFileSync(filePath, bitmap);
           filePaths.push(filePath.substring(2));
         }
@@ -933,16 +941,16 @@ const CreateProduct = async (Product) => {
     }
     if (Product.other_docs) {
       let filePaths = [];
-      for (let i = 0; i < Product.other_docs.url.length; i++) {
-        if (Product.other_docs.url[i].includes('uploads/')) {
-          filePaths.push(Product.other_docs.url[i]);
+      for (let i = 0; i < Product.other_docs.files.length; i++) {
+        if (Product.other_docs.files[i].url.includes('uploads/')) {
+          filePaths.push(Product.other_docs.files[i].url);
         } else {
-          const file = Product.other_docs.url[i];
-          const fileExt = fileExtension(file);
+          const file = Product.other_docs.files[i].url;
+          const fileExt = Product.other_docs.files[i].filename.split('.').pop();
           const bitmap = new Buffer(file, 'base64');
           const filePath = `./uploads/${Date.now()}-${
-            Product.other_docs.filename.split(' ').join('').split('.')[0]
-          }${i}-file-.${fileExt}`;
+            Product.other_docs.files[i].filename.split(' ').join('').split('.')[0]
+          }${i}.${fileExt}`;
           fs.writeFileSync(filePath, bitmap);
           filePaths.push(filePath.substring(2));
         }
@@ -952,16 +960,16 @@ const CreateProduct = async (Product) => {
     }
     if (Product.analysis_certificate) {
       let filePaths = [];
-      for (let i = 0; i < Product.analysis_certificate.url.length; i++) {
-        if (Product.analysis_certificate.url[i].includes('uploads/')) {
-          filePaths.push(Product.analysis_certificate.url[i]);
+      for (let i = 0; i < Product.analysis_certificate.files.length; i++) {
+        if (Product.analysis_certificate.files[i].url.includes('uploads/')) {
+          filePaths.push(Product.analysis_certificate.files[i].url);
         } else {
-          const file = Product.analysis_certificate.url[i];
-          const fileExt = fileExtension(file);
+          const file = Product.analysis_certificate.files[i].url;
+          const fileExt = Product.analysis_certificate.files[i].filename.split('.').pop();
           const bitmap = new Buffer(file, 'base64');
           const filePath = `./uploads/${Date.now()}-${
-            Product.analysis_certificate.filename.split(' ').join('').split('.')[0]
-          }${i}-file-.${fileExt}`;
+            Product.analysis_certificate.files[i].filename.split(' ').join('').split('.')[0]
+          }${i}.${fileExt}`;
           fs.writeFileSync(filePath, bitmap);
           filePaths.push(filePath.substring(2));
         }
@@ -989,8 +997,8 @@ const fileExtension = (fileBase64) => {
   fileHeader.set('Qk0', 'bmp');
   fileHeader.set('SUk', 'tiff');
   fileHeader.set('JVB', 'pdf');
-  fileHeader.set('UEs', 'docx');
-  fileHeader.set('PHN', 'xlsx');
+  fileHeader.set('UEs', 'xlsx');
+  // fileHeader.set('PHN', 'xlsx');
   //PHN
 
   let res = '';
@@ -1392,7 +1400,7 @@ exports.UploadmissingDocs = async (req, res) => {
         await product.save();
       }
     }
-    exitingRequest.status = 'Sent';
+    exitingRequest.status = 'Documents to be checked';
     await exitingRequest.save();
     return res.status(202).json({ success: true, message: 'Missing Doc Updated ' });
   } catch (err) {
@@ -1408,15 +1416,15 @@ exports.UploadmissingDocs = async (req, res) => {
  * @param {object} res
  */
 
-const SaveFile = async (urls) => {
+const SaveFile = async (files) => {
   try {
     let filePaths = [];
-    for (let i = 0; i < urls.length; i++) {
-      const url = urls[i];
+    for (let i = 0; i < files.length; i++) {
+      const url = files[i].url;
       const file = url;
-      const fileExt = fileExtension(file);
+      const fileExt = files[i].filename.split('.').pop();
       const bitmap = new Buffer(file, 'base64');
-      const filePath = `./uploads/${Date.now()}-missingDocs${i}-file-.${fileExt}`;
+      const filePath = `./uploads/${Date.now()}-${files[i].filename.split(' ').join('').split('.')[0]}.${fileExt}`;
       fs.writeFileSync(filePath, bitmap);
       filePaths.push(filePath.substring(2));
     }
@@ -1432,3 +1440,17 @@ cron.schedule('0 5 */10 * *', async () => {
     status: 'Draft',
   });
 });
+
+//Creating Naming Convention
+//Credit goes to Muhammad Ali Hashmi(React Native)
+function findVal(obj, keyToFind) {
+  for (let key in obj) {
+    if (typeof obj[key] === 'object') {
+      if (key === keyToFind) {
+        obj.file = obj[key].map((k) => ({ url: k, filename: k.split('-')[1] }));
+        delete obj[key];
+      }
+      findVal(obj[key], keyToFind);
+    }
+  }
+}

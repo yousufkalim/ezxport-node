@@ -23,10 +23,13 @@ exports.sendRequestEmail = (request) => {
         pass: sender_password,
       },
     });
+    if (!request?.vendor?.vendor?.sending_email) {
+      return res.status(404).json({ success: false, message: 'No Recipients Found' });
+    }
     // Send email options
     var mailOptions = {
       from: `${sender_name} <${sender_email}>`,
-      to: request.vendor.vendor.contact_email,
+      to: request.vendor.vendor.sending_email,
       subject: 'Certfication  Request',
       html: RequestTemplate(request),
     };
