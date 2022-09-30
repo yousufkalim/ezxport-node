@@ -550,9 +550,9 @@ exports.getAll = async (req, res) => {
           path: 'doc_id',
         },
       });
-    let request1 = { ...JSON.parse(JSON.stringify(requests)) };
-    findVal(request1, 'url');
-    res.status(200).json({ success: true, requets: request1 });
+    // let request1 = { ...JSON.parse(JSON.stringify(requests)) };
+    // findVal(request1, 'url');
+    res.status(200).json({ success: true, requets: request });
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
@@ -591,9 +591,9 @@ exports.getByuserId = async (req, res) => {
           path: 'doc_id',
         },
       });
-    let request1 = { ...JSON.parse(JSON.stringify(request)) };
-    findVal(request1, 'url');
-    res.status(200).json({ success: true, request: request1 });
+    // let request1 = { ...JSON.parse(JSON.stringify(request)) };
+    // findVal(request1, 'url');
+    res.status(200).json({ success: true, request: request });
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
@@ -632,9 +632,9 @@ exports.getBycountryId = async (req, res) => {
           path: 'doc_id',
         },
       });
-    let request1 = { ...JSON.parse(JSON.stringify(request)) };
-    findVal(request1, 'url');
-    res.status(200).json({ success: true, request: request1 });
+    // let request1 = { ...JSON.parse(JSON.stringify(request)) };
+    // findVal(request1, 'url');
+    res.status(200).json({ success: true, request: request });
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
