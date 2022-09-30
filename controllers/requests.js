@@ -1400,7 +1400,7 @@ exports.UploadmissingDocs = async (req, res) => {
         await product.save();
       }
     }
-    exitingRequest.status = 'Sent';
+    exitingRequest.status = 'Documents to be checked';
     await exitingRequest.save();
     return res.status(202).json({ success: true, message: 'Missing Doc Updated ' });
   } catch (err) {
@@ -1416,15 +1416,15 @@ exports.UploadmissingDocs = async (req, res) => {
  * @param {object} res
  */
 
-const SaveFile = async (urls) => {
+const SaveFile = async (files) => {
   try {
     let filePaths = [];
-    for (let i = 0; i < urls.length; i++) {
-      const url = urls[i];
+    for (let i = 0; i < files.length; i++) {
+      const url = files[i].url;
       const file = url;
-      const fileExt = fileExtension(file);
+      const fileExt = files[i].filename.split('.').pop();
       const bitmap = new Buffer(file, 'base64');
-      const filePath = `./uploads/${Date.now()}-missingDocs${i}-file-.${fileExt}`;
+      const filePath = `./uploads/${Date.now()}-${files[i].filename.split(' ').join('').split('.')[0]}.${fileExt}`;
       fs.writeFileSync(filePath, bitmap);
       filePaths.push(filePath.substring(2));
     }
