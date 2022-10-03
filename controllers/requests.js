@@ -417,6 +417,9 @@ exports.Documents = async (req, res) => {
     const { request, codes } = req.body;
     const existingReq = await Request.findOne({ _id: request }).populate('country');
     let updateRequest;
+    if (codes.length < 0) {
+      return res.status(404).json({ success: true, message: 'Product is empty' });
+    }
     for (let i = 0; i < codes.length; i++) {
       const price = { value: codes[i].price, currency: existingReq.country.currency };
       codes[i].price = price;
