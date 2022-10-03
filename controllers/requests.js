@@ -1070,7 +1070,7 @@ exports.Webhook = async (req, res) => {
         if (!findReq) return res.json({ success: false, message: 'RequestId is invalid' });
         findReq.status = 'Being checked by an expert';
         findReq.request_method = 'platform';
-        findReq.certification_cost.value = +findReq.certification_cost.value + 50;
+        findReq.certification_cost.value = +findReq.certification_cost.value + findReq.certification_cost.value * 0.02;
         await findReq.save();
       }
       break;
