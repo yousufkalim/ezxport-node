@@ -34,7 +34,10 @@ const userSchema = new mongoose.Schema(
       type: { type: String },
       vat: { type: String },
     },
-    onboarded: Boolean,
+    onboarded: {
+      type: Boolean,
+      default: true,
+    },
     sellers: [
       {
         type: mongoose.Schema.Types.ObjectId,
