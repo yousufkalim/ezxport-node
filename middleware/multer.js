@@ -11,7 +11,7 @@ const s3 = new S3Client();
 aws.config.update({
   secretAccessKey: process.env.S3_SECRET_KEY,
   accessKeyId: process.env.S3_ACCESS_KEY,
-  region: 'eu-west-3',
+  region: 'eu-west-3'
 });
 
 const fileFilter = (req, file, cb) => {
@@ -38,12 +38,12 @@ exports.upload = multer({
     },
     key: function (req, file, cb) {
       cb(null, Date.now().toString());
-    },
+    }
   }),
   // File size limit upto 8 mb
   limits: {
-    fileSize: 1024 * 1024 * 8,
-  },
+    fileSize: 1024 * 1024 * 8
+  }
 });
 
 exports.Multerupload = multer({
@@ -56,12 +56,12 @@ exports.Multerupload = multer({
     // Creating a unique filename to avoid duplication error
     filename: function (req, file, cb) {
       cb(null, Date.now() + '-' + file.originalname); // Callback
-    },
+    }
   }),
   // File size limit upto 15 mb
   limits: {
-    fileSize: 1024 * 1024 * 15,
-  },
+    fileSize: 1024 * 1024 * 15
+  }
 });
 
 // exports.uploadBase64 = async (files) => {
@@ -94,7 +94,7 @@ exports.Multerupload = multer({
 //   return filepaths;
 // };
 
-exports.uploadBase64 = async (files) => {
+exports.uploadBase64 = async files => {
   // Create an s3 instance
   const AWS = require('aws-sdk');
   const s3 = new AWS.S3();
@@ -108,11 +108,13 @@ exports.uploadBase64 = async (files) => {
       const base64Data = new Buffer.from(base64, 'base64');
       const params = {
         Bucket: 'ezxport1',
-        Key: `${Date.now()}-${filename.split(' ').join('').split('.')[0]}.${filename.split('.').pop()}`, // type is not required
+        Key: `${Date.now()}-${filename.split(' ').join('').split('.')[0]}.${filename
+          .split('.')
+          .pop()}`, // type is not required
         Body: base64Data,
         ACL: 'public-read',
         ContentEncoding: 'base64', // required
-        ContentType: `image/${filename.split('.').pop()}`, // required. Notice the back ticks
+        ContentType: `image/${filename.split('.').pop()}` // required. Notice the back ticks
       };
       try {
         let data = await s3.upload(params).promise();

@@ -36,8 +36,8 @@ const userSchema = new mongoose.Schema(
     },
     onboarded: {
       type: Boolean,
-      default: true,
-    },
+      default: true
+    } ,
     sellers: [
       {
         type: mongoose.Schema.Types.ObjectId,
