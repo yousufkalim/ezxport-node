@@ -21,6 +21,8 @@ const request = require('request');
 const ZipStream = require('zip-stream');
 const stripe = require('stripe')(process.env.SECRET_KEY);
 const ObjectId = require('mongodb').ObjectID;
+const { uploadBase64 } = require('../middleware/multer');
+
 /**
  * Request  Create-Title
  *      Request
@@ -414,7 +416,7 @@ exports.Dispatch = async (req, res) => {
  */
 exports.Documents = async (req, res) => {
   try {
-    const { request, codes } = req.body;
+    let { request, codes } = req.body;
     const existingReq = await Request.findOne({ _id: request }).populate('country');
     let updateRequest;
     if (codes.length < 0) {
@@ -492,8 +494,9 @@ exports.documentsUpload = async (req, res) => {
     const { requestId } = req.params;
     let file;
     const { doc_id } = req.body;
+
     if (req.file) {
-      file = req.file.path;
+      file = req.file.location;
     }
     //If missing_docs has doc_id then pull it
     await Request.findOneAndUpdate({ _id: requestId }, { $pull: { missing_docs: doc_id } });
@@ -755,7 +758,7 @@ exports.ProductdocumentsUpload = async (req, res) => {
     //If missing_docs has doc_id then pull it
     await Products.findByIdAndUpdate(productId, { $pull: { missing_docs: { _id: ObjectId(req.body.doc_id) } } });
     if (req.file) {
-      file = req.file.path;
+      file = req.file.location;
       if (req.body.technical_sheet) {
         exisitingProduct.technical_sheet.url.push(file);
       }
@@ -886,98 +889,23 @@ exports.validateRequest = async (req, res) => {
 const CreateProduct = async (Product) => {
   try {
     if (Product.technical_sheet) {
-      let filePaths = [];
-      for (let i = 0; i < Product.technical_sheet.files.length; i++) {
-        if (Product.technical_sheet.files[i].url.includes('uploads/')) {
-          filePaths.push(Product.technical_sheet.files[i].url);
-        } else {
-          const file = Product.technical_sheet.files[i].url;
-          const bitmap = new Buffer(file, 'base64');
-          const fileExt = Product.technical_sheet.files[i].filename.split('.').pop();
-          const filePath = `./uploads/${Date.now()}-${
-            Product.technical_sheet.files[i].filename.split(' ').join('').split('.')[0]
-          }${i}.${fileExt}`;
-          fs.writeFileSync(filePath, bitmap);
-          filePaths.push(filePath.substring(2));
-        }
-      }
-      Product.technical_sheet.url = filePaths;
+      Product.technical_sheet.url = await uploadBase64(Product.technical_sheet.files);
       Product.technical_sheet.status = 'Sent';
     }
     if (Product.test_report) {
-      let filePaths = [];
-      for (let i = 0; i < Product.test_report.files.length; i++) {
-        if (Product.test_report.files[i].url.includes('uploads/')) {
-          filePaths.push(Product.test_report.files[i].url);
-        } else {
-          const file = Product.test_report.files[i].url;
-          const fileExt = Product.test_report.files[i].filename.split('.').pop();
-          const bitmap = new Buffer(file, 'base64');
-          const filePath = `./uploads/${Date.now()}-${
-            Product.test_report.files[i].filename.split(' ').join('').split('.')[0]
-          }${i}.${fileExt}`;
-          fs.writeFileSync(filePath, bitmap);
-          filePaths.push(filePath.substring(2));
-        }
-      }
-      Product.test_report.url = filePaths;
+      Product.test_report.url = await uploadBase64(Product.test_report.files);
       Product.test_report.status = 'Sent';
     }
     if (Product.plan) {
-      let filePaths = [];
-      for (let i = 0; i < Product.plan.files.length; i++) {
-        if (Product.plan.files[i].url.includes('uploads/')) {
-          filePaths.push(Product.plan.files[i].url);
-        } else {
-          const file = Product.plan.files[i].url;
-          const fileExt = Product.plan.files[i].filename.split('.').pop();
-          const bitmap = new Buffer(file, 'base64');
-          const filePath = `./uploads/${Date.now()}-${
-            Product.plan.files[i].filename.split(' ').join('').split('.')[0]
-          }${i}.${fileExt}`;
-          fs.writeFileSync(filePath, bitmap);
-          filePaths.push(filePath.substring(2));
-        }
-      }
-      Product.plan.url = filePaths;
+      Product.plan.url = await uploadBase64(Product.plan.files);
       Product.plan.status = 'Sent';
     }
     if (Product.other_docs) {
-      let filePaths = [];
-      for (let i = 0; i < Product.other_docs.files.length; i++) {
-        if (Product.other_docs.files[i].url.includes('uploads/')) {
-          filePaths.push(Product.other_docs.files[i].url);
-        } else {
-          const file = Product.other_docs.files[i].url;
-          const fileExt = Product.other_docs.files[i].filename.split('.').pop();
-          const bitmap = new Buffer(file, 'base64');
-          const filePath = `./uploads/${Date.now()}-${
-            Product.other_docs.files[i].filename.split(' ').join('').split('.')[0]
-          }${i}.${fileExt}`;
-          fs.writeFileSync(filePath, bitmap);
-          filePaths.push(filePath.substring(2));
-        }
-      }
-      Product.other_docs.url = filePaths;
+      Product.other_docs.url = await uploadBase64(Product.other_docs.files);
       Product.other_docs.status = 'Sent';
     }
     if (Product.analysis_certificate) {
-      let filePaths = [];
-      for (let i = 0; i < Product.analysis_certificate.files.length; i++) {
-        if (Product.analysis_certificate.files[i].url.includes('uploads/')) {
-          filePaths.push(Product.analysis_certificate.files[i].url);
-        } else {
-          const file = Product.analysis_certificate.files[i].url;
-          const fileExt = Product.analysis_certificate.files[i].filename.split('.').pop();
-          const bitmap = new Buffer(file, 'base64');
-          const filePath = `./uploads/${Date.now()}-${
-            Product.analysis_certificate.files[i].filename.split(' ').join('').split('.')[0]
-          }${i}.${fileExt}`;
-          fs.writeFileSync(filePath, bitmap);
-          filePaths.push(filePath.substring(2));
-        }
-      }
-      Product.analysis_certificate.url = filePaths;
+      Product.analysis_certificate.url = await uploadBase64(Product.analysis_certificate.files);
       Product.analysis_certificate.status = 'Sent';
     }
     const product = await Products.create(Product);
@@ -1099,7 +1027,7 @@ exports.zipFile = async (req, res) => {
       //Finding all documents of request and push their urls in queue
       let doc = existingRequest.documents[i];
       for (let j = 0; j < doc.url.length; j++) {
-        queue.push({ url: `${process.env.BASE_URL}/${doc.url[j]}`, name: doc.url[j] });
+        queue.push({ url: `${doc.url[j]}`, name: doc.url[j] });
       }
     }
     for (let i = 0; i < existingRequest.codes.length; i++) {
@@ -1109,19 +1037,19 @@ exports.zipFile = async (req, res) => {
         let product = code.products[j];
         //push url of each sheet
         product.technical_sheet.url.map((e) => {
-          queue.push({ url: `${process.env.BASE_URL}/${e}`, name: e });
+          queue.push({ url: `${e}`, name: e });
         });
         product.test_report.url.map((e) => {
-          queue.push({ url: `${process.env.BASE_URL}/${e}`, name: e });
+          queue.push({ url: `${e}`, name: e });
         });
         product.analysis_certificate.url.map((e) => {
-          queue.push({ url: `${process.env.BASE_URL}/${e}`, name: e });
+          queue.push({ url: `${e}`, name: e });
         });
         product.plan.url.map((e) => {
-          queue.push({ url: `${process.env.BASE_URL}/${e}`, name: e });
+          queue.push({ url: `${e}`, name: e });
         });
         product.other_docs.url.map((e) => {
-          queue.push({ url: `${process.env.BASE_URL}/${e}`, name: e });
+          queue.push({ url: `${e}`, name: e });
         });
         //other_docs
       }
@@ -1163,7 +1091,7 @@ exports.zipFileDocument = async (req, res) => {
     const filteredDocs = existingRequest.documents.filter((e) => e.doc_id.toString() === doc_id.toString());
     for (let i = 0; i < filteredDocs[0].url.length; i++) {
       //Finding all documents of request and push their urls in queue
-      queue.push({ url: `${process.env.BASE_URL}/${filteredDocs[0].url[i]}`, name: filteredDocs[0].url[i] });
+      queue.push({ url: `${filteredDocs[0].url[i]}`, name: filteredDocs[0].url[i] });
     }
     var zip = new ZipStream();
     zip.pipe(res);
@@ -1205,19 +1133,19 @@ exports.zipFileCode = async (req, res) => {
       //Finding all documents of request and push their urls in queue
       let product = filteredDocs[0].products[i];
       product.technical_sheet.url.map((e) => {
-        queue.push({ url: `${process.env.BASE_URL}/${e}`, name: e });
+        queue.push({ url: `${e}`, name: e });
       });
       product.test_report.url.map((e) => {
-        queue.push({ url: `${process.env.BASE_URL}/${e}`, name: e });
+        queue.push({ url: `${e}`, name: e });
       });
       product.analysis_certificate.url.map((e) => {
-        queue.push({ url: `${process.env.BASE_URL}/${e}`, name: e });
+        queue.push({ url: `${e}`, name: e });
       });
       product.plan.url.map((e) => {
-        queue.push({ url: `${process.env.BASE_URL}/${e}`, name: e });
+        queue.push({ url: `${e}`, name: e });
       });
       product.other_docs.url.map((e) => {
-        queue.push({ url: `${process.env.BASE_URL}/${e}`, name: e });
+        queue.push({ url: `${e}`, name: e });
       });
     }
     var zip = new ZipStream();
@@ -1257,19 +1185,19 @@ exports.zipFileProduct = async (req, res) => {
     var queue = []; //it will contain url of all docs with their names
     //Finding all documents of request and push their urls in queue
     existingProduct.technical_sheet.url.map((e) => {
-      queue.push({ url: `${process.env.BASE_URL}/${e}`, name: e });
+      queue.push({ url: `${e}`, name: e });
     });
     existingProduct.test_report.url.map((e) => {
-      queue.push({ url: `${process.env.BASE_URL}/${e}`, name: e });
+      queue.push({ url: `${e}`, name: e });
     });
     existingProduct.analysis_certificate.url.map((e) => {
-      queue.push({ url: `${process.env.BASE_URL}/${e}`, name: e });
+      queue.push({ url: `${e}`, name: e });
     });
     existingProduct.plan.url.map((e) => {
-      queue.push({ url: `${process.env.BASE_URL}/${e}`, name: e });
+      queue.push({ url: `${e}`, name: e });
     });
     existingProduct.other_docs.url.map((e) => {
-      queue.push({ url: `${process.env.BASE_URL}/${e}`, name: e });
+      queue.push({ url: `${e}`, name: e });
     });
 
     var zip = new ZipStream();

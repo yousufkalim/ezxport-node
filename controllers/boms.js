@@ -217,7 +217,7 @@ exports.uploadCodes = async (req, res) => {
     const Bcodes = boms.map((e) => {
       return e.code;
     });
-    await xlsxFile(req.file.path).then(async (rows) => {
+    await xlsxFile(req.file.location).then(async (rows) => {
       var format = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/;
       for (let k = 1; k < rows.length; k++) {
         let item = rows[k];

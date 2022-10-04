@@ -34,7 +34,7 @@ exports.create = async (req, res) => {
 
     // Getting url of the image
     if (req.file) {
-      req.body.photo = req.file.path; // Creating a new property called photo in body object
+      req.body.photo = req.file.location; // Creating a new property called photo in body object
     }
 
     // Creating User
