@@ -8,69 +8,69 @@ const mongoose = require('mongoose');
 const userSchema = new mongoose.Schema(
   {
     first_name: {
-      type: String,
+      type: String
     },
     last_name: {
-      type: String,
+      type: String
     },
     email: {
-      type: String,
+      type: String
     },
     phone_number: {
-      type: String,
+      type: String
     },
     address: {
-      type: String,
+      type: String
     },
     zipcode: Number,
     password: {
-      type: String,
+      type: String
     },
     city: {
-      type: String,
+      type: String
     },
     company: {
       name: { type: String },
       type: { type: String },
-      vat: { type: String },
+      vat: { type: String }
     },
     onboarded: {
       type: Boolean,
-      default: true
-    } ,
+      default: false
+    },
     sellers: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'sellers',
-      },
+        ref: 'sellers'
+      }
     ],
     buyers: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'buyers',
-      },
+        ref: 'buyers'
+      }
     ],
     places: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'places',
-      },
+        ref: 'places'
+      }
     ],
     requests: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'requests',
-      },
+        ref: 'requests'
+      }
     ],
     vendors: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'user_vendors',
-      },
-    ],
+        ref: 'user_vendors'
+      }
+    ]
   },
   {
-    timestamps: true,
+    timestamps: true
   }
 );
 

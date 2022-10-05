@@ -34,24 +34,28 @@ exports.createName = async (req, res) => {
     const { userId, countryId } = req.body;
     var number;
     let existingUser = await Users.findOne({
-      _id: userId,
+      _id: userId
     });
     if (!existingUser) {
       return res.status(409).json({ success: false, message: 'UserId is invalid' });
     }
     const country = await Country.findById(countryId);
     if (!country.calculation) {
-      return res.status(404).json({ success: false, message: 'Calculation of this country is null' });
+      return res
+        .status(404)
+        .json({ success: false, message: 'Calculation of this country is null' });
     }
     if (!country.currency) {
       return res.status(404).json({ success: false, message: 'Currency of this country is null' });
     }
     if (country.vendors.length < 1) {
-      return res.status(404).json({ success: false, message: 'Please Create Vendors for this country' });
+      return res
+        .status(404)
+        .json({ success: false, message: 'Please Create Vendors for this country' });
     }
     const Requests = await Request.find().sort({ createdAt: -1 });
     //Find Country Code from file
-    const code = CountryNameCode.filter((e) => e.name.toLowerCase() === country.name.toLowerCase());
+    const code = CountryNameCode.filter(e => e.name.toLowerCase() === country.name.toLowerCase());
     if (Requests.length === 0) {
       number = '000';
     }
@@ -122,10 +126,10 @@ exports.boms = async (req, res) => {
   try {
     const { user, certification_cost, country } = req.body;
     let existingUser = await Users.findOne({
-      _id: user,
+      _id: user
     });
     let existingCountry = await Country.findOne({
-      _id: country,
+      _id: country
     });
     if (!existingUser) {
       return res.status(409).json({ success: false, message: 'UserId is invalid' });
@@ -168,7 +172,12 @@ exports.calculateCost = async (req, res) => {
     //then set its request status will be not required
     //and cost value will be 0
     if (certificationNotReq) {
-      return res.json({ success: true, status: 'Not Required', certification_cost: 0, country: existingCountry.name }); //Success
+      return res.json({
+        success: true,
+        status: 'Not Required',
+        certification_cost: 0,
+        country: existingCountry.name
+      }); //Success
     }
     //If certification  required by some of documents
     //then calculate monetory values for required codes
@@ -182,7 +191,12 @@ exports.calculateCost = async (req, res) => {
     if (existingCountry.calculation) {
       if (existingCountry.calculation.type === 'coefficient') {
         if (existingCountry.calculation.min_threshold.value > value) {
-          return res.json({ success: true, status: 'Not Required', certification_cost: value, country: existingCountry.name }); //Success
+          return res.json({
+            success: true,
+            status: 'Not Required',
+            certification_cost: value,
+            country: existingCountry.name
+          }); //Success
         }
         const coefficientMultiple = (+existingCountry.calculation.coefficient * value) / 100;
 
@@ -191,31 +205,34 @@ exports.calculateCost = async (req, res) => {
             success: true,
             status: 'Required',
             certification_cost: existingCountry.calculation.min_cost.value,
-            country: existingCountry.name,
+            country: existingCountry.name
           }); //Success
         } else if (coefficientMultiple > existingCountry.calculation.max_cost.value) {
           return res.json({
             success: true,
             status: 'Required',
             certification_cost: existingCountry.calculation.max_cost.value,
-            country: existingCountry.name,
+            country: existingCountry.name
           }); //Success
         } else {
           return res.json({
             success: true,
             status: 'Required',
             certification_cost: coefficientMultiple,
-            country: existingCountry.name,
+            country: existingCountry.name
           }); //Success
         }
       } else if (existingCountry.calculation.type === 'range') {
         for (let i = 0; i < existingCountry.calculation.range.length; i++) {
-          if (existingCountry.calculation.range[i].min <= value && value <= existingCountry.calculation.range[i].max) {
+          if (
+            existingCountry.calculation.range[i].min <= value &&
+            value <= existingCountry.calculation.range[i].max
+          ) {
             return res.json({
               success: true,
               status: 'Required',
               certification_cost: existingCountry.calculation.range[i].certificate_cost,
-              country: existingCountry.name,
+              country: existingCountry.name
             }); //Success
           }
         }
@@ -239,14 +256,14 @@ exports.calculateCost = async (req, res) => {
             success: true,
             status: 'Required',
             certification_cost: minObj.certificate_cost,
-            country: existingCountry.name,
+            country: existingCountry.name
           }); //Success
         } else if (value > tempMax) {
           return res.json({
             success: true,
             status: 'Required',
             certification_cost: maxObj.certificate_cost,
-            country: existingCountry.name,
+            country: existingCountry.name
           }); //Success
         }
       }
@@ -269,7 +286,7 @@ exports.updateBoms = async (req, res) => {
     const { requestId } = req.params;
     const { certification_cost, country } = req.body;
     let existingCountry = await Country.findOne({
-      _id: country,
+      _id: country
     });
     if (!existingCountry) {
       return res.status(409).json({ success: false, message: 'countryId is invalid' });
@@ -297,7 +314,9 @@ exports.userVendor = async (req, res) => {
     const contact_info = JSON.parse(req.body.contact_info);
     if (contact_info) {
       if (!req.body.contact_fname || !req.body.contact_fname || !req.body.contact_email) {
-        return res.status(409).json({ success: false, message: 'all fields required in contact information section' });
+        return res
+          .status(409)
+          .json({ success: false, message: 'all fields required in contact information section' });
       }
     }
     let existingVendor = await Vendors.findById(vendor);
@@ -320,7 +339,9 @@ exports.userVendor = async (req, res) => {
       await existingUser.save();
       existingRequest.vendor = UserVendor._id;
       await existingRequest.save();
-      return res.status(200).json({ success: true, message: 'userVendor created', request: existingRequest });
+      return res
+        .status(200)
+        .json({ success: true, message: 'userVendor created', request: existingRequest });
     }
     if (existingUserVendor && contact_info) {
       existingUserVendor.contact_fname = req.body.contact_fname;
@@ -330,7 +351,9 @@ exports.userVendor = async (req, res) => {
     }
     existingRequest.vendor = existingUserVendor._id;
     await existingRequest.save();
-    return res.status(200).json({ success: true, message: 'userVendor updated', request: existingRequest });
+    return res
+      .status(200)
+      .json({ success: true, message: 'userVendor updated', request: existingRequest });
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
@@ -397,8 +420,8 @@ exports.Dispatch = async (req, res) => {
       .populate({
         path: 'documents',
         populate: {
-          path: 'doc_id',
-        },
+          path: 'doc_id'
+        }
       });
     return res.status(200).json({ success: true, message: 'Dispatched', request: existingRequest });
   } catch (err) {
@@ -457,8 +480,8 @@ exports.sendEmail = async (req, res) => {
       .populate({
         path: 'vendor',
         populate: {
-          path: 'vendor',
-        },
+          path: 'vendor'
+        }
       })
       .populate('place')
       .populate('buyer')
@@ -468,8 +491,8 @@ exports.sendEmail = async (req, res) => {
       .populate({
         path: 'documents',
         populate: {
-          path: 'doc_id',
-        },
+          path: 'doc_id'
+        }
       });
     await sendRequestEmail(findReq);
     findReq.status = 'Sent';
@@ -498,6 +521,7 @@ exports.documentsUpload = async (req, res) => {
     if (req.file) {
       file = req.file.location;
     }
+
     //If missing_docs has doc_id then pull it
     await Request.findOneAndUpdate({ _id: requestId }, { $pull: { missing_docs: doc_id } });
     //Check if request has create document with one file atleast...?
@@ -507,9 +531,13 @@ exports.documentsUpload = async (req, res) => {
       const documentObj = {
         doc_id: doc_id,
         url: [file],
-        status: 'Sent',
+        status: 'Sent'
       };
-      const newDoc = await Request.findOneAndUpdate({ _id: requestId }, { $push: { documents: documentObj } }, { new: true });
+      const newDoc = await Request.findOneAndUpdate(
+        { _id: requestId },
+        { $push: { documents: documentObj } },
+        { new: true }
+      );
       return res.json({ success: true, message: 'new document has been created', doc: newDoc });
     }
     // else if  request has already document with provided id then this will updated request!
@@ -540,21 +568,21 @@ exports.getAll = async (req, res) => {
       .populate({
         path: 'vendor',
         populate: {
-          path: 'vendor',
-        },
+          path: 'vendor'
+        }
       })
       .populate('place')
       .populate('buyer')
       .populate('seller')
       .populate({
-        path: 'codes.products',
+        path: 'codes.products'
       })
       .populate('codes.code')
       .populate({
         path: 'documents',
         populate: {
-          path: 'doc_id',
-        },
+          path: 'doc_id'
+        }
       });
     // let request1 = { ...JSON.parse(JSON.stringify(requests)) };
     // findVal(request1, 'url');
@@ -581,21 +609,21 @@ exports.getByuserId = async (req, res) => {
       .populate({
         path: 'vendor',
         populate: {
-          path: 'vendor',
-        },
+          path: 'vendor'
+        }
       })
       .populate('place')
       .populate('buyer')
       .populate('seller')
       .populate({
-        path: 'codes.products',
+        path: 'codes.products'
       })
       .populate('codes.code')
       .populate({
         path: 'documents',
         populate: {
-          path: 'doc_id',
-        },
+          path: 'doc_id'
+        }
       });
     // let request1 = { ...JSON.parse(JSON.stringify(request)) };
     // findVal(request1, 'url');
@@ -622,21 +650,21 @@ exports.getBycountryId = async (req, res) => {
       .populate({
         path: 'vendor',
         populate: {
-          path: 'vendor',
-        },
+          path: 'vendor'
+        }
       })
       .populate('place')
       .populate('buyer')
       .populate('seller')
       .populate({
-        path: 'codes.products',
+        path: 'codes.products'
       })
       .populate('codes.code')
       .populate({
         path: 'documents',
         populate: {
-          path: 'doc_id',
-        },
+          path: 'doc_id'
+        }
       });
     // let request1 = { ...JSON.parse(JSON.stringify(request)) };
     // findVal(request1, 'url');
@@ -663,21 +691,21 @@ exports.getById = async (req, res) => {
       .populate({
         path: 'vendor',
         populate: {
-          path: 'vendor',
-        },
+          path: 'vendor'
+        }
       })
       .populate('place')
       .populate('buyer')
       .populate('seller')
       .populate({
-        path: 'codes.products',
+        path: 'codes.products'
       })
       .populate('codes.code')
       .populate({
         path: 'documents',
         populate: {
-          path: 'doc_id',
-        },
+          path: 'doc_id'
+        }
       });
     let request1 = { ...JSON.parse(JSON.stringify(request)) };
     findVal(request1, 'url');
@@ -756,7 +784,9 @@ exports.ProductdocumentsUpload = async (req, res) => {
       res.status(404).json({ success: false, message: 'Product Not Found' });
     }
     //If missing_docs has doc_id then pull it
-    await Products.findByIdAndUpdate(productId, { $pull: { missing_docs: { _id: ObjectId(req.body.doc_id) } } });
+    await Products.findByIdAndUpdate(productId, {
+      $pull: { missing_docs: { _id: ObjectId(req.body.doc_id) } }
+    });
     if (req.file) {
       file = req.file.location;
       if (req.body.technical_sheet) {
@@ -811,7 +841,7 @@ exports.ReqmissingDocs = async (req, res) => {
     for (let i = 0; i < products.length; i++) {
       const missingDocObj = {
         name: products[i].name,
-        _id: ObjectId(),
+        _id: ObjectId()
       };
       const exitingProduct = await Products.findById(products[i].product);
       exitingProduct.missing_docs.push(missingDocObj);
@@ -886,7 +916,7 @@ exports.validateRequest = async (req, res) => {
  * @param {object} res
  */
 
-const CreateProduct = async (Product) => {
+const CreateProduct = async Product => {
   try {
     if (Product.technical_sheet) {
       Product.technical_sheet.url = await uploadBase64(Product.technical_sheet.files);
@@ -920,7 +950,7 @@ const CreateProduct = async (Product) => {
  * @param {object} req
  * @param {object} res
  */
-const fileExtension = (fileBase64) => {
+const fileExtension = fileBase64 => {
   let fileHeader = new Map();
   //get the first 3 char of base64
   fileHeader.set('/9j', 'jpg');
@@ -963,11 +993,11 @@ exports.Checkout = async (req, res, next) => {
       mode: 'payment', // => The mode of the Checkout Session. Possible type: payment, setup and subscription
       success_url: `${process.env.CLIENT_URL}/`, // => The URL the customer will be directed to if they decide to cancel payment and return to your website. example http://localhost:3001/home?success
       cancel_url: `${process.env.CLIENT_URL}/`, // => The URL to which Stripe should send customers when payment or setup is complete. If you’d like to use information from the successful Checkout Session on your page. example http://localhost:3001/not_home?reject
-      metadata: metaData,
+      metadata: metaData
     });
     // => return the url of the checkout session page
     res.status(200).json({
-      url: session.url,
+      url: session.url
     });
   } catch (err) {
     next(err);
@@ -998,7 +1028,8 @@ exports.Webhook = async (req, res) => {
         if (!findReq) return res.json({ success: false, message: 'RequestId is invalid' });
         findReq.status = 'Being checked by an expert';
         findReq.request_method = 'platform';
-        findReq.certification_cost.value = +findReq.certification_cost.value + findReq.certification_cost.value * 0.02;
+        findReq.certification_cost.value =
+          +findReq.certification_cost.value + findReq.certification_cost.value * 0.02;
         await findReq.save();
       }
       break;
@@ -1036,19 +1067,19 @@ exports.zipFile = async (req, res) => {
       for (let j = 0; j < code.products.length; j++) {
         let product = code.products[j];
         //push url of each sheet
-        product.technical_sheet.url.map((e) => {
+        product.technical_sheet.url.map(e => {
           queue.push({ url: `${e}`, name: e });
         });
-        product.test_report.url.map((e) => {
+        product.test_report.url.map(e => {
           queue.push({ url: `${e}`, name: e });
         });
-        product.analysis_certificate.url.map((e) => {
+        product.analysis_certificate.url.map(e => {
           queue.push({ url: `${e}`, name: e });
         });
-        product.plan.url.map((e) => {
+        product.plan.url.map(e => {
           queue.push({ url: `${e}`, name: e });
         });
-        product.other_docs.url.map((e) => {
+        product.other_docs.url.map(e => {
           queue.push({ url: `${e}`, name: e });
         });
         //other_docs
@@ -1060,7 +1091,7 @@ exports.zipFile = async (req, res) => {
     function addNextFile() {
       var elem = queue.shift();
       var stream = request(elem.url);
-      zip.entry(stream, { name: elem.name }, (err) => {
+      zip.entry(stream, { name: elem.name }, err => {
         if (err) throw err;
         if (queue.length > 0) addNextFile();
         else zip.finalize();
@@ -1088,7 +1119,9 @@ exports.zipFileDocument = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Request not Found' });
     }
     var queue = []; //it will contain url of all docs with their names
-    const filteredDocs = existingRequest.documents.filter((e) => e.doc_id.toString() === doc_id.toString());
+    const filteredDocs = existingRequest.documents.filter(
+      e => e.doc_id.toString() === doc_id.toString()
+    );
     for (let i = 0; i < filteredDocs[0].url.length; i++) {
       //Finding all documents of request and push their urls in queue
       queue.push({ url: `${filteredDocs[0].url[i]}`, name: filteredDocs[0].url[i] });
@@ -1098,7 +1131,7 @@ exports.zipFileDocument = async (req, res) => {
     function addNextFile() {
       var elem = queue.shift();
       var stream = request(elem.url);
-      zip.entry(stream, { name: elem.name }, (err) => {
+      zip.entry(stream, { name: elem.name }, err => {
         if (err) throw err;
         if (queue.length > 0) addNextFile();
         else zip.finalize();
@@ -1128,23 +1161,25 @@ exports.zipFileCode = async (req, res) => {
     }
 
     var queue = []; //it will contain url of all docs with their names
-    const filteredDocs = existingRequest.codes.filter((e) => e.code.toString() === code_id.toString());
+    const filteredDocs = existingRequest.codes.filter(
+      e => e.code.toString() === code_id.toString()
+    );
     for (let i = 0; i < filteredDocs[0].products.length; i++) {
       //Finding all documents of request and push their urls in queue
       let product = filteredDocs[0].products[i];
-      product.technical_sheet.url.map((e) => {
+      product.technical_sheet.url.map(e => {
         queue.push({ url: `${e}`, name: e });
       });
-      product.test_report.url.map((e) => {
+      product.test_report.url.map(e => {
         queue.push({ url: `${e}`, name: e });
       });
-      product.analysis_certificate.url.map((e) => {
+      product.analysis_certificate.url.map(e => {
         queue.push({ url: `${e}`, name: e });
       });
-      product.plan.url.map((e) => {
+      product.plan.url.map(e => {
         queue.push({ url: `${e}`, name: e });
       });
-      product.other_docs.url.map((e) => {
+      product.other_docs.url.map(e => {
         queue.push({ url: `${e}`, name: e });
       });
     }
@@ -1153,7 +1188,7 @@ exports.zipFileCode = async (req, res) => {
     function addNextFile() {
       var elem = queue.shift();
       var stream = request(elem.url);
-      zip.entry(stream, { name: elem.name }, (err) => {
+      zip.entry(stream, { name: elem.name }, err => {
         if (err) throw err;
         if (queue.length > 0) addNextFile();
         else zip.finalize();
@@ -1184,19 +1219,19 @@ exports.zipFileProduct = async (req, res) => {
 
     var queue = []; //it will contain url of all docs with their names
     //Finding all documents of request and push their urls in queue
-    existingProduct.technical_sheet.url.map((e) => {
+    existingProduct.technical_sheet.url.map(e => {
       queue.push({ url: `${e}`, name: e });
     });
-    existingProduct.test_report.url.map((e) => {
+    existingProduct.test_report.url.map(e => {
       queue.push({ url: `${e}`, name: e });
     });
-    existingProduct.analysis_certificate.url.map((e) => {
+    existingProduct.analysis_certificate.url.map(e => {
       queue.push({ url: `${e}`, name: e });
     });
-    existingProduct.plan.url.map((e) => {
+    existingProduct.plan.url.map(e => {
       queue.push({ url: `${e}`, name: e });
     });
-    existingProduct.other_docs.url.map((e) => {
+    existingProduct.other_docs.url.map(e => {
       queue.push({ url: `${e}`, name: e });
     });
 
@@ -1205,7 +1240,7 @@ exports.zipFileProduct = async (req, res) => {
     function addNextFile() {
       var elem = queue.shift();
       var stream = request(elem.url);
-      zip.entry(stream, { name: elem.name }, (err) => {
+      zip.entry(stream, { name: elem.name }, err => {
         if (err) throw err;
         if (queue.length > 0) addNextFile();
         else zip.finalize();
@@ -1235,13 +1270,13 @@ exports.returnFormatedRequest = async (req, res) => {
     if (!existingRequest) {
       return res.status(404).json({ success: false, message: 'Request not Found' });
     }
-    const requiredDocuments = existingRequest.documents.filter((e) => e.url.length > 0);
-    const requiredCodes = existingRequest.codes.filter((e) => e.products.length > 0);
+    const requiredDocuments = existingRequest.documents.filter(e => e.url.length > 0);
+    const requiredCodes = existingRequest.codes.filter(e => e.products.length > 0);
     const requiredFormat = {
       requestId: existingRequest._id,
       title: existingRequest.title,
       documents: requiredDocuments,
-      codes: requiredCodes,
+      codes: requiredCodes
     };
     return res.json({ success: true, Request: requiredFormat });
   } catch (err) {
@@ -1270,13 +1305,13 @@ exports.returnMultipleFormatedRequest = async (req, res) => {
     }
     for (i = 0; i < existingRequests.length; i++) {
       let existingRequest = existingRequests[i];
-      const requiredDocuments = existingRequest.documents.filter((e) => e.url.length > 0);
-      const requiredCodes = existingRequest.codes.filter((e) => e.products.length > 0);
+      const requiredDocuments = existingRequest.documents.filter(e => e.url.length > 0);
+      const requiredCodes = existingRequest.codes.filter(e => e.products.length > 0);
       const requiredFormat = {
         requestId: existingRequest._id,
         title: existingRequest.title,
         documents: requiredDocuments,
-        codes: requiredCodes,
+        codes: requiredCodes
       };
       data.push(requiredFormat);
     }
@@ -1309,22 +1344,28 @@ exports.UploadmissingDocs = async (req, res) => {
       const files = documents[i].files;
       await Request.findOneAndUpdate({ _id: requestId }, { $pull: { missing_docs: doc_id } });
       // if document with provided id is not created
-      const urls = await SaveFile(files);
+      const urls = await uploadBase64(files);
       const documentObj = {
         doc_id: doc_id,
         url: urls,
-        status: 'Sent',
+        status: 'Sent'
       };
-      await Request.findOneAndUpdate({ _id: requestId }, { $push: { documents: documentObj } }, { new: true });
+      await Request.findOneAndUpdate(
+        { _id: requestId },
+        { $push: { documents: documentObj } },
+        { new: true }
+      );
     }
 
     for (let i = 0; i < products.length; i++) {
       const productId = products[i].productId;
       const objId = products[i].obj_id;
       const files = products[i].files;
-      const urls = await SaveFile(files);
+      const urls = await uploadBase64(files);
       //If missing_docs has doc_id then pull it
-      let product = await Products.findByIdAndUpdate(productId, { $pull: { missing_docs: { _id: ObjectId(objId) } } });
+      let product = await Products.findByIdAndUpdate(productId, {
+        $pull: { missing_docs: { _id: ObjectId(objId) } }
+      });
       if (product) {
         product.other_docs.url.push(...urls);
         product.other_docs.status = 'Sent';
@@ -1347,7 +1388,7 @@ exports.UploadmissingDocs = async (req, res) => {
  * @param {object} res
  */
 
-const SaveFile = async (files) => {
+const SaveFile = async files => {
   try {
     let filePaths = [];
     for (let i = 0; i < files.length; i++) {
@@ -1355,7 +1396,9 @@ const SaveFile = async (files) => {
       const file = url;
       const fileExt = files[i].filename.split('.').pop();
       const bitmap = new Buffer(file, 'base64');
-      const filePath = `./uploads/${Date.now()}-${files[i].filename.split(' ').join('').split('.')[0]}.${fileExt}`;
+      const filePath = `./uploads/${Date.now()}-${
+        files[i].filename.split(' ').join('').split('.')[0]
+      }.${fileExt}`;
       fs.writeFileSync(filePath, bitmap);
       filePaths.push(filePath.substring(2));
     }
@@ -1368,7 +1411,7 @@ const SaveFile = async (files) => {
 //cron-job that will run after every 10days to delete requests with draft sttaus
 cron.schedule('0 5 */10 * *', async () => {
   await Request.deleteMany({
-    status: 'Draft',
+    status: 'Draft'
   });
 });
 
@@ -1378,7 +1421,7 @@ function findVal(obj, keyToFind) {
   for (let key in obj) {
     if (typeof obj[key] === 'object') {
       if (key === keyToFind) {
-        obj.files = obj[key].map((k) => ({ url: k, filename: k.split('-')[1] }));
+        obj.files = obj[key].map(k => ({ url: k, filename: k.split('-')[1] }));
         delete obj[key];
       }
       findVal(obj[key], keyToFind);
