@@ -18,7 +18,8 @@ const fileFilter = (req, file, cb) => {
   if (
     file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
     file.mimetype === 'application/pdf' ||
-    file.mimetype === 'application/msword'
+    file.mimetype === 'application/msword' ||
+    file.mimetype === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
   ) {
     cb(null, true);
   } else {
@@ -37,7 +38,8 @@ exports.upload = multer({
       cb(null, { fieldName: Date.now() + '-' + fileName });
     },
     key: function (req, file, cb) {
-      cb(null, Date.now().toString());
+      const fileName = file.originalname.replace(/\s+/g, '');
+      cb(null, Date.now() + '-' + fileName);
     }
   }),
   // File size limit upto 8 mb
@@ -63,36 +65,6 @@ exports.Multerupload = multer({
     fileSize: 1024 * 1024 * 15
   }
 });
-
-// exports.uploadBase64 = async (files) => {
-//   // Create an s3 instance
-//   const AWS = require('aws-sdk');
-//   const s3 = new AWS.S3();
-//   const filepaths = [];
-//   for (let i = 0; i < files.length; i++) {
-//     const base64 = files[i].url;
-//     const filename = files[i].filename;
-//     const base64Data = new Buffer.from(base64.replace(/^data:image\/\w+;base64,/, ''), 'base64');
-//     const params = {
-//       Bucket: 'ezxport1',
-//       Key: `${filename.split(' ').join('').split('.')[0]}.${filename.split('.').pop()}}`, // type is not required
-//       Body: base64Data,
-//       ACL: 'public-read',
-//       ContentEncoding: 'base64', // required
-//       ContentType: `image/${filename.split('.').pop()}`, // required. Notice the back ticks
-//     };
-//     try {
-//       const { Location } = await s3.upload(params).promise();
-//       filepaths.push(Location);
-//     } catch (error) {
-//       return console.log('AWS Error', error);
-//     }
-
-//     console.log(Location);
-//   }
-
-//   return filepaths;
-// };
 
 exports.uploadBase64 = async files => {
   // Create an s3 instance
@@ -124,6 +96,5 @@ exports.uploadBase64 = async files => {
       }
     }
   }
-  console.log(filepaths, 'filepaths');
   return filepaths;
 };
