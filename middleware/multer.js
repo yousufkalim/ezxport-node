@@ -85,7 +85,7 @@ exports.uploadBase64 = async files => {
     if (base64.includes('https://ezxport1.s3')) {
       filepaths.push(base64);
     } else {
-      const filename = files[i].filename;
+      const filename = files[i].filename.replace(/\s+/g, '');
       const base64Data = new Buffer.from(base64, 'base64');
       const params = {
         Bucket: 'ezxport1',
