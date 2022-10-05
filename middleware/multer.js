@@ -14,11 +14,17 @@ const s3 = new S3Client({
 });
 
 const fileFilter = (req, file, cb) => {
+  console.log(file.mimetype, 'file.mimetype');
   if (
     file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
     file.mimetype === 'application/pdf' ||
     file.mimetype === 'application/msword' ||
-    file.mimetype === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    file.mimetype === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
+    file.mimetype === 'application/vnd.ms-excel' ||
+    file.mimetype === 'application/vnd.openxmlformats-' ||
+    file.mimetype === 'officedocument.spreadsheetml.sheet' ||
+    file.mimetype === 'application/vnd.openxmlformats-' ||
+    file.mimetype === 'officedocument.wordprocessingml.document'
   ) {
     cb(null, true);
   } else {
@@ -91,11 +97,19 @@ exports.uploadBase64 = async files => {
         ContentEncoding: 'base64', // required
         ContentType: `image/${filename.split('.').pop()}` // required. Notice the back ticks
       };
-      try {
-        let data = await s3.upload(params).promise();
-        filepaths.push(data.Location);
-      } catch (err) {
-        return console.log(err);
+      if (
+        filename.split('.').pop() === 'pdf' ||
+        filename.split('.').pop() === 'xlsx' ||
+        filename.split('.').pop() === 'docx' ||
+        filename.split('.').pop() === 'doc' ||
+        filename.split('.').pop() === 'xls'
+      ) {
+        try {
+          let data = await s3.upload(params).promise();
+          filepaths.push(data.Location);
+        } catch (err) {
+          return console.log(err);
+        }
       }
     }
   }
