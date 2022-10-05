@@ -15,7 +15,11 @@ exports.create = async (req, res) => {
   try {
     const { code, countries } = req.body;
     req.body.admin_code = true;
-    const existingCode = await Boms.findOne({ code: code, countries: { $in: countries }, admin_code: true }); // Finding all the bom from db
+    const existingCode = await Boms.findOne({
+      code: code,
+      countries: { $in: countries },
+      admin_code: true
+    }); // Finding all the bom from db
     if (existingCode) {
       return res.status(409).json({ success: false, message: 'Code already exist' });
     }
@@ -132,8 +136,8 @@ exports.filterCode = async (req, res) => {
     // Initilization
     let country = await Country.findById(req.body.country);
     let boms = await Boms.find({ countries: country._id });
-    let adminBoms = boms.filter((bom) => bom.admin_code === true); // All the codes created by admin
-    let privateBoms = boms.filter((bom) => bom.admin_code === false); // All the codes created by user
+    let adminBoms = boms.filter(bom => bom.admin_code === true); // All the codes created by admin
+    let privateBoms = boms.filter(bom => bom.admin_code === false); // All the codes created by user
     let rows = await xlsxFile(req.file.path);
     rows.shift(); // Removing first row that is containing headers
 
@@ -149,20 +153,20 @@ exports.filterCode = async (req, res) => {
     let unMatchedBomsToCreate = []; // Data that is not matched with db and not created by admin and need to be created
 
     // Iterating through each row to find matched and unmatched data
-    rows.map((item) => {
+    rows.map(item => {
       // Validation, Skipping invalid rows
       if (!item[0] || !item[1] || format.test(item[0]) || isNaN(item[1])) {
         return;
       }
       let code = item[0].toString(); // Converting code to string as we have string in db
       let monetary_value = item[1];
-      let bom = adminBoms.find((bom) => code.includes(bom.code)); // This will check if code is included in any of the admin code
+      let bom = adminBoms.find(bom => code.includes(bom.code)); // This will check if code is included in any of the admin code
       if (bom) {
         // Found matched data
         matchedData.push({ bom, monetary_value });
       } else {
         // Not found matched data
-        let bom = privateBoms.find((bom) => bom.code === code); // Checking if the code is already in db
+        let bom = privateBoms.find(bom => bom.code === code); // Checking if the code is already in db
         if (bom) {
           unMatched.push({ bom, monetary_value });
         } else {
@@ -172,15 +176,15 @@ exports.filterCode = async (req, res) => {
               code,
               countries: country._id,
               certification_required: false,
-              admin_code: false,
+              admin_code: false
             },
-            monetary_value,
+            monetary_value
           });
         }
       }
     });
 
-    let newBoms = await Boms.insertMany(unMatchedBomsToCreate.map((item) => item.bom)); // Creating new boms without monetary value
+    let newBoms = await Boms.insertMany(unMatchedBomsToCreate.map(item => item.bom)); // Creating new boms without monetary value
     // Now we have to add newBom in unMatchedBomsToCreate array
     newBoms.map((bom, i) => {
       unMatchedBomsToCreate[i].bom = bom;
@@ -214,10 +218,10 @@ exports.uploadCodes = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Country not found' });
     }
     const boms = await Boms.find();
-    const Bcodes = boms.map((e) => {
+    const Bcodes = boms.map(e => {
       return e.code;
     });
-    await xlsxFile(req.file.location).then(async (rows) => {
+    await xlsxFile(req.file.path).then(async rows => {
       var format = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/;
       for (let k = 1; k < rows.length; k++) {
         let item = rows[k];
@@ -229,7 +233,7 @@ exports.uploadCodes = async (req, res) => {
                 code: codes,
                 countries: country,
                 certification_required: true,
-                admin_code: true,
+                admin_code: true
               });
               existingCountry.boms.push(newBom._id);
               await existingCountry.save();
@@ -248,7 +252,7 @@ exports.uploadCodes = async (req, res) => {
                     code: codes,
                     countries: country,
                     certification_required: true,
-                    admin_code: true,
+                    admin_code: true
                   });
                   existingCountry.boms.push(newBom._id);
                   await existingCountry.save();
