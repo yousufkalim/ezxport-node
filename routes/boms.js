@@ -8,7 +8,7 @@ const { userAuth } = require('../middleware/userAuth');
 const { commonAuth } = require('../middleware/commonAuth');
 const bom = require('../controllers/boms');
 const { validateBoms, validateCountryID, isValidated } = require('../middleware/validators');
-const { upload } = require('../middleware/multer');
+const { upload, Multerupload } = require('../middleware/multer');
 
 /**
  * ////////////////////////// Routes /////////////////////////
@@ -22,9 +22,9 @@ const { upload } = require('../middleware/multer');
 // Create - bom Signup
 router.post('/', checkAdminAuth, validateBoms, isValidated, bom.create);
 // Create - bom Signup
-router.post('/filterCodes', upload.single('file'), userAuth, validateCountryID, isValidated, bom.filterCode);
+router.post('/filterCodes', Multerupload.single('file'), userAuth, validateCountryID, isValidated, bom.filterCode);
 // Create - bom Signup
-router.post('/uploadCodes', upload.single('file'), checkAdminAuth, validateCountryID, isValidated, bom.uploadCodes);
+router.post('/uploadCodes', Multerupload.single('file'), checkAdminAuth, validateCountryID, isValidated, bom.uploadCodes);
 // Read
 router.get('/', commonAuth, bom.getAll); // Get all bomat once
 router.get('/getByCountryId/:countryId', commonAuth, bom.getByCountryId); // Get all bomat once
