@@ -2,11 +2,11 @@
  * Database connection
  * @author Yousuf Kalim
  */
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 const db_url = process.env.MONGODB_URI;
 
 // Setting
-mongoose.set("debug", true);
+// mongoose.set("debug", true);
 
 // Connection
 mongoose
@@ -16,9 +16,9 @@ mongoose
     useUnifiedTopology: true,
     useCreateIndex: true,
     useFindAndModify: false,
-    ignoreUndefined: true,
+    ignoreUndefined: true
   })
-  .then(() => console.log("We are connected with database :)")) //Success
-  .catch((err) => {
-    console.log("DB Connection Error :( -------> ", err); //Failed
+  .then(() => console.log('We are connected with database :)')) //Success
+  .catch(err => {
+    console.log('DB Connection Error :( -------> ', err); //Failed
   });

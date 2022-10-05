@@ -3,15 +3,14 @@
  * @author Yousuf Kalim
  */
 const multer = require('multer');
-const aws = require('aws-sdk');
 const multerS3 = require('multer-s3');
 const { S3Client } = require('@aws-sdk/client-s3');
-const s3 = new S3Client();
-
-aws.config.update({
-  secretAccessKey: process.env.S3_SECRET_KEY,
-  accessKeyId: process.env.S3_ACCESS_KEY,
-  region: 'eu-west-3'
+const s3 = new S3Client({
+  region: 'eu-west-3',
+  credentials: {
+    secretAccessKey: process.env.S3_SECRET_KEY,
+    accessKeyId: process.env.S3_ACCESS_KEY
+  }
 });
 
 const fileFilter = (req, file, cb) => {
@@ -69,7 +68,11 @@ exports.Multerupload = multer({
 exports.uploadBase64 = async files => {
   // Create an s3 instance
   const AWS = require('aws-sdk');
-  const s3 = new AWS.S3();
+  const s3 = new AWS.S3({
+    secretAccessKey: process.env.S3_SECRET_KEY,
+    accessKeyId: process.env.S3_ACCESS_KEY,
+    region: 'eu-west-3'
+  });
   const filepaths = [];
   for (let i = 0; i < files.length; i++) {
     const base64 = files[i].url;
