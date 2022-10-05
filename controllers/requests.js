@@ -521,7 +521,7 @@ exports.documentsUpload = async (req, res) => {
     if (req.file) {
       file = req.file.location;
     }
-    return console.log(req.file);
+
     //If missing_docs has doc_id then pull it
     await Request.findOneAndUpdate({ _id: requestId }, { $pull: { missing_docs: doc_id } });
     //Check if request has create document with one file atleast...?
@@ -1344,7 +1344,7 @@ exports.UploadmissingDocs = async (req, res) => {
       const files = documents[i].files;
       await Request.findOneAndUpdate({ _id: requestId }, { $pull: { missing_docs: doc_id } });
       // if document with provided id is not created
-      const urls = await SaveFile(files);
+      const urls = await uploadBase64(files);
       const documentObj = {
         doc_id: doc_id,
         url: urls,
@@ -1361,7 +1361,7 @@ exports.UploadmissingDocs = async (req, res) => {
       const productId = products[i].productId;
       const objId = products[i].obj_id;
       const files = products[i].files;
-      const urls = await SaveFile(files);
+      const urls = await uploadBase64(files);
       //If missing_docs has doc_id then pull it
       let product = await Products.findByIdAndUpdate(productId, {
         $pull: { missing_docs: { _id: ObjectId(objId) } }
