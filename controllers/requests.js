@@ -992,7 +992,7 @@ exports.Checkout = async (req, res, next) => {
       locale: 'fr', // => The IETF language tag of the locale Checkout is displayed in.
       mode: 'payment', // => The mode of the Checkout Session. Possible type: payment, setup and subscription
       success_url: `${process.env.CLIENT_URL}/`, // => The URL the customer will be directed to if they decide to cancel payment and return to your website. example http://localhost:3001/home?success
-      cancel_url: `${process.env.CLIENT_URL}/`, // => The URL to which Stripe should send customers when payment or setup is complete. If you’d like to use information from the successful Checkout Session on your page. example http://localhost:3001/not_home?reject
+      cancel_url: `${process.env.CLIENT_URL}/User/Dashboard/Providers`, // => The URL to which Stripe should send customers when payment or setup is complete. If you’d like to use information from the successful Checkout Session on your page. example http://localhost:3001/not_home?reject
       metadata: metaData
     });
     // => return the url of the checkout session page
@@ -1028,7 +1028,9 @@ exports.Webhook = async (req, res) => {
         if (!findReq) return res.json({ success: false, message: 'RequestId is invalid' });
         findReq.status = 'Being checked by an expert';
         findReq.request_method = 'platform';
-        findReq.certification_cost.value = metaData.unit_amount;
+        findReq.certification_cost.value =
+          Math.round(+findReq.certification_cost.value + findReq.certification_cost.value * 0.2) *
+          100;
         await findReq.save();
       }
       break;
@@ -1420,7 +1422,7 @@ function findVal(obj, keyToFind) {
   for (let key in obj) {
     if (typeof obj[key] === 'object') {
       if (key === keyToFind) {
-        obj.files = obj[key].map(k => ({ url: k, filename: k.split('-')[1] }));
+        obj.files = obj[key].map(k => ({ url: k, filename: k.split('-').pop() }));
         delete obj[key];
       }
       findVal(obj[key], keyToFind);

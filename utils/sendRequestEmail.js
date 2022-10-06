@@ -7,6 +7,7 @@ var nodemailer = require('nodemailer');
 const sender_name = process.env.MAILER_DOMAIN;
 const sender_email = process.env.MAILER_EMAIL;
 const sender_password = process.env.MAILER_PASSWORD;
+const moment = require('moment');
 /**
  * sendEmail
  * @param {string} subject
@@ -117,9 +118,8 @@ ${
 <td style="text-align:center; border-right: 1px solid black; ">${request.user.address}  </td>
 <td style="text-align:center; border-right: 1px solid black; ">${request.seller.address}  </td>
 <td style="text-align:center; border-right: none; ">${request.buyer.address}  </td>
-</tr>
 <tr style=" border-top: 1px solid #78858e; border-bottom: 1px solid #78858e; ">
-<th style="text-align:center; border-right: 1px solid black; ">City</th>
+<th style="text-align:center; border-right: 1px solid black; ">Town</th>
 <td style="text-align:center; border-right: 1px solid black; ">${request.user.city}  </td>
 <td style="text-align:center; border-right: 1px solid black; ">${request.user.city}  </td>
 <td style="text-align:center; border-right: 1px solid black; ">${request.seller.city}  </td>
@@ -160,7 +160,7 @@ ${
       <th style="text-align:center;border-right: 1px solid black; border-right: 1px solid black; " scope="col ">Email</th>
       <th style="text-align:center;border-right: 1px solid black; border-right: 1px solid black; " scope="col ">Phone</th>
       <th style="text-align:center;border-right: 1px solid black; border-right: 1px solid black; " scope="col ">Address</th>
-      <th style="text-align:center;border-right: 1px solid black; border-right: 1px solid black; " scope="col ">City</th>
+      <th style="text-align:center;border-right: 1px solid black; border-right: 1px solid black; " scope="col ">Town</th>
       <th style="text-align:center;border-right: 1px solid black; border-right:none; " scope="col ">Zip Code</th>
     </tr>
   </thead>
