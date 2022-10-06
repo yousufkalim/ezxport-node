@@ -18,7 +18,12 @@ const fileFilter = (req, file, cb) => {
     file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
     file.mimetype === 'application/pdf' ||
     file.mimetype === 'application/msword' ||
-    file.mimetype === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    file.mimetype === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
+    file.mimetype === 'application/vnd.ms-excel' ||
+    file.mimetype === 'application/vnd.openxmlformats-' ||
+    file.mimetype === 'officedocument.spreadsheetml.sheet' ||
+    file.mimetype === 'application/vnd.openxmlformats-' ||
+    file.mimetype === 'officedocument.wordprocessingml.document'
   ) {
     cb(null, true);
   } else {
@@ -79,7 +84,7 @@ exports.uploadBase64 = async files => {
     if (base64.includes('https://ezxport1.s3')) {
       filepaths.push(base64);
     } else {
-      const filename = files[i].filename;
+      const filename = files[i].filename.replace(/\s+/g, '');
       const base64Data = new Buffer.from(base64, 'base64');
       const params = {
         Bucket: 'ezxport1',
@@ -91,11 +96,19 @@ exports.uploadBase64 = async files => {
         ContentEncoding: 'base64', // required
         ContentType: `image/${filename.split('.').pop()}` // required. Notice the back ticks
       };
-      try {
-        let data = await s3.upload(params).promise();
-        filepaths.push(data.Location);
-      } catch (err) {
-        return console.log(err);
+      if (
+        filename.split('.').pop() === 'pdf' ||
+        filename.split('.').pop() === 'xlsx' ||
+        filename.split('.').pop() === 'docx' ||
+        filename.split('.').pop() === 'doc' ||
+        filename.split('.').pop() === 'xls'
+      ) {
+        try {
+          let data = await s3.upload(params).promise();
+          filepaths.push(data.Location);
+        } catch (err) {
+          return console.log(err);
+        }
       }
     }
   }
