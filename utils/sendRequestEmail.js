@@ -396,7 +396,9 @@ ${
       }
       </p>
       <p align="center " style="color: #000; font-family: Verdana; margin:0 ">
-      <span style= "color: #7F56D9; font-family: fantasy; ">Document Name:</span>${item.doc_id.info}
+      <span style= "color: #7F56D9; font-family: fantasy; ">Helping Information:</span>${
+        item?.doc_id?.info ? item.doc_id.info : 'Not Provided'
+      }
       </p>
       <p align="center " style="color: #000; font-family: Verdana; margin:0 ">
       <span style= "color: #7F56D9; font-family: fantasy; ">Document Link:</span>

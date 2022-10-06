@@ -992,7 +992,7 @@ exports.Checkout = async (req, res, next) => {
       locale: 'fr', // => The IETF language tag of the locale Checkout is displayed in.
       mode: 'payment', // => The mode of the Checkout Session. Possible type: payment, setup and subscription
       success_url: `${process.env.CLIENT_URL}/`, // => The URL the customer will be directed to if they decide to cancel payment and return to your website. example http://localhost:3001/home?success
-      cancel_url: `${process.env.CLIENT_URL}/User/Dashboard/Providers`, // => The URL to which Stripe should send customers when payment or setup is complete. If you’d like to use information from the successful Checkout Session on your page. example http://localhost:3001/not_home?reject
+      cancel_url: `${process.env.CLIENT_URL}/`, // => The URL to which Stripe should send customers when payment or setup is complete. If you’d like to use information from the successful Checkout Session on your page. example http://localhost:3001/not_home?reject
       metadata: metaData
     });
     // => return the url of the checkout session page
