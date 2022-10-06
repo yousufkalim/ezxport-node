@@ -14,14 +14,14 @@ const sender_password = process.env.MAILER_PASSWORD;
  * @return {void}
  */
 
-exports.sendRequestEmail = (request) => {
+exports.sendRequestEmail = request => {
   return new Promise((resolve, reject) => {
     var transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
         user: sender_email,
-        pass: sender_password,
-      },
+        pass: sender_password
+      }
     });
     if (!request?.vendor?.vendor?.sending_email) {
       return res.status(404).json({ success: false, message: 'No Recipients Found' });
@@ -31,7 +31,7 @@ exports.sendRequestEmail = (request) => {
       from: `${sender_name} <${sender_email}>`,
       to: request.vendor.vendor.sending_email,
       subject: 'Certfication  Request',
-      html: RequestTemplate(request),
+      html: RequestTemplate(request)
     };
     // Sending email
     transporter.sendMail(mailOptions, function (error, info) {
@@ -47,7 +47,7 @@ exports.sendRequestEmail = (request) => {
 };
 
 //Please Never touch my html :}
-const RequestTemplate = (request) => {
+const RequestTemplate = request => {
   return `
 <body style="margin: 0; padding: 0">
     <table role="presentation" style="width: 100%; border-collapse: collapse; border: 0; border-spacing: 0; background: #ffffff">
@@ -168,7 +168,9 @@ ${
 <tr
 border-top: 1px solid #78858e;
 border-bottom: 1px solid #78858e;>
-<td style="text-align:center; border-right: 1px solid black; ">${request.place.company_name}  </td>  
+<td style="text-align:center; border-right: 1px solid black; ">${
+    request.place.company_name
+  }  </td>  
 <td style="text-align:center; border-right: 1px solid black; ">${request.place.email}  </td>
 <td style="text-align:center; border-right: 1px solid black; ">${request.place.phone_number}  </td>
 <td style="text-align:center; border-right: 1px solid black; ">${request.place.address}  </td>
@@ -188,21 +190,25 @@ border-bottom: 1px solid #78858e;>
     </p>
     ${request.codes
       .map(
-        (e) =>
+        e =>
           `
           <p align="center " style="margin:0 ">
         <span style= "color: #7F56D9; font-family: fantasy; ">Code:</span> ${e.code.code}
         </p>
         <p align="center " style="margin:0 ">
-        <span style="color: #7F56D9; font-family: fantasy; ">Certificartion Required:</span>${e.code.certification_required}
+        <span style="color: #7F56D9; font-family: fantasy; ">Certificartion Required:</span>${
+          e.code.certification_required
+        }
         </p>
         <p align="center " style="margin:0 ">
-        <span style="color: #7F56D9; font-family: fantasy; ">Monetory Value:</span>${e.monetary_value}
+        <span style="color: #7F56D9; font-family: fantasy; ">Monetory Value:</span>${
+          e.monetary_value
+        }
         </p>
         
   ${e.products
     .map(
-      (p) =>
+      p =>
         `
     <tr>
         <td align="center ">
@@ -224,7 +230,9 @@ border-bottom: 1px solid #78858e;>
 <td style="text-align:center; border-right: 1px solid black; ">${p.name}  </td>  
 <td style="text-align:center; border-right: 1px solid black; ">${p.amount}  </td>
 <td style="text-align:center; border-right: 1px solid black; ">${p.condition}  </td>
-<td style="text-align:center; border-right: 1px solid black; ">${p.price.value}${p.price.currency}  </td>
+<td style="text-align:center; border-right: 1px solid black; ">${p.price.value}${
+          p.price.currency
+        }  </td>
 <td style="text-align:center; border-right: 1px solid black; ">${p.mark}  </td>
 <td style="text-align:center; border-right: none; ">${p.builder}  </td>
 </tr>
@@ -248,10 +256,10 @@ ${
   <tbody>
   ${p.technical_sheet.url
     .map(
-      (e) =>
+      e =>
         `
         <tr>
-<td style="text-align:center; background: rgba(206, 197, 237, 0.3)"> ${process.env.SERVER_URL}${e} </td>  
+<td style="text-align:center; background: rgba(206, 197, 237, 0.3)"> ${e} </td>  
 </tr>
     `
     )
@@ -274,10 +282,10 @@ ${
   <tbody>
   ${p.analysis_certificate.url
     .map(
-      (e) =>
+      e =>
         `
         <tr>
-<td style="text-align:center;  background: rgba(206, 197, 237, 0.2) "> ${process.env.SERVER_URL}${e} </td>  
+<td style="text-align:center;  background: rgba(206, 197, 237, 0.2) "> ${e} </td>  
 </tr>
     `
     )
@@ -300,10 +308,10 @@ ${
   <tbody>
   ${p.plan.url
     .map(
-      (e) =>
+      e =>
         `
         <tr>
-<td style="text-align:center; background: rgba(206, 197, 237, 0.3)"> ${process.env.SERVER_URL}${e} </td>  
+<td style="text-align:center; background: rgba(206, 197, 237, 0.3)"> ${e} </td>  
 </tr>
     `
     )
@@ -325,10 +333,10 @@ ${
   <tbody>
   ${p.other_docs.url
     .map(
-      (e) =>
+      e =>
         `
         <tr>
-<td style="text-align:center; background: rgba(206, 197, 237, 0.2) "> ${process.env.SERVER_URL}${e} </td>  
+<td style="text-align:center; background: rgba(206, 197, 237, 0.2) "> ${e} </td>  
 </tr>
     `
     )
@@ -350,10 +358,10 @@ ${
   <tbody>
   ${p.test_report.url
     .map(
-      (e) =>
+      e =>
         `
         <tr>
-<td style="text-align:center ;background: rgba(206, 197, 237, 0.3) "> ${process.env.SERVER_URL}${e} </td>  
+<td style="text-align:center ;background: rgba(206, 197, 237, 0.3) "> ${e} </td>  
 </tr>
     `
     )
@@ -379,11 +387,13 @@ ${
 </tr> 
   ${request.documents
     .map(
-      (item) =>
+      item =>
         `
         <div style=" background: rgba(206, 197, 237, 0.1)">
         <p align="center " style="color: #000; font-family: Verdana; margin:0 ">
-      <span style= "color: #7F56D9; font-family: fantasy; "> Document Name:</span>${item.doc_id.name}
+      <span style= "color: #7F56D9; font-family: fantasy; "> Document Name:</span>${
+        item.doc_id.name
+      }
       </p>
       <p align="center " style="color: #000; font-family: Verdana; margin:0 ">
       <span style= "color: #7F56D9; font-family: fantasy; ">Document Name:</span>${item.doc_id.info}
@@ -394,12 +404,12 @@ ${
       </div>
       ${item.url
         .map(
-          (e) =>
+          e =>
             `
             <p align="center "style="color: #000; font-family: Verdana; ; text-align:center !important;
             border-bottom: 1px solid black;background: rgba(206, 197, 237, 0.3)
             ">
-            ${process.env.BASE_URL}/${e}
+           ${e}
             </p>
       `
         )

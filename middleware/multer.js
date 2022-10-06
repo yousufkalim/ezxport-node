@@ -14,7 +14,6 @@ const s3 = new S3Client({
 });
 
 const fileFilter = (req, file, cb) => {
-  console.log(file.mimetype, 'file.mimetype');
   if (
     file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
     file.mimetype === 'application/pdf' ||
