@@ -522,7 +522,7 @@ exports.documentsUpload = async (req, res) => {
       file = req.file.location;
     }
     const findDoc = await Documents.findById(doc_id);
-    if (findDoc) {
+    if (!findDoc) {
       return res.status(404).json({ success: false, message: 'Document Id is invalid' });
     }
     //If missing_docs has doc_id then pull it
