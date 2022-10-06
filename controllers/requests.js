@@ -1422,7 +1422,7 @@ function findVal(obj, keyToFind) {
   for (let key in obj) {
     if (typeof obj[key] === 'object') {
       if (key === keyToFind) {
-        obj.files = obj[key].map(k => ({ url: k, filename: k.split('-')[1] }));
+        obj.files = obj[key].map(k => ({ url: k, filename: k.split('-').pop() }));
         delete obj[key];
       }
       findVal(obj[key], keyToFind);
