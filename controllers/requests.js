@@ -1029,7 +1029,8 @@ exports.Webhook = async (req, res) => {
         findReq.status = 'Being checked by an expert';
         findReq.request_method = 'platform';
         findReq.certification_cost.value =
-          +findReq.certification_cost.value + findReq.certification_cost.value * 0.02;
+          Math.round(+findReq.certification_cost.value + findReq.certification_cost.value * 0.02) *
+          100;
         await findReq.save();
       }
       break;
