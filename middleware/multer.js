@@ -38,11 +38,11 @@ exports.upload = multer({
     s3,
     bucket: 'ezxport1',
     metadata: function (req, file, cb) {
-      const fileName = file.originalname.replace(/\s+/g, '');
+      const fileName = file.originalname.replace(/[ ]+$/g, '');
       cb(null, { fieldName: Date.now() + '-' + fileName });
     },
     key: function (req, file, cb) {
-      const fileName = file.originalname.replace(/\s+/g, '');
+      const fileName = file.originalname.replace(/[ ]+$/g, '');
       cb(null, Date.now() + '-' + fileName);
     }
   }),
