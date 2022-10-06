@@ -521,12 +521,16 @@ exports.documentsUpload = async (req, res) => {
     if (req.file) {
       file = req.file.location;
     }
-
+    const findDoc = await Documents.findById(doc_id);
+    if (!findDoc) {
+      return res.status(404).json({ success: false, message: 'Document Id is invalid' });
+    }
     //If missing_docs has doc_id then pull it
     await Request.findOneAndUpdate({ _id: requestId }, { $pull: { missing_docs: doc_id } });
     //Check if request has create document with one file atleast...?
     let exisitingDoc = await Request.findOne({ _id: requestId, 'documents.doc_id': doc_id });
     // if document with provided id is not created
+
     if (!exisitingDoc) {
       const documentObj = {
         doc_id: doc_id,
@@ -538,6 +542,7 @@ exports.documentsUpload = async (req, res) => {
         { $push: { documents: documentObj } },
         { new: true }
       );
+
       return res.json({ success: true, message: 'new document has been created', doc: newDoc });
     }
     // else if  request has already document with provided id then this will updated request!
@@ -1028,7 +1033,7 @@ exports.Webhook = async (req, res) => {
         if (!findReq) return res.json({ success: false, message: 'RequestId is invalid' });
         findReq.status = 'Being checked by an expert';
         findReq.request_method = 'platform';
-        findReq.certification_cost.value = metadata.unit_amount / 100; //As meta data amount in cents this will convert it into dollar
+        findReq.certification_cost.value = metaData.unit_amount / 100; //As meta data amount in cents this will convert it into dollar
         await findReq.save();
       }
       break;
