@@ -691,6 +691,45 @@ exports.getBycountryId = async (req, res) => {
 };
 
 /**
+ * Get By country and userId
+ * @param {object} req
+ * @param {object} res
+ */
+exports.getByCountryandUserId = async (req, res) => {
+  try {
+    const { countryId, userId } = req.params;
+    const requests = await Request.find({ country: countryId, user: userId })
+      .populate('user')
+      .populate('missing_docs')
+      .populate({
+        path: 'vendor',
+        populate: {
+          path: 'vendor'
+        }
+      })
+      .populate('place')
+      .populate('buyer')
+      .populate('seller')
+      .populate({
+        path: 'codes.products'
+      })
+      .populate('codes.code')
+      .populate({
+        path: 'documents',
+        populate: {
+          path: 'doc_id'
+        }
+      });
+
+    res.status(200).json({ success: true, requests });
+  } catch (err) {
+    // Error handling
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+/**
  * Get Request By Id
  * @param {object} req
  * @param {object} res
