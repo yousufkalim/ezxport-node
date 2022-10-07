@@ -124,7 +124,7 @@ exports.searchName = async (req, res) => {
  */
 exports.boms = async (req, res) => {
   try {
-    const { user, certification_cost, country } = req.body;
+    const { user, certification_cost, country, pastreqId } = req.body;
     let existingUser = await Users.findOne({
       _id: user
     });
@@ -139,9 +139,17 @@ exports.boms = async (req, res) => {
     }
     req.body.certification_cost = { value: certification_cost, currency: existingCountry.currency };
     req.body.status = 'Draft';
-    const request = await Request.create(req.body); // Adding seller in db
+    let request = await Request.create(req.body); // Adding seller in db
     existingUser.requests.push(request._id);
     await existingUser.save();
+    if (pastreqId) {
+      const pastRequest = await Request.findById(pastreqId); // Adding seller in db
+      if (!pastRequest) {
+        return res.status(404).json({ success: false, message: 'Past Request Id invalid' });
+      }
+      request.documents = pastRequest.documents;
+      await request.save();
+    }
     res.json({ success: true, request }); //Success
   } catch (err) {
     // Error handling
@@ -525,6 +533,7 @@ exports.documentsUpload = async (req, res) => {
     if (!findDoc) {
       return res.status(404).json({ success: false, message: 'Document Id is invalid' });
     }
+
     //If missing_docs has doc_id then pull it
     await Request.findOneAndUpdate({ _id: requestId }, { $pull: { missing_docs: doc_id } });
     //Check if request has create document with one file atleast...?
@@ -548,7 +557,7 @@ exports.documentsUpload = async (req, res) => {
     // else if  request has already document with provided id then this will updated request!
     exisitingDoc = await Request.findOneAndUpdate(
       { _id: requestId, 'documents.doc_id': doc_id },
-      { $push: { 'documents.$.url': file } },
+      { 'documents.$.url': file },
       { new: true }
     );
     return res.json({ success: true, message: ' document has been updated', doc: exisitingDoc });
