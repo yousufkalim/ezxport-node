@@ -8,7 +8,7 @@ const cors = require('cors');
 
 // Common Middleware
 module.exports = app => {
-  app.use(cors({ origin: true })); // CORS (Cross Origin Policy) to restrict unknown requests
+  app.use(cors({ origin: process.env.NODE_ENV === "prod" ? process.env.CLIENT_URL : true })); // CORS (Cross Origin Policy) to restrict unknown requests
   app.use(logger('dev')); // Morgan - to log every request in console
   app.use(express.urlencoded({ extended: true })); // to get url encoded data from requests
 
