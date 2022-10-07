@@ -20,7 +20,7 @@ const {
   validateStatusDocument,
   validateMissingDoc,
   isValidated,
-  validateCalculationCost,
+  validateCalculationCost
 } = require('../middleware/validators');
 
 /**
@@ -32,7 +32,13 @@ const {
  * @method delete delete request
  */
 //Calculate Certification Cost
-router.post('/calculateCost', userAuth, validateCalculationCost, isValidated, request.calculateCost);
+router.post(
+  '/calculateCost',
+  userAuth,
+  validateCalculationCost,
+  isValidated,
+  request.calculateCost
+);
 // Create Name
 router.post('/createName', userAuth, validateCreateTitle, isValidated, request.createName);
 //Search Name
@@ -64,7 +70,12 @@ router.put('/sendEmail/:requestId', userAuth, request.sendEmail);
 router.put('/UploadmissingDocs/:requestId', userAuth, request.UploadmissingDocs);
 // // Read
 router.get('/', commonAuth, request.getAll); // Get all requests at once
-router.get('/returnMultipleFormatedRequest/:userId', commonAuth, request.returnMultipleFormatedRequest); // Get all requests at once
+
+router.get(
+  '/returnMultipleFormatedRequest/:userId',
+  commonAuth,
+  request.returnMultipleFormatedRequest
+); // Get all requests at once
 router.get('/returnFormatedRequest/:requestId', commonAuth, request.returnFormatedRequest); // Get all requests at once
 router.get('/getByUser/:userId', commonAuth, request.getByuserId); // Get one requestby it's id
 router.get('/getByCountry/:countryId', commonAuth, request.getBycountryId); // Get one requestby it's id
@@ -73,12 +84,31 @@ router.get('/zipFileProduct/:productId', request.zipFileProduct); // Get all req
 router.get('/zipFileDocument/:requestId/:doc_id', request.zipFileDocument); // Get all requests at once
 router.get('/zipFileCode/:requestId/:code_id', request.zipFileCode); // Get all requests at once
 router.get('/:requestId', commonAuth, request.getById); // Get one requestby it's id
+router.get('/getByCountryandUserId/:countryId/:userId', commonAuth, request.getByCountryandUserId);
+
 //request by admin
-router.put('/validateDoc/:requestId', checkAdminAuth, validateStatusDocument, isValidated, request.validateDoc);
+router.put(
+  '/validateDoc/:requestId',
+  checkAdminAuth,
+  validateStatusDocument,
+  isValidated,
+  request.validateDoc
+);
 router.put('/validateProductDoc/:productId', checkAdminAuth, request.validateProductDoc);
 router.put('/ReqmissingDocs/:requestId', checkAdminAuth, request.ReqmissingDocs);
-router.put('/ProductmissingDocs/:productId', checkAdminAuth, validateMissingDoc, isValidated, request.ProductmissingDocs);
+router.put(
+  '/ProductmissingDocs/:productId',
+  checkAdminAuth,
+  validateMissingDoc,
+  isValidated,
+  request.ProductmissingDocs
+);
 router.put('/validateRequest/:requestId', checkAdminAuth, request.validateRequest);
-router.put('/ProductdocumentsUpload/:productId', upload.single('file'), checkAdminAuth, request.ProductdocumentsUpload);
+router.put(
+  '/ProductdocumentsUpload/:productId',
+  upload.single('file'),
+  checkAdminAuth,
+  request.ProductdocumentsUpload
+);
 // Export
 module.exports = router;
