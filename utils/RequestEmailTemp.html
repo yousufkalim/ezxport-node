@@ -1,360 +1,257 @@
-<body style="margin: 0; padding: 0">
-  <table role="presentation" style="width: 100%; border-collapse: collapse; border: 0; border-spacing: 0; background: #ffffff">
-      <tr>
-          <td align="center" style="padding: 0">
-              <table role="presentation" style="width: 800px; border-collapse: collapse; border: 1px solid #cccccc; border-spacing: 0; text-align: left">
-                  <tr>
-                      <td align="center" style="padding: 20px 5px 10px 5px; background: rgba(206, 197, 237, 0.1)">
-                          <span style="
-    color: #7F56D9;
-    font-size: 42px;
-    font-family: fantasy;
-    letter-spacing: 0;
-    line-height: 42px;
-    text-align: left;
-  ">
-    Ezxport.
-  </span>
-  <h2 style="font-family: Verdana; color: #7F56D9>Certification Request</h2>
-  <h4 style=" font-family: Verdana; color: #7F56D9 ">Details of request are below:</h4>
-</td>
-</tr>
-<tr>
-<td 
-align="center "
-style="background: rgba(206, 197, 237,0.3) ">
-<table 
-style=" width: 100%; text-align: center; border-collapse: collapse; ">
-<thead>
-  <tr
-   style=" border-top: 1px solid #78858e; border-bottom: 1px solid #78858e; ">
-    <th style="text-align:center; border-right: 1px solid black; " scope="col ">#</th>
-    <th style="text-align:center; border-right: 1px solid black; " scope="col ">User</th>
-    <th style="text-align:center; border-right: 1px solid black; " scope="col ">Vender</th>
-    <th style="text-align:center; border-right: 1px solid black; " scope="col ">Seller</th>
-    <th style="text-align:center; border-right: none; "            scope="col ">Buyer</th>
-  </tr>
-</thead>
-<tbody>
-<tr 
- style=" border-top: 1px solid #78858e; border-bottom: 1px solid #78858e; ">
-<th 
-style=" text-align:center; border-right: 1px solid black; ">Email</th>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title></title>
+    <style type="text/css" rel="stylesheet" media="all">
+      /* Base ------------------------------ */
 
-<td 
-style="text-align:center; border-right: 1px solid black; ">${request.user.email}</td>
-${
-request.vendor.contact_email
-  ? `<td 
-style=
-"text-align:center; border-right: 1px solid black; ">${request.vendor.contact_email}</td>`
-  : `<td style="text-align:center; border-right: 1px solid black; ">---------</td>`
-}      
-<td style="text-align:center; border-right: 1px solid black; ">${request.seller.email}  </td>
-<td style="text-align:center; border-right: none; ">${request.buyer.email}  </td>
-</tr
-<tr style=" border-top: 1px solid #78858e; border-bottom: 1px solid #78858e; ">
-<th style="text-align:center; border-right: 1px solid black; ">Phone Number</th>
-<td style="text-align:center; border-right: 1px solid black; ">${request.user.phone_number}  </td>
-<td style="text-align:center; border-right: 1px solid black; ">${request.user.phone_number}  </td>
-<td style="text-align:center; border-right: 1px solid black; ">${request.seller.phone_number}  </td>
-<td style="text-align:center; border-right: none; ">${request.buyer.phone_number}  </td>
-</tr>
-<tr style=" border-top: 1px solid #78858e; border-bottom: 1px solid #78858e; ">
-<th style="text-align:center; border-right: 1px solid black; ">Address</th>
-<td style="text-align:center; border-right: 1px solid black; ">${request.user.address}  </td>
-<td style="text-align:center; border-right: 1px solid black; ">${request.user.address}  </td>
-<td style="text-align:center; border-right: 1px solid black; ">${request.seller.address}  </td>
-<td style="text-align:center; border-right: none; ">${request.buyer.address}  </td>
-</tr>
-<tr style=" border-top: 1px solid #78858e; border-bottom: 1px solid #78858e; ">
-<th style="text-align:center; border-right: 1px solid black; ">City</th>
-<td style="text-align:center; border-right: 1px solid black; ">${request.user.city}  </td>
-<td style="text-align:center; border-right: 1px solid black; ">${request.user.city}  </td>
-<td style="text-align:center; border-right: 1px solid black; ">${request.seller.city}  </td>
-<td style="text-align:center; border-right: none; ">${request.buyer.city}  </td>
-</tr>
-<tr style=" border-top: 1px solid #78858e; border-bottom: 1px solid #78858e; ">
-<th style="text-align:center; border-right: 1px solid black; ">Company</th>
-<td style="text-align:center; border-right: 1px solid black; ">${request.user.company.name}  </td>
-<td style="text-align:center; border-right: 1px solid black; ">${request.user.company.name}  </td>
-<td style="text-align:center; border-right: 1px solid black; ">${request.seller.company_name}  </td>
-<td style="text-align:center; border-right: none; ">${request.buyer.company_name}  </td>
-</tr>
-</tbody>
-</table>
-</td>
-</tr>
-<tr>
-<td align="center " 
-style=" background: rgba(206, 197, 237, 0.1) ">
-  <p align="center " 
-  style=" color: #7F56D9; font-size: 24px; font-family: fantasy; margin:10px 0px 0px 0px; ">
-   Place of Inspection
-  </p>
-  <p align="center " 
-  style=
-  "color: #000; font-family: Verdana ">
- <span 
- style=" color: #7F56D9; font-size: 18px; font-family: fantasy; "
- > Inspection Date:</span> 
-   ${new Date(request.inspection_date)}
-  </p>
-<table  
-style="width: 100%; text-align: center; border-collapse: collapse; background: rgba(206, 197, 237, 0.3) ">
-<thead>
-  <tr style=
-  "border-top: 1px solid #78858e; border-bottom: 1px solid #78858e; ">
-    <th style="text-align:center;border-right: 1px solid black; border-right: 1px solid black; " scope="col ">Company Name</th>
-    <th style="text-align:center;border-right: 1px solid black; border-right: 1px solid black; " scope="col ">Email</th>
-    <th style="text-align:center;border-right: 1px solid black; border-right: 1px solid black; " scope="col ">Phone</th>
-    <th style="text-align:center;border-right: 1px solid black; border-right: 1px solid black; " scope="col ">Address</th>
-    <th style="text-align:center;border-right: 1px solid black; border-right: 1px solid black; " scope="col ">City</th>
-    <th style="text-align:center;border-right: 1px solid black; border-right:none; " scope="col ">Zip Code</th>
+      @import url('https://fonts.googleapis.com/css2?family=Inter&family=Mulish:ital@1&family=Raleway:wght@700&display=swap');
+
+     
+      /* Body ------------------------------ */
+
+     
+    </style>
+  </head>
+  <body style="margin: 0; padding: 0">
+    <table role="presentation" style="width: 100%; border-collapse: collapse; border: 0; border-spacing: 0; background: #ffffff">
+        <tr>
+            <td align="center" style="padding: 0">
+                <table role="presentation" style="width: 800px; border-collapse: collapse; border: 1px solid #cccccc; border-spacing: 0; text-align: left">
+                    <tr>
+                        <td align="center" style="padding: 20px 5px 10px 5px; background: rgba(206, 197, 237, 0.1)">
+                            <span style="
+      color: #7F56D9;
+      font-size: 42px;
+      font-family: 'Inter';
+      letter-spacing: 0;
+      line-height: 30px;
+      text-align: left;
+    ">
+      Ezxport.
+    </span>
+    <div style="font-family: 'Inter'; color: #7F56D9; padding-block: 10px; font-size: 24px; font-weight: bold">Certification Request</div>
+    <div style=" font-family: 'Inter'; color: #7F56D9;font-size: 20px; font-weight: bold ">Details of request are below:</div>
+  </td>
   </tr>
-</thead>
-<tbody>
-<tr
-border-top: 1px solid #78858e;
-border-bottom: 1px solid #78858e;>
-<td style="text-align:center; border-right: 1px solid black; ">${request.place.company_name}  </td>  
-<td style="text-align:center; border-right: 1px solid black; ">${request.place.email}  </td>
-<td style="text-align:center; border-right: 1px solid black; ">${request.place.phone_number}  </td>
-<td style="text-align:center; border-right: 1px solid black; ">${request.place.address}  </td>
-<td style="text-align:center; border-right: 1px solid black; ">${request.place.city}  </td>
-<td style="text-align:center; border-right: none; ">${request.place.zipcode}  </td>
-</tr> 
-</tbody>
-</table>
-</td>
-</tr>
-<tr>
-<td align="center " 
-style="padding: 10px 0px 10px 0px; background: rgba(206, 197, 237, 0.1) ">
-  <p align="center " 
-  style=" color: #7F56D9; font-size: 20px; font-family: fantasy; ">
-   Products Detail
-  </p>
-  ${request.codes
-    .map(
-      (e) =>
-        `
-        <p align="center " style="margin:0 ">
-      <span style= "color: #7F56D9; font-family: fantasy; ">Code:</span> ${e.code.code}
-      </p>
-      <p align="center " style="margin:0 ">
-      <span style="color: #7F56D9; font-family: fantasy; ">Certificartion Required:</span>${e.code.certification_required}
-      </p>
-      <p align="center " style="margin:0 ">
-      <span style="color: #7F56D9; font-family: fantasy; ">Monetory Value:</span>${e.monetary_value}
-      </p>
-      
-${e.products
-  .map(
-    (p) =>
-      `
   <tr>
-      <td align="center ">
-<table  
-style="width: 100%; text-align: center; border-collapse: collapse; background: rgba(206, 197, 237, 0.3) ">
-<thead>
-  <tr style=
-  "border-top: 1px solid #78858e; border-bottom: 1px solid #78858e; ">
-    <th style="text-align:center;border-right: 1px solid black; border-right: 1px solid black; " scope="col ">Name</th>
-    <th style="text-align:center;border-right: 1px solid black; border-right: 1px solid black; " scope="col ">Amount</th>
-    <th style="text-align:center;border-right: 1px solid black; border-right: 1px solid black; " scope="col ">condition</th>
-    <th style="text-align:center;border-right: 1px solid black; border-right: 1px solid black; " scope="col ">Price</th>
-    <th style="text-align:center;border-right: 1px solid black; border-right: 1px solid black; " scope="col ">Mark</th>
-    <th style="text-align:center;border-right: 1px solid black; border-right:none; " scope="col ">Builder</th>
-  </tr>
-</thead>
+  <td 
+  align="center "
+  style="background: rgba(206, 197, 237,0.3) ">
+  <table 
+  style=" width: 100%; text-align: center; border-collapse: collapse; ">
+  <thead>
+    <tr
+     style=" border-top: 1px solid #78858e; border-bottom: 1px solid #78858e; ">
+      <th style="text-align:center; border-right: 1px solid black; " scope="col ">#</th>
+      <th style="text-align:center; border-right: 1px solid black; " scope="col ">User</th>
+      <th style="text-align:center; border-right: 1px solid black; " scope="col ">Seller</th>
+      <th style="text-align:center; border-right: none; "            scope="col ">Buyer</th>
+    </tr>
+  </thead>
   <tbody>
-     <tr>
-<td style="text-align:center; border-right: 1px solid black; ">${p.name}  </td>  
-<td style="text-align:center; border-right: 1px solid black; ">${p.amount}  </td>
-<td style="text-align:center; border-right: 1px solid black; ">${p.condition}  </td>
-<td style="text-align:center; border-right: 1px solid black; ">${p.price.value}${p.price.currency}  </td>
-<td style="text-align:center; border-right: 1px solid black; ">${p.mark}  </td>
-<td style="text-align:center; border-right: none; ">${p.builder}  </td>
-</tr>
-</tbody>
-</table>
-</td>
-</tr>
-${
-p.technical_sheet &&
-`
-<tr>
-      <td align="center ">
-<table  
-style="width: 100%; text-align: center; border-collapse: collapse; ">
-<thead>
-  <tr style=
-  "border-top: 1px solid #78858e; border-bottom: 1px solid #78858e; ">
-    <th style="text-align:center;color: #7F56D9;  font-family: fantasy; font-size:16px;  background: rgba(206, 197, 237, 0.1) " scope="col ">Technical Sheets</th>
+  <tr 
+   style=" border-top: 1px solid #78858e; border-bottom: 1px solid #78858e; ">
+  <th 
+  style=" text-align:center; border-right: 1px solid black; ">Email</th>
+  
+  <td 
+  style="text-align:center; border-right: 1px solid black; ">{{user_email}}</td>
+  <td style="text-align:center; border-right: 1px solid black; ">{{seller_email}}  </td>
+  <td style="text-align:center; border-right: none; ">{{buyer_email}}  </td>
+  </tr
+  <tr style=" border-top: 1px solid #78858e; border-bottom: 1px solid #78858e; ">
+  <th style="text-align:center; border-right: 1px solid black; ">Phone Number</th>
+  <td style="text-align:center; border-right: 1px solid black; ">{{user_phone_number}}  </td>
+  <td style="text-align:center; border-right: 1px solid black; ">{{seller_phone_number}}  </td>
+  <td style="text-align:center; border-right: none; ">{{buyer_phone_number}}  </td>
   </tr>
-</thead>
-<tbody>
-${p.technical_sheet.url
-  .map(
-    (e) =>
-      `
-      <tr>
-<td style="text-align:center; background: rgba(206, 197, 237, 0.3)"> ${process.env.SERVER_URL}${e} </td>  
-</tr>
-  `
-  )
-  .join('')} `
-}
-
-${
-p.analysis_certificate &&
-`
-<tr>
-      <td align="center ">
-<table  
-style="width: 100%; text-align: center; border-collapse: collapse; ">
-<thead>
-  <tr style=
-  "border-top: 1px solid #78858e; border-bottom: 1px solid #78858e; ">
-    <th style="text-align:center; color: #7F56D9;  font-family: fantasy; font-size:16px;  background: rgba(206, 197, 237, 0.1)" scope="col ">Analysis Certificates</th>
+  <tr style=" border-top: 1px solid #78858e; border-bottom: 1px solid #78858e; ">
+  <th style="text-align:center; border-right: 1px solid black; ">Address</th>
+  <td style="text-align:center; border-right: 1px solid black; ">{{user_address}}  </td>
+  <td style="text-align:center; border-right: 1px solid black; ">{{seller_address}}  </td>
+  <td style="text-align:center; border-right: none; ">{{buyer_address}}  </td>
+  <tr style=" border-top: 1px solid #78858e; border-bottom: 1px solid #78858e; ">
+  <th style="text-align:center; border-right: 1px solid black; ">Town</th>
+  <td style="text-align:center; border-right: 1px solid black; ">{{user_city}}  </td>
+  <td style="text-align:center; border-right: 1px solid black; ">{{seller_city}}  </td>
+  <td style="text-align:center; border-right: none; ">{{buyer_city}}  </td>
   </tr>
-</thead>
-<tbody>
-${p.analysis_certificate.url
-  .map(
-    (e) =>
-      `
-      <tr>
-<td style="text-align:center;  background: rgba(206, 197, 237, 0.2) "> ${process.env.SERVER_URL}${e} </td>  
-</tr>
-  `
-  )
-  .join('')} `
-}
-
-${
-p.plan &&
-`
-<tr>
-      <td align="center ">
-<table  
-style="width: 100%; text-align: center; border-collapse: collapse;  ">
-<thead>
-  <tr style=
-  "border-top: 1px solid #78858e; border-bottom: 1px solid #78858e; ">
-    <th style="text-align:center; color: #7F56D9;  font-family: fantasy;  font-size:16px;  background: rgba(206, 197, 237, 0.1)" scope="col ">Plans</th>
+  <tr style=" border-top: 1px solid #78858e; border-bottom: 1px solid #78858e; ">
+  <th style="text-align:center; border-right: 1px solid black; ">Company</th>
+  <td style="text-align:center; border-right: 1px solid black; ">{{user_company_name}}  </td>
+  <td style="text-align:center; border-right: 1px solid black; ">{{seller_company_name}}  </td>
+  <td style="text-align:center; border-right: none; ">{{buyer_company_name}}  </td>
   </tr>
-</thead>
-<tbody>
-${p.plan.url
-  .map(
-    (e) =>
-      `
-      <tr>
-<td style="text-align:center; background: rgba(206, 197, 237, 0.3)"> ${process.env.SERVER_URL}${e} </td>  
-</tr>
-  `
-  )
-  .join('')} `
-}
-${
-p.other_docs &&
-`
-<tr>
-      <td align="center ">
-<table  
-style="width: 100%; text-align: center; border-collapse: collapse;  ">
-<thead>
-  <tr style=
-  "border-top: 1px solid #78858e; border-bottom: 1px solid #78858e; ">
-    <th style="text-align:center;  color: #7F56D9;  font-family: fantasy;  font-size:16px;  background: rgba(206, 197, 237, 0.1)" scope="col ">Other Docs</th>
+  </tbody>
+  </table>
+  </td>
   </tr>
-</thead>
-<tbody>
-${p.other_docs.url
-  .map(
-    (e) =>
-      `
-      <tr>
-<td style="text-align:center; background: rgba(206, 197, 237, 0.2) "> ${process.env.SERVER_URL}${e} </td>  
-</tr>
-  `
-  )
-  .join('')} `
-}
-${
-p.test_report &&
-`
-<tr>
-      <td align="center ">
-<table  
-style="width: 100%; text-align: center; border-collapse: collapse;  ">
-<thead>
-  <tr style=
-  "border-top: 1px solid #78858e; border-bottom: 1px solid #78858e; ">
-    <th style="text-align:center; color: #7F56D9;  font-family: fantasy;  font-size:16px;  background: rgba(206, 197, 237, 0.1)" scope="col ">Test Reports</th>
-  </tr>
-</thead>
-<tbody>
-${p.test_report.url
-  .map(
-    (e) =>
-      `
-      <tr>
-<td style="text-align:center ;background: rgba(206, 197, 237, 0.3) "> ${process.env.SERVER_URL}${e} </td>  
-</tr>
-  `
-  )
-  .join('')} `
-}
-</tbody>
-`
-  )
-  .join('')}
-`
-    )
-    .join('')}
-</td>
-</tr>
-<tr>
-<td align="center " 
-style=" background: rgba(206, 197, 237, 0.1) ">
-<p align="center " 
-style=" color: #7F56D9; font-size: 24px; font-family: fantasy; margin:10px 0px 0px 0px; ">
- Documents Detail
-</p>
-</td>
-</tr> 
-${request.documents
-  .map(
-    (item) =>
-      `
-      <div style=" background: rgba(206, 197, 237, 0.1)">
-      <p align="center " style="color: #000; font-family: Verdana; margin:0 ">
-    <span style= "color: #7F56D9; font-family: fantasy; "> Document Name:</span>${item.doc_id.name}
-    </p>
-    <p align="center " style="color: #000; font-family: Verdana; margin:0 ">
-    <span style= "color: #7F56D9; font-family: fantasy; ">Document Name:</span>${item.doc_id.info}
-    </p>
-    <p align="center " style="color: #000; font-family: Verdana; margin:0 ">
-    <span style= "color: #7F56D9; font-family: fantasy; ">Document Link:</span>
-    </p>
+  <tr>
+  <td align="center " 
+  style=" background: rgba(206, 197, 237, 0.1) ">
+    <div align="center " 
+    style=" color: #7F56D9; font-size: 24px; font-family: 'Inter'; margin:10px 0px 0px 0px; ">
+     Place of Inspection
     </div>
-    ${item.url
-      .map(
-        (e) =>
-          `
-          <p align="center "style="color: #000; font-family: Verdana; ; text-align:center !important;
-          border-bottom: 1px solid black;background: rgba(206, 197, 237, 0.3)
-          ">
-          ${process.env.BASE_URL}${e}
-          </p>
-    `
-      )
-      .join('')}`
-  )
-  .join('')}
-
-</table>
-</body>
+    <div align="center " 
+    style=
+    "color: #000; font-family: 'Inter'; padding-block: 10px; ">
+   <span 
+   style=" color: #7F56D9; font-size: 18px; font-family: 'Inter'; "
+   > Inspection Date:</span> 
+     {{inspection_date}}
+    </div>
+  <table  
+  style="width: 100%; text-align: center; border-collapse: collapse; background: rgba(206, 197, 237, 0.3) ">
+  <thead>
+    <tr style=
+    "border-top: 1px solid #78858e; border-bottom: 1px solid #78858e; ">
+      <th style="text-align:center;border-right: 1px solid black; border-right: 1px solid black; " scope="col ">Company Name</th>
+      <th style="text-align:center;border-right: 1px solid black; border-right: 1px solid black; " scope="col ">Email</th>
+      <th style="text-align:center;border-right: 1px solid black; border-right: 1px solid black; " scope="col ">Phone</th>
+      <th style="text-align:center;border-right: 1px solid black; border-right: 1px solid black; " scope="col ">Address</th>
+      <th style="text-align:center;border-right: 1px solid black; border-right: 1px solid black; " scope="col ">Town</th>
+      <th style="text-align:center;border-right: 1px solid black; border-right:none; " scope="col ">Zip Code</th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr
+  border-top: 1px solid #78858e;
+  border-bottom: 1px solid #78858e;>
+  <td style="text-align:center; border-right: 1px solid black; ">{{place_company_name}}  </td>  
+  <td style="text-align:center; border-right: 1px solid black; ">{{place_email}}  </td>
+  <td style="text-align:center; border-right: 1px solid black; ">{{place_phone_number}}  </td>
+  <td style="text-align:center; border-right: 1px solid black; ">{{place_address}}  </td>
+  <td style="text-align:center; border-right: 1px solid black; ">{{place_city}}  </td>
+  <td style="text-align:center; border-right: none; ">{{place_zipcode}}  </td>
+  </tr> 
+  </tbody>
+  </table>
+  </td>
+  </tr>
+  <tr>
+  <td align="center " 
+  style="padding: 10px 0px 10px 0px; background: rgba(206, 197, 237, 0.1) ">
+    <div align="center " 
+    style=" color: #7F56D9; font-size: 20px; font-family: 'Inter'; ">
+     Products Detail
+    </div>
+    {{#codes}}
+          <div align="center " style="margin:0 ">
+        <span style= "color: #7F56D9; font-family: 'Inter'; ">Code:</span>{{code.code}}
+        </div>
+        <div align="center " style="margin:0; padding-block: 10px; ">
+        <span style="color: #7F56D9; font-family: 'Inter'; ">Certificartion Required:</span>{{code.certification_required}}
+        </div>
+        <div align="center " style="margin:0 ">
+        <span style="color: #7F56D9; font-family: 'Inter'; ">Monetory Value:</span>{{monetary_value}}
+        </div>  
+  {{#products}}
+    <tr>
+        <td align="center ">
+  <table  
+  style="width: 100%; text-align: center; border-collapse: collapse; background: rgba(206, 197, 237, 0.3) ">
+  <thead>
+    <tr style=
+    "border-top: 1px solid #78858e; border-bottom: 1px solid #78858e; ">
+      <th style="text-align:center;border-right: 1px solid black; border-right: 1px solid black; " scope="col ">Name</th>
+      <th style="text-align:center;border-right: 1px solid black; border-right: 1px solid black; " scope="col ">Amount</th>
+      <th style="text-align:center;border-right: 1px solid black; border-right: 1px solid black; " scope="col ">condition</th>
+      <th style="text-align:center;border-right: 1px solid black; border-right: 1px solid black; " scope="col ">Price</th>
+      <th style="text-align:center;border-right: 1px solid black; border-right: 1px solid black; " scope="col ">Mark</th>
+      <th style="text-align:center;border-right: 1px solid black; border-right:none; " scope="col ">Builder</th>
+    </tr>
+  </thead>
+    <tbody>
+       <tr>
+  <td style="text-align:center; border-right: 1px solid black; ">{{name}}  </td>  
+  <td style="text-align:center; border-right: 1px solid black; ">{{amount}}  </td>
+  <td style="text-align:center; border-right: 1px solid black; ">{{condition}}  </td>
+  <td style="text-align:center; border-right: 1px solid black; ">{{price.value}}-{{price.currency}}  </td>
+  <td style="text-align:center; border-right: 1px solid black; ">{{mark}}  </td>
+  <td style="text-align:center; border-right: none; ">{{builder}}  </td>
+  </tr>
+  </tbody>
+  </table>
+  </td>
+  </tr>
+  </td>
+  </tr>
+    {{# technical_sheet.files}}
+          <tr>
+     <td style="text-align:center ;background: rgba(206, 197, 237, 0.1), padding-top: 10px; ">
+      <span style="color: #7F56D9; font-family: 'Inter';" >
+        Technical Sheet-{{filename}}:
+      </span>
+      {{url}} </td>  
+      </tr>
+    {{/technical_sheet.files}}
+    {{# test_report.files}}
+          <tr>
+     <td style="text-align:center ;background: rgba(206, 197, 237, 0.1) ">
+      <span style="color: #7F56D9;  font-family: 'Inter';" >
+        Test Report-{{filename}}:
+      </span>
+      {{url}} </td>  
+      </tr>
+    {{/test_report.files}}
+    {{# analysis_certificate.files}}
+          <tr>
+     <td style="text-align:center ;background: rgba(206, 197, 237, 0.1) ">
+      <span style="color: #7F56D9;  font-family: 'Inter';" >
+       Analysis Certificate-{{filename}}:
+      </span>
+      {{url}} </td>  
+      </tr>
+    {{/analysis_certificate.files}}
+    {{# plan.files}}
+          <tr>
+     <td style="text-align:center ;background: rgba(206, 197, 237, 0.1) ">
+      <span style="color: #7F56D9;  font-family: 'Inter';" >
+       Plan-{{filename}}:
+      </span>
+      {{url}} </td>  
+      </tr>
+    {{/plan.files}}
+    {{# other_docs.files}}
+          <tr>
+     <td style="text-align:center ;background: rgba(206, 197, 237, 0.1) ">
+      <span style="color: #7F56D9;  font-family: 'Inter'; padding-bottom: 10px;" >
+        Other Docs-{{filename}}:
+      </span>
+      {{url}} </td>  
+      </tr>
+    {{/other_docs.files}}
+  {{/products }}
+  {{/codes }}
+  <tr>
+  <td align="center " 
+  style=" background: rgba(206, 197, 237, 0.1) ">
+  <p align="center " 
+  style=" color: #7F56D9; font-size: 24px; font-family: 'Inter'; margin:10px 0px 0px 0px; ">
+   Documents Detail
+  </p>
+  {{#documents}}
+        <div >
+        <p align="center " style="color: #000; font-family: 'Inter'; margin:0 ">
+      <span style= "color: #7F56D9; font-family: 'Inter'; padding-bottom: 15px; "> Document Name:</span>{{doc_id.name}}
+      </p>
+      </div>
+      {{#files}}
+            <div align="center "style="color: #000; font-family: 'Inter'; ; text-align:center !important;
+            ">
+            <span style="color: #7F56D9;  font-family: 'Inter';" >
+            {{filename}}:
+            </span>
+           {{url}}
+            </p>
+        {{/files}}
+        {{/documents}}
+      </td>
+    </tr>   
+  </table>
+  </body>
+</html>

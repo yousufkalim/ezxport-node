@@ -20,8 +20,8 @@ exports.sendEmail = (email, password) => {
       service: 'gmail',
       auth: {
         user: sender_email,
-        pass: sender_password,
-      },
+        pass: sender_password
+      }
     });
 
     // Send email options
@@ -29,7 +29,7 @@ exports.sendEmail = (email, password) => {
       from: `${sender_name} <${sender_email}>`,
       to: email,
       subject: 'To Change your Password,Please click the link below',
-      text: password,
+      text: password
     };
 
     // Sending email
@@ -51,15 +51,15 @@ exports.sendEmail = (email, password) => {
  * @param {string} password
  * @return {void}
  */
-exports.sendQuestion = (pram) => {
+exports.sendQuestion = pram => {
   return new Promise((resolve, reject) => {
     // Sender mail server config
     var transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
         user: sender_email,
-        pass: sender_password,
-      },
+        pass: sender_password
+      }
     });
 
     // Send email options
@@ -67,7 +67,7 @@ exports.sendQuestion = (pram) => {
       from: `${sender_name} <${sender_email}>`,
       to: pram.email,
       subject: 'Question  Request',
-      html: emailTemplate(pram),
+      html: emailTemplate(pram)
     };
 
     // Sending email
@@ -83,7 +83,7 @@ exports.sendQuestion = (pram) => {
   });
 };
 
-const emailTemplate = (pram) => {
+const emailTemplate = pram => {
   return `
 <body style="margin: 0; padding: 0">
     <table role="presentation" style="width: 100%; border-collapse: collapse; border: 0; border-spacing: 0; background: #ffffff">
