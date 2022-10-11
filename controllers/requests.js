@@ -1467,8 +1467,19 @@ const SaveFile = async files => {
 
 //cron-job that will run after every 10days to delete requests with draft sttaus
 cron.schedule('0 5 */10 * *', async () => {
-  await Request.deleteMany({
+  const requests = await Request.deleteMany({
     status: 'Draft'
+  });
+  const requestIds = requests.map(e => {
+    return e._id;
+  });
+  await Users.update(
+    { requests: { $in: requestIds } },
+    { $pull: { requests: { $in: requestIds } } },
+    { multi: true }
+  );
+  await Products.deleteMany({
+    request: { $in: requestIds }
   });
 });
 
