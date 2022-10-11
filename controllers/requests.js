@@ -1047,7 +1047,7 @@ exports.Checkout = async (req, res, next) => {
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'], // => A list of the types of payment methods (e.g., card)
       line_items: lineItems, // => A list of items the customer is purchasing. For payment mode, there is a maximum of 100 line items
-      locale: 'fr', // => The IETF language tag of the locale Checkout is displayed in.
+      locale: 'auto', // => The IETF language tag of the locale Checkout is displayed in.
       mode: 'payment', // => The mode of the Checkout Session. Possible type: payment, setup and subscription
       success_url: `${process.env.CLIENT_URL}/`, // => The URL the customer will be directed to if they decide to cancel payment and return to your website. example http://localhost:3001/home?success
       cancel_url: `${process.env.CLIENT_URL}/User/Dashboard/Providers`, // => The URL to which Stripe should send customers when payment or setup is complete. If you’d like to use information from the successful Checkout Session on your page. example http://localhost:3001/not_home?reject
@@ -1082,11 +1082,13 @@ exports.Webhook = async (req, res) => {
         const session = event.data.object;
         const metaData = session.metadata;
         const request = metaData.id;
-        const findReq = await Request.findById(request);
+        const findReq = await Request.findById(request).populate('country');
         if (!findReq) return res.json({ success: false, message: 'RequestId is invalid' });
         findReq.status = 'Being checked by an expert';
         findReq.request_method = 'platform';
-        findReq.certification_cost.value = metaData.unit_amount / 100; //As meta data amount in cents this will convert it into dollar
+        if (findReq.country.name === 'France') {
+          findReq.certification_cost.value = metaData.unit_amount / 100; //As meta data amount in cents this will convert it into dollar
+        }
         await findReq.save();
       }
       break;
@@ -1482,7 +1484,6 @@ cron.schedule('0 5 */10 * *', async () => {
     request: { $in: requestIds }
   });
 });
-
 //Creating Naming Convention
 //Credit goes to Muhammad Ali Hashmi(React Native)
 function findVal(obj, keyToFind) {
