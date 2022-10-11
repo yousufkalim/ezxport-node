@@ -3,6 +3,7 @@
  * @author Shuja Naqvi
  */
 const fs = require('fs');
+const fetch = require('node-fetch-commonjs');
 const Documents = require('../models/Documents');
 const Product = require('../models/Products');
 const Country = require('../models/Countries');
@@ -481,7 +482,7 @@ exports.Documents = async (req, res) => {
 exports.sendEmail = async (req, res) => {
   try {
     const requestId = req.params.requestId;
-    let findReq = await Request.findById(requestId)
+    let request = await Request.findById(requestId)
       .populate('user')
       .populate('country')
       .populate('missing_docs')
@@ -494,19 +495,23 @@ exports.sendEmail = async (req, res) => {
       .populate('place')
       .populate('buyer')
       .populate('seller')
+      .populate({
+        path: 'codes.products'
+      })
       .populate('codes.code')
-      .populate('codes.products')
       .populate({
         path: 'documents',
         populate: {
           path: 'doc_id'
         }
       });
-    await sendRequestEmail(findReq);
-    findReq.status = 'Sent';
-    findReq.request_method = 'direct';
-    await findReq.save();
-    return res.json({ success: true, message: 'Email has been sent to vendor' });
+    let request1 = { ...JSON.parse(JSON.stringify(request)) };
+    findVal(request1, 'url');
+    await sendRequestEmail(request1);
+    request.status = 'Sent';
+    request.request_method = 'direct';
+    await request.save();
+    return res.json({ success: true, message: 'Email has been sent to vendor', request1 });
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
