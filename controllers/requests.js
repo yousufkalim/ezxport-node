@@ -210,24 +210,27 @@ exports.calculateCost = async (req, res) => {
         const coefficientMultiple = (+existingCountry.calculation.coefficient * value) / 100;
 
         if (coefficientMultiple < existingCountry.calculation.min_cost.value) {
+          const certification_cost = +existingCountry.calculation.min_cost.value + 50;
           return res.json({
             success: true,
             status: 'Required',
-            certification_cost: existingCountry.calculation.min_cost.value,
+            certification_cost: certification_cost,
             country: existingCountry.name
           }); //Success
         } else if (coefficientMultiple > existingCountry.calculation.max_cost.value) {
+          const certification_cost = +existingCountry.calculation.max_cost.value + 50;
           return res.json({
             success: true,
             status: 'Required',
-            certification_cost: existingCountry.calculation.max_cost.value,
+            certification_cost: certification_cost,
             country: existingCountry.name
           }); //Success
         } else {
+          const certification_cost = +coefficientMultiple + 50;
           return res.json({
             success: true,
             status: 'Required',
-            certification_cost: coefficientMultiple,
+            certification_cost: certification_cost,
             country: existingCountry.name
           }); //Success
         }
@@ -237,10 +240,11 @@ exports.calculateCost = async (req, res) => {
             existingCountry.calculation.range[i].min <= value &&
             value <= existingCountry.calculation.range[i].max
           ) {
+            const certification_cost = +existingCountry.calculation.range[i].certificate_cost + 50;
             return res.json({
               success: true,
               status: 'Required',
-              certification_cost: existingCountry.calculation.range[i].certificate_cost,
+              certification_cost: certification_cost,
               country: existingCountry.name
             }); //Success
           }
@@ -261,17 +265,19 @@ exports.calculateCost = async (req, res) => {
           }
         }
         if (value < tempMin) {
+          const certification_cost = +minObj.certificate_cost + 50;
           return res.json({
             success: true,
             status: 'Required',
-            certification_cost: minObj.certificate_cost,
+            certification_cost: certification_cost,
             country: existingCountry.name
           }); //Success
         } else if (value > tempMax) {
+          const certification_cost = +maxObj.certificate_cost + 50;
           return res.json({
             success: true,
             status: 'Required',
-            certification_cost: maxObj.certificate_cost,
+            certification_cost: certification_cost,
             country: existingCountry.name
           }); //Success
         }
@@ -1086,9 +1092,7 @@ exports.Webhook = async (req, res) => {
         if (!findReq) return res.json({ success: false, message: 'RequestId is invalid' });
         findReq.status = 'Being checked by an expert';
         findReq.request_method = 'platform';
-        if (findReq.country.name === 'France') {
-          findReq.certification_cost.value = metaData.unit_amount / 100; //As meta data amount in cents this will convert it into dollar
-        }
+        findReq.certification_cost.value = metaData.unit_amount / 100; //As meta data amount in cents this will convert it into dollar
         await findReq.save();
       }
       break;
