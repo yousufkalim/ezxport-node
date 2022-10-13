@@ -6,6 +6,8 @@
 .pnp.js
 /.vscode
 /uploads
+
+.shipit/config/env/prod.env
 # testing
 /coverage
 # cache
