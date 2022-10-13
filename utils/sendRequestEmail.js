@@ -33,6 +33,7 @@ exports.sendRequestEmail = request => {
     }
     //Accessing HTML :)
     const data = {
+      title: request.title,
       user_email: request.user.email,
       vendor_email: request?.vendor?.contact_email ? request?.vendor?.contact_email : '------',
       buyer_email: request.buyer.email,

@@ -32,7 +32,7 @@
     ">
       Ezxport.
     </span>
-    <div style="font-family: 'Inter'; color: #7F56D9; padding-block: 10px; font-size: 24px; font-weight: bold">Certification Request</div>
+    <div style="font-family: 'Inter'; color: #7F56D9; padding-block: 10px; font-size: 24px; font-weight: bold">Certification Request Title: {{title}}</div>
     <div style=" font-family: 'Inter'; color: #7F56D9;font-size: 20px; font-weight: bold ">Details of request are below:</div>
   </td>
   </tr>
@@ -159,6 +159,7 @@
         <span style="color: #7F56D9; font-family: 'Inter'; ">Monetory Value:</span>{{monetary_value}}
         </div>  
   {{#products}}
+  <tr>Hi</tr>
     <tr>
         <td align="center ">
   <table  
@@ -179,9 +180,9 @@
   <td style="text-align:center; border-right: 1px solid black; ">{{name}}  </td>  
   <td style="text-align:center; border-right: 1px solid black; ">{{amount}}  </td>
   <td style="text-align:center; border-right: 1px solid black; ">{{condition}}  </td>
-  <td style="text-align:center; border-right: 1px solid black; ">{{price.value}}-{{price.currency}}  </td>
-  <td style="text-align:center; border-right: 1px solid black; ">{{mark}}  </td>
-  <td style="text-align:center; border-right: none; ">{{builder}}  </td>
+  <td style="text-align:center; border-right: 1px solid black; ">{{price.value}}-{{price.currency}}</td>
+  <td style="text-align:center; border-right: 1px solid black; ">{{mark}}</td>
+  <td style="text-align:center; border-right: none; ">{{builder}}</td>
   </tr>
   </tbody>
   </table>
@@ -189,7 +190,7 @@
   </tr>
   </td>
   </tr>
-    {{# technical_sheet.files}}
+    {{#technical_sheet.files}}
           <tr>
      <td style="text-align:center ;background: rgba(206, 197, 237, 0.1); padding-top: 10px; ">
       <span style="color: #7F56D9; font-family: 'Inter';" >
@@ -198,7 +199,7 @@
       {{url}} </td>  
       </tr>
     {{/technical_sheet.files}}
-    {{# test_report.files}}
+    {{#test_report.files}}
           <tr>
      <td style="text-align:center ;background: rgba(206, 197, 237, 0.1) ">
       <span style="color: #7F56D9;  font-family: 'Inter';" >
@@ -207,7 +208,7 @@
       {{url}} </td>  
       </tr>
     {{/test_report.files}}
-    {{# analysis_certificate.files}}
+    {{#analysis_certificate.files}}
           <tr>
      <td style="text-align:center ;background: rgba(206, 197, 237, 0.1) ">
       <span style="color: #7F56D9;  font-family: 'Inter';" >
@@ -216,7 +217,7 @@
       {{url}} </td>  
       </tr>
     {{/analysis_certificate.files}}
-    {{# plan.files}}
+    {{#plan.files}}
           <tr>
      <td style="text-align:center ;background: rgba(206, 197, 237, 0.1) ">
       <span style="color: #7F56D9;  font-family: 'Inter';" >
@@ -225,7 +226,7 @@
       {{url}} </td>  
       </tr>
     {{/plan.files}}
-    {{# other_docs.files}}
+    {{#other_docs.files}}
           <tr>
      <td style="text-align:center ;background: rgba(206, 197, 237, 0.1) ">
       <span style="color: #7F56D9;  font-family: 'Inter'; padding-bottom: 10px;" >
@@ -234,8 +235,8 @@
       {{url}} </td>  
       </tr>
     {{/other_docs.files}}
-  {{/products }}
-  {{/codes }}
+  {{/products}}
+  {{/codes}}
   <tr>
   <td align="center " 
   style=" background: rgba(206, 197, 237, 0.1) ">
