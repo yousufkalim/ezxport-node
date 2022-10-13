@@ -41,8 +41,8 @@ exports.sendRequestEmail = request => {
       buyer_city: request.buyer.city,
       seller_city: request.seller.city,
       user_zip: request.user.zipcode,
-      buyer_zip: request.zipcode,
-      seller_zip: request.zipcode,
+      buyer_zip: request.buyer.zipcode,
+      seller_zip: request.seller.zipcode,
       user_address: request.user.address,
       buyer_address: request.buyer.address,
       seller_address: request.seller.address,
@@ -53,6 +53,10 @@ exports.sendRequestEmail = request => {
       seller_company_name: request.seller.company_name,
       buyer_company_name: request.buyer.company_name,
       inspection_date: moment(request.inspection_date).format('DD-MM-YYYY'),
+      place_fname:
+        request.place.contact_fname !== '' ? request.place.contact_fname : 'Not Provided',
+      place_lname:
+        request.place.contact_lname !== '' ? request.place.contact_lname : 'Not Provided',
       place_company_name: request.place.company_name,
       place_email: request.place.email,
       place_phone_number: request.place.phone_number,
