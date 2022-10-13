@@ -79,6 +79,11 @@
   <td style="text-align:center; border-right: 1px solid black; ">{{seller_city}}  </td>
   <td style="text-align:center; border-right: none; ">{{buyer_city}}  </td>
   </tr>
+  <th style="text-align:center; border-right: 1px solid black; ">Zip Code</th>
+  <td style="text-align:center; border-right: 1px solid black; ">{{user_zip}}  </td>
+  <td style="text-align:center; border-right: 1px solid black; ">{{seller_zip}}  </td>
+  <td style="text-align:center; border-right: none; ">{{buyer_zip}}  </td>
+  </tr>
   <tr style=" border-top: 1px solid #78858e; border-bottom: 1px solid #78858e; ">
   <th style="text-align:center; border-right: 1px solid black; ">Company</th>
   <td style="text-align:center; border-right: 1px solid black; ">{{user_company_name}}  </td>
@@ -109,6 +114,8 @@
   <thead>
     <tr style=
     "border-top: 1px solid #78858e; border-bottom: 1px solid #78858e; ">
+    <th style="text-align:center;border-right: 1px solid black; border-right: 1px solid black; " scope="col ">First Name</th>
+    <th style="text-align:center;border-right: 1px solid black; border-right: 1px solid black; " scope="col ">Last Name</th>
       <th style="text-align:center;border-right: 1px solid black; border-right: 1px solid black; " scope="col ">Company Name</th>
       <th style="text-align:center;border-right: 1px solid black; border-right: 1px solid black; " scope="col ">Email</th>
       <th style="text-align:center;border-right: 1px solid black; border-right: 1px solid black; " scope="col ">Phone</th>
@@ -121,6 +128,8 @@
   <tr
   border-top: 1px solid #78858e;
   border-bottom: 1px solid #78858e;>
+  <td style="text-align:center; border-right: 1px solid black; ">{{place_fname}}  </td>  
+  <td style="text-align:center; border-right: 1px solid black; ">{{place_lname}}  </td>  
   <td style="text-align:center; border-right: 1px solid black; ">{{place_company_name}}  </td>  
   <td style="text-align:center; border-right: 1px solid black; ">{{place_email}}  </td>
   <td style="text-align:center; border-right: 1px solid black; ">{{place_phone_number}}  </td>
@@ -182,7 +191,7 @@
   </tr>
     {{# technical_sheet.files}}
           <tr>
-     <td style="text-align:center ;background: rgba(206, 197, 237, 0.1), padding-top: 10px; ">
+     <td style="text-align:center ;background: rgba(206, 197, 237, 0.1); padding-top: 10px; ">
       <span style="color: #7F56D9; font-family: 'Inter';" >
         Technical Sheet-{{filename}}:
       </span>

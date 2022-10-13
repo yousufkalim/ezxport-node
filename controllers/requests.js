@@ -57,35 +57,27 @@ exports.createName = async (req, res) => {
     const Requests = await Request.find().sort({ createdAt: -1 });
     //Find Country Code from file
     const code = CountryNameCode.filter(e => e.name.toLowerCase() === country.name.toLowerCase());
-    if (Requests.length === 0) {
-      number = '000';
-    }
-    if (Requests.length > 0 && Requests.length < 9) {
-      number = '00' + (+Requests.length + +1);
-    }
-    if (Requests.length === 9) {
-      number = '010';
-    }
-    if (Requests.length > 9 && Requests.length < 99) {
-      number = '0' + (+Requests.length + +1);
-    }
-    if (Requests.length === 99) {
-      number = '100';
-    }
-    if (Requests.length > 99) {
-      number = Requests.length + 1;
+    if (Requests.length < 1) {
+      //if its 1st request
+      number = 00;
+    } else {
+      //This will get number in title of a last request exisiting in db :}
+      const numberLength = Requests[0].title.replace(/\D/g, '').length;
+      const tempNumber = Requests[0].title.substr(Requests[0].title.length - numberLength);
+      //Now this block will decide whether 0 need to include in title or not
+      //0 is for the requests from 00 to 08
+      if (tempNumber[0].includes('0') && tempNumber !== '09') {
+        //if number is from 00 to 08
+        const numberLength = Requests[0].title.replace(/\D/g, '').length;
+        number = '0' + (+Requests[0].title.substr(Requests[0].title.length - numberLength) + 1);
+      } else {
+        //if number is higher than 08
+        const numberLength = Requests[0].title.replace(/\D/g, '').length;
+        number = +Requests[0].title.substr(Requests[0].title.length - numberLength) + 1;
+      }
     }
 
     let name = existingUser.company.name + code[0].code + number;
-    name = name.replace(/\s*$/, '');
-    const exisitingRequest = await Request.findOne({ title: name });
-    if (exisitingRequest) {
-      let number = Requests[0].title.substr(Requests[0].title.length - 3);
-      number = +number + +1;
-      let name = existingUser.company.name + code[0].code + number;
-      name = name.replace(/\s*$/, '');
-      return res.json({ success: true, message: 'Request Title', title: name });
-    }
     return res.json({ success: true, message: 'Request Title', tile: name });
   } catch (err) {
     // Error handling
@@ -517,7 +509,7 @@ exports.sendEmail = async (req, res) => {
     request.status = 'Sent';
     request.request_method = 'direct';
     await request.save();
-    return res.json({ success: true, message: 'Email has been sent to vendor', request1 });
+    return res.json({ success: true, message: 'Email has been sent to vendor' });
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);

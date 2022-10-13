@@ -34,7 +34,7 @@ exports.getAll = async (req, res) => {
     res.json({ success: true, documents }); // Success
   } catch (err) {
     // Error handling
-    console.log('Error ----> ', err);
+    'Error ----> ', err;
     res.status(500).json({ success: false, message: 'Internal server error' });
   }
 };
