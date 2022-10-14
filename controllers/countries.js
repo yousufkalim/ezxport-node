@@ -33,17 +33,37 @@ exports.create = async (req, res) => {
  * @param {object} req
  * @param {object} res
  */
-exports.getAll = async (req, res) => {
+exports.getAllWithRelations = async (req, res) => {
   try {
     let result = [];
-    const countries = await Country.find().populate('boms').populate('documents').populate('vendors').populate('calculation'); // Success; // Finding all the Country from db
+    const countries = await Country.find()
+      .populate('boms')
+      .populate('documents')
+      .populate('vendors')
+      .populate('calculation'); // Success; // Finding all the Country from db
 
     for (i = 0; i < countries.length; i++) {
       let tempCountry = { ...countries[i]._doc };
-      tempCountry.boms = tempCountry.boms.filter((e) => e.admin_code === true);
+      tempCountry.boms = tempCountry.boms.filter(e => e.admin_code === true);
       result.push(tempCountry);
     }
     res.json({ success: true, countries: result });
+  } catch (err) {
+    // Error handling
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+/**
+ * Get all Country
+ * @param {object} req
+ * @param {object} res
+ */
+exports.getAll = async (req, res) => {
+  try {
+    const countries = await Country.find();
+    res.json({ success: true, countries });
   } catch (err) {
     // Error handling
     console.log('Error ----> ', err);
@@ -65,7 +85,7 @@ exports.getById = async (req, res) => {
       .populate('vendors')
       .populate('calculation'); // Finding country by id
     let tempCountry = { ...country._doc };
-    tempCountry.boms = tempCountry.boms.filter((e) => e.admin_code === true);
+    tempCountry.boms = tempCountry.boms.filter(e => e.admin_code === true);
     res.json({ success: true, country: tempCountry }); // Success
   } catch (err) {
     // Error handling

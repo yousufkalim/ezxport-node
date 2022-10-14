@@ -9,21 +9,22 @@ const bomSchema = new mongoose.Schema(
   {
     code: {
       type: String,
-      required: true,
+      required: true
     },
     admin_code: {
       type: Boolean,
       required: true,
+      index: true
     },
     certification_required: {
       type: Boolean,
       required: true,
-      default: true,
+      default: true
     },
-    countries: [{ type: mongoose.Schema.Types.ObjectId, ref: 'countries' }],
+    countries: [{ type: mongoose.Schema.Types.ObjectId, ref: 'countries', index: true }]
   },
   {
-    timestamps: true,
+    timestamps: true
   }
 );
 
