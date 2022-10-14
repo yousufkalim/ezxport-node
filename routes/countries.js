@@ -20,7 +20,9 @@ const { validateCountry, isValidated } = require('../middleware/validators');
 // Create - country Signup
 router.post('/', checkAdminAuth, validateCountry, isValidated, countries.create);
 // Read
-router.get('/', commonAuth, countries.getAll); // Get all countries at once
+router.get('/', commonAuth, countries.getAllWithRelations); // Get all countries at once
+router.get('/all', commonAuth, countries.getAll); // @TODO Refactore later
+
 router.get('/:countryId', checkAdminAuth, commonAuth, validateCountry, countries.getById); // Get one country by it's id
 
 // Update
