@@ -7,7 +7,7 @@
 /.vscode
 /uploads
 
-.shipit/config/env/prod.env
+.shipit/config/env/*.env
 # testing
 /coverage
 # cache

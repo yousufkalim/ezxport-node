@@ -8,7 +8,9 @@
     "dev": "nodemon index.js",
     "prepare": "husky install",
     "deploy": "shipit prod deploy --shipitfile .shipit/shipitfiles/backend.js",
-    "rollback": "shipit prod rollback --shipitfile .shipit/shipitfiles/backend.js"
+    "rollback": "shipit prod rollback --shipitfile .shipit/shipitfiles/backend.js",
+    "deploy-staging": "shipit staging deploy --shipitfile .shipit/shipitfiles/backend.js",
+    "rollback-staging": "shipit staging rollback --shipitfile .shipit/shipitfiles/backend.js"
   },
   "repository": {
     "type": "git",
