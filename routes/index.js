@@ -3,6 +3,9 @@
  * @author Yousuf Kalim
  */
 const router = require('express').Router();
+router.get('/', (req, res) => {
+  res.send('v1.0.0');
+});
 
 // Parent Routes
 router.use('/admins', require('./admins')); // All the user routes
