@@ -57,7 +57,6 @@ exports.validateUserUpdate = [
 
 //create country validation
 exports.validateQuestion = [
-  check('requestTitle', 'Request Title is required').notEmpty().trim(),
   check('question', 'Question is required').notEmpty().trim(),
   check('message', 'Message is required').notEmpty().trim()
 ];

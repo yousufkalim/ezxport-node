@@ -22,7 +22,7 @@ const { upload, Multerupload } = require('../middleware/multer');
 // Create - bom Signup
 router.post('/', checkAdminAuth, validateBoms, isValidated, bom.create);
 // Create - bom Signup
-router.post('/filterCodes', Multerupload.single('file'), userAuth, validateCountryID, isValidated, bom.filterCode);
+router.post('/filterCodes', Multerupload.single('file'),  bom.filterCode);
 // Create - bom Signup
 router.post('/uploadCodes', Multerupload.single('file'), checkAdminAuth, validateCountryID, isValidated, bom.uploadCodes);
 // Read
