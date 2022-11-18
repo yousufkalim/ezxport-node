@@ -1,0 +1,27 @@
+#Staging
+server {
+    listen 80;
+    listen [::]:80;
+
+    root /home/falcon/ezxport/staging/frontend/current;
+    index index.html index.htm index.nginx-debian.html;
+
+    server_name app-staging.ezxport.com;
+
+    location / {
+            try_files $uri /index.html;
+    }
+
+}
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name api-staging.ezxport.com;
+    client_max_body_size 100M;
+
+    location /
+    {
+        proxy_pass http://127.0.0.1:1044;
+    }
+}

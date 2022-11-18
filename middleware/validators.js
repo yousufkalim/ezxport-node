@@ -162,7 +162,7 @@ exports.ValidateDocuments = [
   check('codes.*.mark', 'mark required ').notEmpty().trim(),
   check('codes.*.builder', 'builder required ').notEmpty().trim(),
   check('codes.*.country', 'country required ').notEmpty().trim(),
-  check('codes.*.price', 'value required ').notEmpty().trim()
+  check('codes.*.price', 'price value required ').notEmpty().trim()
 ];
 exports.validateUploadDocuments = [check('doc_id', 'doc_id required').notEmpty().trim()];
 exports.validateStatusDocument = [
